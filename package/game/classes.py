@@ -9,8 +9,10 @@ from prep import tsl
 
 
 def confirm():
-    input("Input apa saja untuk melanjutkan : ")
-    
+    dash()
+    print("Input apa saja untuk melanjutkan")
+    dash()
+    input()
 
 
 def dash(n=36,r=False):
@@ -71,16 +73,19 @@ roles = [
 "warrior",
 "archer",
 "mage",
-"thief",
+"assassin",
 "hero",
-"bandit"
+"bandit",
+"cleric",
+"alchemist",
+"monk"
 ]
 
 special_shop = [
 "hero",
-"thief",
+"assassin",
 "bandit",
-"pirate"
+"alchemist"
 ]
 
 musuh = [
@@ -166,25 +171,34 @@ def get_loot(enemy):
 #============={{HERO}}===============
 class Hero:
     
-    def __init__(self,name=None,role=None,health=0,attack=0,defend=0,agility=0,crate=0,cdamage=0,coin=0,ctime=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),guard=False,inventory=[],reputation=0):
+    def __init__(self,name=None,role=None,health=1,attack=0,defend=0,crate=0,cdamage=0,strength=1,vitality=1,intelligence=1,agility=1,coin=0,ctime=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),guard=False,inventory=[],reputation=0):
         self.name = name
         self.role = role
-        self.health = health
+        
+        self.strength = strength
+        self.vitality = vitality
+        self.intelligence = intelligence
+        self.agility = agility
+        
+        self.health = int(health * (self.vitality * 0.5))
         self.attack = attack
         self.defend = defend
-        self.agility = agility
         self.crate = crate
         self.cdamage = cdamage
+        
         self.ctime = ctime
+        
         self.guard = guard
         self.inventory = inventory
         self.coin = coin
+        
         self.year = ctime[0:4]
         self.month = ctime[5:7]
         self.day = ctime[8:10]
         self.hour = ctime[11:13]
         self.minute = ctime[14:16]
         self.second = ctime[17:19]
+        
         if role == "hero":
             
             self.reputation = 100
@@ -201,28 +215,29 @@ class Hero:
     def __str__(self):
         
         print(f"""
-        =====CHAR INFO=====
-        Date created:
-            Year   : {self.year}
-            Month  : {self.month}
-            Day    : {self.day}
-            Hour   : {self.hour}
-            Minute : {self.minute}
-            Second : {self.second}
-            
-        Name = {self.name}
-        Class = {self.role}
-        HP = {self.health}
-        ATK = {self.attack}
-        DEF = {self.defend}
-        AGI = {self.agility}
-        CRIT RATE = {self.crate}%
-        CRIT DAMAGE = {int(self.cdamage*100)}%
+==================== DATA
+Date created:
+    Year   : {self.year}
+    Month  : {self.month}
+    Day    : {self.day}
+    Hour   : {self.hour}
+    Minute : {self.minute}
+    Second : {self.second}
+==================== PROFILE         
+Name  = {self.name}
+Class = {self.role}
+Coins = {self.coin}
+==================== STATS
+HP = {self.health}
+ ATK = {self.attack}
+  DEF = {self.defend}
+   AGI = {self.agility}
+    CRIT RATE = {self.crate}%
+     CRIT DAMAGE = {int(self.cdamage*100)}%
+      
+==================== INVENTORY
         
-        Inventory:
-        
-        """
-        )
+        """)
         self.getInv()
         return ""
     
@@ -252,7 +267,8 @@ class Hero:
         """Class method to load Hero data from a JSON file."""
         with open(json_file, 'r') as file:
             data = json.load(file)
-        
+            
+            
         for k in data['inventory']:
             print(k)
             
@@ -285,16 +301,17 @@ class Hero:
     
     def getInv(self):
         counter = 1
-        clear()
+        
         if self.inventory == []:
             print("You didn't have anything! :D\n")
         for item in self.inventory:
-            if item in Makanan.buah:
+            if buah in Makanan.buah:
                 
                 print(f"{counter:>2}. {Makanan.detail_buah[item]['name']}")
                 counter+=1
             else:
                 pass
+        dash()
                 
         
     def getStat(self):
@@ -308,6 +325,7 @@ class Hero:
         CRIT RATE = {self.crate}
         CRIT DAMAGE = {self.cdamage}
         """)
+        
     def Attack(self, target):
         clear()
         
@@ -393,24 +411,30 @@ class Item:
     
     #Template untuk update selanjutnya
     #equipment info
-    #def getDetail(item,filepath):
-#            
-#            with open(filepath, "r") as file:
-#                data = json.load(file)  # Membaca file JSON
-#                # Iterasi untuk mendapatkan key dan value
-#                print(f"""
-#Item   : {item}
-#Details:
-#        Name: {data[item]['name']}
-#        Price: {data[item]['price']}
-#        Heal: {data[item]['heal']}
-#        Buff: {data[item]['buff']}
-#        Expired time: {data[item]['expire']}
-#                    """)
-# Contoh:
-#taring_naga = Item("Taring Naga", 100, "Rare")
-#taring_naga.update_price(quantity_sold=10)
+    def getDetail(self,filepath):
+            item = self.name
+            try:
+                
+                with open(filepath, "r") as file:
+                    data = json.load(file)  # Membaca file JSON
+                    # Iterasi untuk mendapatkan key dan value
+                    print(f"""
+Item name: {data[item]['name']}
+Details:
+        Price: {data[item]['price']}
+        Heal: {data[item]['heal']}
+        Buff: {data[item]['buff']}
+        Expired time: {data[item]['expire']}
+                        """)
+            except:
+                print(f"{tsl['errload']}")
+                loading(2)
+#Contoh:
+taring_naga = Item("Taring Naga", 100, "Rare")
+taring_naga.update_price(quantity_sold=5) #per 1 quantity = 10 decrease 
 #print(taring_naga.current_price)  # Output: Harga menurun berdasarkan jumlah penjualan
+#taring_naga.getDetail("items.json")
+
 
 class Makanan(Item):
     buah = []
@@ -526,6 +550,14 @@ Details:
             print(f"{cls.detail_buah[i]['name']:<17}{'x':>6}{j:<2}{cls.detail_buah[i]['price']:>10}G")
         print(f"\n{'Total:':>31}{total:>4}G\n")
         return total
-
+        
+    #def sellFood(self,*foods):
+#        fruits = [i for i in foods] if foods else []
+#        index = 1
+#        for i in len(fruits):
+#            print(f"{index:>2}. {i}")
+#        confirm()
+        
 
 #print(Makanan.getTotalPrice(['apple', 'banana', 'apple'], {'apple': 3, 'banana': 2}))
+

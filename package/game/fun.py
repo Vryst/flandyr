@@ -28,14 +28,16 @@ def create_hero(hero_name, hero_class):
 
 def main(load=False):
     clear()
+    
     if load == False:
         hero_name, hero_class = pilih_role()  # Pass directly
         hero = create_hero(hero_name, hero_class)
+        
     elif load != False:
         hero = Hero.loadData(load)
         
         print(f"========LOADED CHAR========")
-        hero.getStat()
+        print(hero)
         confirm()
         loading(0.5)
     
@@ -256,6 +258,7 @@ def shop(player):
     pilihan = None
     while aksi:
         clear()
+        print(f"Your balance: {player.coin}G")
         print(f"Selamat datang di toko, orang asing! heheh..\n")
         isSpecialShop(player)
         print("1)Beli\n2)Jual\n3)Pergi")
@@ -282,7 +285,7 @@ def shop(player):
         if pilihan == 2:
             
             sell(player) #not stable
-            break
+            pass
         
         if pilihan == 3:
             aksi = False
@@ -413,35 +416,70 @@ h. hapus item
 
 
 def sell(player):
-        
-        daftar_buah, daftar_harga = Makanan.getDaftarBuah()
-        
-        while True:
-            
+    daftar_buah, daftar_harga = Makanan.getDaftarBuah()
+
+    while True:
+        if not player.inventory:  # Check if inventory is empty
+            clear()
+            print("You don't have anything to sell :D\n\n")
+            confirm()
+            loading(0.5)
+            break
+        else:
+            clear()
             try:
                 
-                if player.inventory == []:
-                    print("You didn't have anything to sell :D")
+                print("What do you want to sell?")
+                dash()
+                counter = 1
+                
+                # Display items in the player's inventory
+                inventory_map = {}
+                for item in player.inventory:
+                    if item in daftar_buah:
+                        print(f"{counter:>2}. {daftar_harga[item]['name']:<17}{daftar_harga[item]['price']:>3}G")
+                        inventory_map[counter] = item
+                        counter += 1
+
+                if not inventory_map:  # If no sellable items are found
+                    print("No sellable items in your inventory!")
                     confirm()
-                    loading(0.5)
                     break
+                
+                # Get user input
+                try:
                     
-                else:
-                    print("Apa yang ingin kamu jual?")
-                    dash()
-                    index = 1
-                    for i in player.inventory:
-                        if i in daftar_buah:
-                            print(f"{index:>2}. {daftar_harga[i]['name']:<17}{daftar_harga[i]['price']:>3}")
-                            index += 1
+                    beli = int(input("\nEnter the item number: "))
+                    selected_item = inventory_map.get(beli)
+
+                    if selected_item:
+                        print(f"\n\nSell {daftar_harga[selected_item]['name']} for {daftar_harga[selected_item]['price']}? (y/n)")
+                        membeli = input(": ").strip().lower()
+
+                        if membeli == "y":
+                            player.inventory.remove(selected_item)
+                            player.coin += daftar_harga[selected_item]['price']
+                            print(f"\nYou sold {daftar_harga[selected_item]['name']}!")
+                            confirm()
+                            continue
+                            
+                        elif membeli == "n":
+                            print("\nCanceled the selling.")
+                            
                         else:
-                            pass
+                            print(f"{tsl['invalid']}")
+                        loading(1)
+                        pass
                         
-                    beli = int(input("Masukkan nomor item: "))
-                    break
+                    else:
+                        print("Item not found!")
+                        loading(1)
+                        
+                except ValueError:
+                    print("Invalid input! Please enter a number.")
+                    loading(1)
                     
             except Exception as e:
-               print(f"{tsl['invalid']}")
-               confirm()
-               break
-
+                print(f"An error occurred: {e}")
+                confirm()
+                break

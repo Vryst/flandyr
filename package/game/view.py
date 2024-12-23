@@ -42,19 +42,20 @@ def show_main_menu():
     
     while True:
         
-        print("========Main Menu========")
+        print("======== MAIN MENU ========\n")
         
         print(f"1. {tsl['startnew']}")
         print(f"2. {tsl['startload']}")
         print(f"3. {tsl['exit']}")
         
-        choice = input(f"{tsl['option']}")
+        choice = input(f"\n\n{tsl['option']}")
         
         if choice == "1":
             new_game()  # Start a new game
             break  # Exit the menu after starting the game
         
         elif choice == "2":
+            clear()
             print(f"{tsl['chooseload']}")
             # List all JSON files in the current directory
             json_files = [f for f in os.listdir("playerData") if f.endswith('.json')]
@@ -64,7 +65,7 @@ def show_main_menu():
                     print(f"{idx}. {file}")
                 
                 try:
-                    file_choice = int(input(f"{tsl['indexload']}: ")) - 1
+                    file_choice = int(input(f"\n{tsl['indexload']}: ")) - 1
                     
                     if 0 <= file_choice < len(json_files):
                         load_game(json_files[file_choice])
@@ -105,22 +106,22 @@ if __name__ == "__main__":
         
     while True:
         index = 1
-        print("Select Language:")
+        print("========== LANGUAGE ==========\n")
         for i in language:
             if "en" in i:
-                print(f"{index:<2} English")
+                print(f"{index:>2}. English")
                 index+=1
             elif "es" in i:
-                print(f"{index:<2} Español")
+                print(f"{index:>2}. Español")
                 index+=1
             elif "ina" in i:
-                print(f"{index:<2} Indonesia")
+                print(f"{index:>2}. Indonesia")
                 index+=1
             else:
                 break
         try:
             
-            language_choice = int(input("Please choose a language: "))
+            language_choice = int(input("\nPlease choose a language: "))
             if language_choice <= 0 or language_choice > len(language_list):
                 print(f"{tsl['invalid']}")
                 loading(1)
