@@ -1,4 +1,4 @@
-# Text-Based RPG
+# Flandyr RPG
 
 Welcome to **Flandyr** :D
 
@@ -45,11 +45,11 @@ Follow these steps to set up the project locally:
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/Vryst/text_based_rpg.git
+   git clone https://github.com/Vryst/flandyr.git
    ```
 2. Navigate into the project directory:
    ```bash
-   cd text_based_rpg
+   cd flandyr
    ```
 3. Create virtual environment
    ```bash
@@ -72,7 +72,7 @@ Follow these steps to set up the project locally:
 
 8. Run the game :D
   ```bash
-  python main.py
+  cd main/game && python view.py
   ```
 
 ## Contribution
@@ -83,7 +83,7 @@ Contributions are welcome! To contribute to this project, follow these steps:
 
 2. Clone your fork to your local machine:
    ```bash
-   git clone https://github.com/Vryst/text_based_rpg.git
+   git clone https://github.com/Vryst/flandyr.git
    ```
 
 3. Create a new branch:
