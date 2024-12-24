@@ -12,7 +12,7 @@ In this game, y'all will:
 ### Level up
 Formula that used for char leveling:
 
-$$\text{XP per level} = \frac{\text{XP at final level} - \text{base XP}}{\text{final level} - 1}$$
+$$\text{XP to next level} = \text{base XP} \times (\text{level})^{\text{k}}$$
 
 and finally, simply avoid the “Game Over” screen that comes after you ridiculously eating your own equipment (it was possible though).
 
