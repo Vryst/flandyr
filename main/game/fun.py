@@ -1,6 +1,6 @@
 
 
-from classes import *
+from .classes import *
 
 def maintenance():
     print("Fitur maintenance! :v")

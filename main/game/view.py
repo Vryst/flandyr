@@ -1,7 +1,7 @@
 
-from classes import *
-from fun import *
-from prep import *
+from game.classes import *
+from game.fun import *
+from game.prep import *
 
 
  
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     # Main execution
      # Load selected language translations
     
-    language_list = [i for i in os.listdir("translation/") if i.endswith(".json")]
+    language_list = [i for i in os.listdir("../translation/") if i.endswith(".json")]
     language = []
     for i in language_list:
         text = i.split(".")[0]

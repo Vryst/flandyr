@@ -4,7 +4,7 @@ import os
 import sys
 from time import *
 from datetime import datetime
-from prep import tsl
+from game.prep import tsl
 
 
 
@@ -253,9 +253,14 @@ HP = {self.health}
         Returns:
         None
         """
+        
+        base_dir = os.path.dirname(os.path.abspath(__file__))  # Directory of classes.py
+        file_path = os.path.join(base_dir, filename)
+        
+        
         try:
             data = dict(self.__dict__)
-            with open(filename, 'w') as file:
+            with open(file_path, 'w') as file:
                 json.dump(data, file, indent=4, default=str)
             print(f"Data saved to {filename}")
         except Exception as e:
@@ -265,7 +270,15 @@ HP = {self.health}
     @classmethod
     def loadData(cls, json_file):
         """Class method to load Hero data from a JSON file."""
-        with open(json_file, 'r') as file:
+        
+        base_dir = os.path.dirname(os.path.abspath(__file__))  # Directory of classes.py
+        file_path = os.path.join(base_dir, json_file)
+        
+        # Check if the file exists
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File not found: {file_path}")
+        
+        with open(file_path, 'r') as file:
             data = json.load(file)
             
             
@@ -439,7 +452,7 @@ taring_naga.update_price(quantity_sold=5) #per 1 quantity = 10 decrease
 class Makanan(Item):
     buah = []
     detail_buah = {}
-    with open("foods.json","r") as file:
+    with open("../resources/foods.json","r") as file:
             daftar_buah = json.load(file)
             buah.extend(daftar_buah.keys())
             
@@ -502,7 +515,7 @@ class Makanan(Item):
     @classmethod
     def getDetail(cls,buah):
             
-            with open("foods.json", "r") as file:
+            with open("../resources/foods.json", "r") as file:
                 data = json.load(file)  # Membaca file JSON
                 
                 print(f"""
@@ -528,7 +541,7 @@ Details:
         price_list = {}
         
         # Baca file JSON
-        with open("foods.json", "r") as file:
+        with open("../resources/foods.json", "r") as file:
             data = json.load(file)
             # Buat dictionary harga
             for i, j in data.items():
