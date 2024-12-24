@@ -4,8 +4,22 @@ Welcome to **Flandyr** :D
 
 (this is my first game project here! please don't judge me harshly :'v)
 
-In this game, y'all will fight enemies(monsters obviously, there's many tribes too that could ended up having their blod on thy sword 💀), level up, and avoid the “Game Over” screen that comes after you make a ridiculously bad decision(git gud). Think of it as a choose-your-own-whatever book, with a lot more stats, combat, and questionable choices. All it takes is your imagination (and maybe a bit of kaffe ☕).
-So, grab your sword, dive into a world where anything is possible... welp, as long i have many ideas to put into this game
+In this game, y'all will:
+### Fight enemies
+- Monsters (some were kinds to you :v)
+- Many tribes that could ended up having their blod on thy sword 💀)
+
+### Level up
+Formula that used for char leveling:
+
+$$\text{XP per level} = \frac{\text{XP at final level} - \text{base XP}}{\text{final level} - 1}$$
+
+and finally, simply avoid the “Game Over” screen that comes after you ridiculously eating your own equipment (it was possible though).
+
+Think of it as a choose-your-own-whatever book, with a lot more stats, combat, and questionable choices.
+
+## All it takes is your imagination
+Grab your sword, dive into a world where anything is possible... welp, as long i have many ideas to put into this game
 
 YOUR SUGGESTIONS IS HIGHLY NEEDED (⁠≧⁠▽⁠≦⁠)
 
@@ -14,7 +28,7 @@ YOUR SUGGESTIONS IS HIGHLY NEEDED (⁠≧⁠▽⁠≦⁠)
 - [Introduction](#introduction)
 - [Features](#features)
 - [Installation](#installation)
-- [Contributing](#contributing)
+- [Contributing](#contribution)
 - [License](#license)
 
 ## Introduction
