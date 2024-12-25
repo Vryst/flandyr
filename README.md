@@ -1,5 +1,9 @@
 # Text-Based RPG
 
+![Build Status](https://img.shields.io/github/actions/workflow/status/Vryst/flandyr/main.yml)
+![License](https://img.shields.io/github/license/Vryst/flandyr)
+![Version](https://img.shields.io/github/v/release/Vryst/flandyr)
+
 Welcome to **Flandyr** :D
 
 (this is my first game project here! please don't judge me harshly :'v)
