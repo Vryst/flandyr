@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="game_project",
-    version="0.1",
+    name="flandyr",
+    version="0.5",
     packages=find_packages(),
 )
