@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       # Step 1: Checkout the code
@@ -32,5 +32,4 @@ jobs:
       # Step 4: Run tests
       - name: Run tests
         run: |
-          cd flandyr/main
           pip install -e .
