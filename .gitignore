@@ -1,0 +1,19 @@
+
+
+# Byte-compiled files
+__pycache__/
+*.pyc
+*.pyo
+
+# Distribution / Packaging
+*.egg-info/
+dist/
+build/
+
+# Virtual Environments
+venv/
+.env/
+
+# Logs and temporary files
+*.log
+*.tmp
