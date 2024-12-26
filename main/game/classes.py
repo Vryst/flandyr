@@ -1,61 +1,14 @@
-import json
-import random
-import os
-import sys
-from time import *
 from datetime import datetime
 from game.prep import tsl
-
-
-
-def confirm():
-    dash()
-    print("Input apa saja untuk melanjutkan")
-    dash()
-    input()
-
-
-def dash(n=36,r=False):
-    if r == True:
-        return "="*n
-    print("="*n)
-    
-    
-def loading(duration=3):
-    end_time = time() + duration  # Time duration for the animation
-    
-    frames = [
-        "⠂⠄⠅","⠇⠆⠘","⠐⠠⠐",
-        "⠄⠅⠇","⠆⠘⠐","⠠⠐⠘",
-        "⠅⠇⠆","⠘⠐⠠","⠐⠘⠂",
-        "⠇⠆⠘","⠐⠠⠐","⠘⠂⠄",
-        "⠆⠘⠐","⠠⠐⠘","⠂⠄⠅",
-        "⠘⠐⠠","⠐⠘⠂","⠄⠅⠇",
-        "⠐⠠⠐","⠘⠂⠄","⠅⠇⠆",
-        "⠠⠐⠘","⠂⠄⠅","⠇⠆⠘",
-        "⠂⠄⠅","⠇⠆⠘","⠐⠠⠐"
-    ]
-    
-    while time() < end_time:
-        for frame in frames:
-            if time() == end_time:
-                break
-            sys.stdout.write(f'\r{frame*10}')  # \r to overwrite the line
-            sys.stdout.flush()  # Flush the output buffer
-            sleep(0.05)
-    clear()
-
-    # Final message after the loading is done
-    # Overwrite the loading text with "Done!"
-    
-    
-
-
-def clear():
-    if os.name == 'nt':
-        os.system('cls')
-    else:
-        os.system('clear')
+from game.prep import user_width
+from game.prep import confirm
+from game.prep import dash
+from game.prep import dashn
+from game.prep import loading
+from game.prep import clear
+from game.prep import random
+from game.prep import json
+from game.prep import os
 
 roles_index = [
 1,
@@ -443,8 +396,8 @@ Details:
                 print(f"{tsl['errload']}")
                 loading(2)
 #Contoh:
-taring_naga = Item("Taring Naga", 100, "Rare")
-taring_naga.update_price(quantity_sold=5) #per 1 quantity = 10 decrease 
+#taring_naga = Item("Taring Naga", 100, "Rare")
+#taring_naga.update_price(quantity_sold=5) #per 1 quantity = 10 decrease 
 #print(taring_naga.current_price)  # Output: Harga menurun berdasarkan jumlah penjualan
 #taring_naga.getDetail("items.json")
 

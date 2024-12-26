@@ -1,6 +1,9 @@
 
 
-from .classes import *
+from game.classes import *
+
+import random
+
 
 def maintenance():
     print("Fitur maintenance! :v")

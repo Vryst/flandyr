@@ -1,141 +1,154 @@
-
 from game.classes import *
 from game.fun import *
 from game.prep import *
 
 
- 
-
+# Start a new game
 def new_game():
     
-    print(f"{tsl['new']}")
+    dash()
+    print(f"{printf(tsl['new'])}")
+    dashn()
     loading(1)
     
-    print(f"{tsl['success']}")
+    dash()
+    print(f"{printf(tsl['success'])}")
+    dashn()
     loading(1)
     
     main()
-    # Your code to start the new game
 
+# Load an existing game
 def load_game(filename):
-    print(f"{tsl['loads']}{filename}")
-    loading(1)
     
+    dash()
+    print(f"{tsl['loads']}{filename}")
+    dashn()
+    
+    loading(1)
+
     try:
         path = f"playerData/{filename}"
-        
         with open(path, 'r') as file:
-            # Assuming the character data is a dictionary and using it to load the game
+            dash()
             print(f"{tsl['successload']}")
-            #print(os.listdir(filepath))
+            dashn()
+            
             loading(1)
-            # Process character data and continue the game
             main(path)
             loading(1)
-            
     except Exception as e:
-        #print(f"{e}")
         print(e)
 
+# Display the main menu
 def show_main_menu():
-    clear()
-    
     while True:
+        clear()
         
-        print("======== MAIN MENU ========\n")
+        dash()
+        print(f"{printf('MAIN MENU')}")
+        dashn()
         
-        print(f"1. {tsl['startnew']}")
-        print(f"2. {tsl['startload']}")
-        print(f"3. {tsl['exit']}")
-        
-        choice = input(f"\n\n{tsl['option']}")
-        
+        print(f"{printf(1,tsl['startnew'])}")
+        print(f"{printf(2,tsl['startload'])}")
+        print(f"{printf(3,tsl['exit'])}")
+
+        choice = input(f"\n{tsl['option']}: ")
         if choice == "1":
-            new_game()  # Start a new game
-            break  # Exit the menu after starting the game
-        
+            new_game()
+            break
         elif choice == "2":
-            clear()
-            print(f"{tsl['chooseload']}")
-            # List all JSON files in the current directory
-            json_files = [f for f in os.listdir("playerData") if f.endswith('.json')]
-            
-            if json_files:
-                for idx, file in enumerate(json_files, 1):
-                    print(f"{idx}. {file}")
+            while True:
+                clear()
                 
-                try:
-                    file_choice = int(input(f"\n{tsl['indexload']}: ")) - 1
-                    
-                    if 0 <= file_choice < len(json_files):
-                        load_game(json_files[file_choice])
-                        break  # Exit the menu after loading the game
-                    
-                    else:
-                        print(f"{tsl['invalid']}")
+                dash()
+                print(f"{printf(tsl['chooseload'])}")
+                dashn()
+                
+                json_files = [f for f in os.listdir("playerData") if f.endswith('.json')]
+
+                if json_files:
+                    for idx, file in enumerate(json_files, 1):
+                        #print(f"{f'|{idx}. {file.split(dot)[0]:<16}|':^{refresh_width()}}")
+                        print(f"{printf(idx,file.split(dot)[0])}")
+                    try:
+                        file_choice = int(input(f"\n\n{printf(tsl['indexload'])}: "))
+                        
+                        if file_choice == 0:
+                            break
+                        file_choice -= 1
+                        if 0 <= file_choice < len(json_files):
+                            load_game(json_files[file_choice])
+                            break
+                        else:
+                            dash()
+                            print(f"{printf(tsl['invalid'])}")
+                            dashn()
+                            loading(0.5)
+                            
+                    except ValueError:
+                        dash()
+                        print(f"{printf(tsl['invalidnum'])}")
+                        dashn()
                         loading(0.5)
-                        clear()
-                
-                except ValueError:
-                    print(f"{tsl['invalidnum']}")
+                else:
+                    dash()
+                    print(f"{printf(tsl['nosave'])}")
+                    dashn()
                     loading(0.5)
-            
-            else:
-                print(f"{tsl['nosave']}")
-                loading(0.5)
-                
         elif choice == "3":
-            print(f"{tsl['exits']}")
+            dash()
+            print(f"{printf(tsl['exits'])}")
+            dashn()
             loading(0.3)
-            break  # Exit the loop to close the program
-        
+            sys.exit('Thanks for playing! :D')
         else:
-            print(f"{tsl['invalid']}")
+            dash()
+            print(f"{printf(tsl['invalid'])}")
+            dashn()
             loading(0.5)
 
-# Run the menu
+# Main execution
 if __name__ == "__main__":
-    # Main execution
-     # Load selected language translations
+    # Language selection
+    lang_list = [i.split(dot)[0] for i in os.listdir("../translation/") if i.endswith(".json")]
     
-    language_list = [i for i in os.listdir("../translation/") if i.endswith(".json")]
-    language = []
-    for i in language_list:
-        text = i.split(".")[0]
-        language.append(text)
-        
     while True:
+        clear()
         index = 1
-        print("========== LANGUAGE ==========\n")
-        for i in language:
-            if "en" in i:
-                print(f"{index:>2}. English")
-                index+=1
-            elif "es" in i:
-                print(f"{index:>2}. Español")
-                index+=1
-            elif "ina" in i:
-                print(f"{index:>2}. Indonesia")
-                index+=1
+        dash()
+        print(f"{printf('LANGUAGE')}")
+        dashn()
+        for i in lang_list:
+            if i in lang.keys():
+                print(f"{printf(index,lang[i])}")
+                index +=1
             else:
-                break
+                dash()
+                print(f"{printf('NO TRANSLATE FOUND')}")
+                dashn()
+                pass
+                
         try:
-            
-            language_choice = int(input("\nPlease choose a language: "))
-            if language_choice <= 0 or language_choice > len(language_list):
-                print(f"{tsl['invalid']}")
+            language_choice = int(input(f"\n{printf(tsl['chooselang'])} "))
+            if language_choice <= 0 or language_choice > len(lang_list):
+                dash()
+                print(f"{printf(tsl['invalid'])}")
+                dashn()
                 loading(1)
             else:
-                choosed = language[language_choice-1]
+                choosed = lang_list[language_choice - 1]
                 tsl = load_translations(choosed)
-                print(f"Language picked: {choosed}")
+                dash()
+                print(f"{printf(tsl['langs'])}{printf(lang[choosed])}")
+                dashn()
                 loading(1)
                 break
-        except ValueError as e:
-            
-            print("Please input a number!")
+        except ValueError:
+            dash()
+            print(f"{printf(tsl['invalidnum'])}")
+            dashn()
             loading(1)
+
     if tsl:
-        show_main_menu()  # Display the main menu with the loaded translations
-   
-    
+        show_main_menu()
