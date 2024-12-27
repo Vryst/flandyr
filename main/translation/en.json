@@ -23,8 +23,8 @@
     "inputname": "Please input your name: ",
     "inputrole": "Choose your role :",
     "errinputrole": "Role not found!",
-    "welcome": "Welcome to Athanor!",
-    "continue": "Input anything to continue\n",
+    "welcome": "Welcome to Flandyr!",
+    "continue": "Input anything to continue",
     "name":"Name",
     "nosave": "No saved games found."
 }

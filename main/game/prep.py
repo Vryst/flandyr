@@ -92,7 +92,7 @@ def refresh_width(debug=False):
 # Blank input to continue
 def confirm():
     dash()
-    print("Input apa saja untuk melanjutkan")
+    print(f"{printf(tsl['continue'])}")
     dashn()
     input()
     
@@ -156,7 +156,7 @@ def printf(index=None,text=None):
     elif index:
         if type(index) == str:
             return f"{f'{index}':^{refresh_width()}}"
-        return f"{f'{dash(20,1,d)}{nl}':^{refresh_width()}}\r{f'|{index} {text:<16}|':^{refresh_width()}}{nl}{dash(20,1,d):^{refresh_width()}}"
+        return f"{f'{dash(20,1,d):^{refresh_width()}}{nl}':^{refresh_width()}}\r{f'|{index} {text:<16}|':^{refresh_width()}}{nl}{dash(20,1,d):^{refresh_width()}}"
         
     else:
         dash()

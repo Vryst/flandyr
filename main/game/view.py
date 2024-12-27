@@ -22,7 +22,7 @@ def new_game():
 def load_game(filename):
     
     dash()
-    print(f"{tsl['loads']}{filename}")
+    print(f"{printf(tsl['loads'])}{printf(filename.split(dot)[0])}")
     dashn()
     
     loading(1)
@@ -31,7 +31,7 @@ def load_game(filename):
         path = f"playerData/{filename}"
         with open(path, 'r') as file:
             dash()
-            print(f"{tsl['successload']}")
+            print(f"{printf(tsl['successload'])}")
             dashn()
             
             loading(1)

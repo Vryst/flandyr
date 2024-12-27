@@ -39,7 +39,10 @@ def main(load=False):
     elif load != False:
         hero = Hero.loadData(load)
         
-        print(f"========LOADED CHAR========")
+        dash()
+        print("LOADED CHAR")
+        dashn()
+        
         print(hero)
         confirm()
         loading(0.5)
