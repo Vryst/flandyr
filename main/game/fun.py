@@ -314,7 +314,7 @@ Pilih aksi yang tersedia:
 #event
 def pergi():
     menemukan = random.choice(range(2))
-    return 1 if menemukan == 1 else 2
+    return 1 if menemukan == 0 else 2
     
     
 
@@ -360,6 +360,7 @@ def encounter(hero,tsl=tsl):
                 print(f"\n{tsl['encounter']['ignore']}{enemy.name}\n\n")
                 enemy = None
                 loading(1)
+                on = False
                 break
                 
             else:
