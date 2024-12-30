@@ -16,7 +16,7 @@ def new_game():
     dashn()
     loading(1)
     
-    main()
+    main(translate=tsl)
 
 # Load an existing game
 def load_game(filename):
@@ -79,6 +79,8 @@ def show_main_menu():
                         file_choice -= 1
                         if 0 <= file_choice < len(json_files):
                             load_game(json_files[file_choice])
+                            print('error')
+                            confirm()
                             break
                         else:
                             dash()
@@ -101,7 +103,9 @@ def show_main_menu():
             print(f"{printf(tsl['exits'])}")
             dashn()
             loading(0.3)
-            sys.exit('Thanks for playing! :D')
+            
+            
+            sys.exit(f"{printf(tsl['quit'])}")
         else:
             dash()
             print(f"{printf(tsl['invalid'])}")
@@ -110,45 +114,7 @@ def show_main_menu():
 
 # Main execution
 if __name__ == "__main__":
-    # Language selection
-    lang_list = [i.split(dot)[0] for i in os.listdir("../translation/") if i.endswith(".json")]
+    tsl = choose_language() #choosing language when starting the game
     
-    while True:
-        clear()
-        index = 1
-        dash()
-        print(f"{printf('LANGUAGE')}")
-        dashn()
-        for i in lang_list:
-            if i in lang.keys():
-                print(f"{printf(index,lang[i])}")
-                index +=1
-            else:
-                dash()
-                print(f"{printf('NO TRANSLATE FOUND')}")
-                dashn()
-                pass
-                
-        try:
-            language_choice = int(input(f"\n{printf(tsl['chooselang'])} "))
-            if language_choice <= 0 or language_choice > len(lang_list):
-                dash()
-                print(f"{printf(tsl['invalid'])}")
-                dashn()
-                loading(1)
-            else:
-                choosed = lang_list[language_choice - 1]
-                tsl = load_translations(choosed)
-                dash()
-                print(f"{printf(tsl['langs'])}{printf(lang[choosed])}")
-                dashn()
-                loading(1)
-                break
-        except ValueError:
-            dash()
-            print(f"{printf(tsl['invalidnum'])}")
-            dashn()
-            loading(1)
-
     if tsl:
         show_main_menu()

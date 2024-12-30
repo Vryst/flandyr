@@ -11,10 +11,10 @@ MINIMUM_WIDTH = 16
 MAXIMUM_WIDTH = 60
 STANDARD_WIDTH = 37
 user_width = STANDARD_WIDTH
-warning = True # button for terminal_warning()
+warning = True # switch for refresh_width()
 dot = "." # just in case
-nl = "\n" 
-d = '-' 
+nl = "\n" #nEW lINE
+d = '-' #dASH
 
 lang = {
 'en':'English',
@@ -148,11 +148,13 @@ def loading(duration=3):
 # printing (prettifier)
 # print(index,text) for num list
 # printf(text) for plain centered text
-def printf(index=None,text=None):
+def printf(index=None,text="error"):
     if text == False:
+       
         dash()
         print("This is a function i built because i get sick of repeating long format print :)")
         dashn()
+        
     elif index:
         if type(index) == str:
             return f"{f'{index}':^{refresh_width()}}"
@@ -172,7 +174,9 @@ def load_translations(language="en"):
     except FileNotFoundError:
         print(f"Error: Translation file for '{language}' not found.")
         return None
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        
+        print(e)
         print(f"Error: Invalid JSON in the translation file '{language}.json'.")
         return None
 
@@ -188,7 +192,64 @@ def get_translation(key, translations, *args):
         
 
 
-
+def choose_language(default="en",debug=False):
+    # Language selection
+    lang_list = [i.split(dot)[0] for i in os.listdir("../translation/") if i.endswith(".json")]
+    
+    tsl = load_translations()
+    
+    if debug:
+        return tsl
+        
+    while True:
+        clear()
+        index = 1
+        
+        dash()
+        print(f"{printf('LANGUAGE')}")
+        dashn()
+        
+        for i in lang_list:
+            
+            if i in lang.keys():
+                print(f"{printf(index,lang[i])}")
+                index +=1
+                
+            else:
+                dash()
+                print(f"{printf('NO TRANSLATE FOUND')}")
+                dashn()
+                
+                pass
+                
+        try:
+            language_choice = int(input(f"\n{printf(tsl['chooselang'])} "))
+            if language_choice <= 0 or language_choice > len(lang_list):
+                dash()
+                print(f"{printf(tsl['invalid'])}")
+                dashn()
+                
+                loading(1)
+            else:
+                choosed = lang_list[language_choice - 1]
+                tsl = load_translations(choosed)
+                
+                dash()
+                print(f"{printf(tsl['langs'])}{printf(lang[choosed])}")
+                dashn()
+                loading(1)
+                
+                return tsl
+                
+                break
+        except ValueError:
+            
+            dash()
+            print(f"{printf(tsl['invalidnum'])}")
+            dashn()
+            
+            loading(1)
         
     
-tsl = load_translations()
+
+tsl = choose_language(debug=1)

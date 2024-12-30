@@ -6,49 +6,145 @@ import random
 
 
 def maintenance():
-    print("Fitur maintenance! :v")
+    print(f"{tsl['maintenance']}")
     loading(1)
 
 
-
-def create_hero(hero_name, hero_class):
+# this gonna be the longest function later
+def dialogue(player):
+    return False
+    
+    
+    
+def create_hero(hero_name, hero_class, subroles=[]):
+    """
+       ("role",
+       [subroles],
+       HP,
+       ATK,
+       DEF,
+       CRATE,
+       CDMG,
+       STR,
+       VIT,
+       AGI,
+       INT,
+       COIN,
+       REPUTATION,
+       ,INVENTORY (list)
+       )
+    """
+    
     roles = [
-       #("role",   HP   ATK  DEF AGI CRATE CDMG)
-        ("warrior", 1000, 130, 30, 15, 35, 80),
-        ("mage", 400, 270, 15, 10, 10, 120),
-        ("archer", 700, 80, 25, 45, 50, 100),
-        ("hero", 2000, 100, 70, 10, 30, 100),
-        ("thief", 450, 50, 15, 70, 75, 200),
-        ("bandit", 900, 95, 20, 5, 25, 70)
+        ("warrior",
+        subroles,
+        1000,
+        130,
+        30,
+        35,
+        80,
+        5,
+        8,
+        15,
+        3,
+        0,
+        0,
+        ["sword","light helmet","medium armor","medium legging","leather boots"]),
+        
+        ("archer",
+        subroles,
+        700,
+        80,
+        25,
+        50,
+        100,
+        4,
+        2,
+        45,
+        4,
+        0,
+        0,
+        ["bow","light ranger suit","light legging","swift boots"]),
+        
+        ("mage",
+        subroles,
+        400,
+        270,
+        15,
+        10,
+        120,
+        1,
+        2,
+        15,
+        8,
+        0,
+        0,
+        ["staff","medium robe","light legging","arcane boots"]),
+        
+        ("assassin",
+        subroles,
+        450,
+        50,
+        15,
+        75,
+        200,
+        3,
+        4,
+        70,
+        4,
+        0,
+        0,
+        ["dagger","cloak","light legging","sneak boots"]),
+        
+        ("cleric",
+        subroles,
+        500,
+        30,
+        70,
+        10,
+        20,
+        1,
+        3,
+        15,
+        5,
+        0,
+        0,
+        ["grimoire","light robe","medium legging","medium boots"])
     ]
     
-    role, health, attack, defend, agility, crit_rate, crit_dmg = roles[hero_class - 1]
-    return Hero(hero_name, role, health, attack, defend, agility, crit_rate, percent(crit_dmg))
+    role, subroles, health, attack, defend, crit_rate, crit_dmg, strength, vitality, agility, intelligence, coin, reputation, inventory = roles[hero_class - 1]
+    return Hero(hero_name, role, subroles, health, attack, defend, crit_rate, percent(crit_dmg), strength, vitality, agility, intelligence, coin, reputation, inventory)
 
 
 
 
 
-def main(load=False):
+def main(load=False,translate=tsl):
     clear()
     
     if load == False:
-        hero_name, hero_class = pilih_role()  # Pass directly
+        hero_name, hero_class = pilih_role(translate)  # Pass directly
         hero = create_hero(hero_name, hero_class)
         
     elif load != False:
         hero = Hero.loadData(load)
         
         dash()
-        print("LOADED CHAR")
+        print(f"{printf('LOADED CHAR')}")
         dashn()
         
         print(hero)
+        
         confirm()
         loading(0.5)
-    
+    else:
+        dash()
+        print(f"{printf('NOT FOUND')}")
+        dashn()
+        raise Exception
+        confirm()
     while True:
-        encounter(hero)
+        encounter(hero,translate)
         
         
         confirm()
@@ -56,14 +152,25 @@ def main(load=False):
     
 
 #pilih role
-def pilih_role():
+def pilih_role(tsl):
     
-    print(f"Selamat datang di Athanor :v\n\n\n")
+    dash()
+    print(f"{printf(tsl['welcome'])}")
+    dashn()
     
-    hero_name = str(input("masukkan nama hero: "))
+    
+    hero_name = str(input(f"{tsl['inputname']}: "))
     while True:
+        
+        clear()
         try:
-            hero_class = int(input("\npilih role :\n 1. Warrior\n 2. Mage\n 3. Archer\n 4. Hero\n 5. Thief\n 6. Bandit\n\npilihan: "))
+            dash()
+            for i,role in enumerate(roles,1):
+                
+                print(f"{printf(i,role)}")
+                
+            dashn()
+            hero_class = int(input(f"{tsl['inputrole']}"))
             
             if hero_class in roles_index:
                 break
@@ -73,7 +180,7 @@ def pilih_role():
         
         
         except:
-            print("Harap pilih role yang tersedia!")
+            print(f"{tsl['errinputrole']}")
             pass
         
         
@@ -81,7 +188,7 @@ def pilih_role():
     
     
 
-def battle(player,enemy):
+def battle(player,enemy,tsl=tsl):
             clear()
             print(f"Kamu bertarung melawan {enemy.name}!\n")
             
@@ -95,36 +202,36 @@ def battle(player,enemy):
                     
                     while True:
                         try:
-                            print("""
+                            print(f"""
 Pilih aksi yang tersedia:
-      1. Serang
-      2. Bertahan
-      3. Item
-      4. Kabur\n""")
+      1. {tsl['encounter']['battle']['atkopt']}
+      2. {tsl['encounter']['battle']['guardopt']}
+      3. {tsl['encounter']['battle']['itemopt']}
+      4. {tsl['encounter']['battle']['runopt']}\n""")
                             aksi_battle = int(input("Pilihan(1/2/3/4): "))
                             if aksi_battle in [1, 2, 3, 4]:
                                 break  # Exit the loop if valid input is given
                             else:
                                 clear()
-                                print("Pilihan tidak valid. Silakan pilih 1, 2, 3, atau 4.")
+                                print(f"{tsl['invalid']}")
                                 loading(1)
                         except ValueError:
                             clear()
-                            print("Harap masukkan angka yang valid (1/2/3/4).")
+                            print(f"{tsl['invalidnum']}")
                             loading(1)
         
                     if aksi_battle == 1:
-                        player.Attack(enemy)
+                        player.Attack(enemy,tsl)
                         loading(1)
-                        enemy.Attack(player)
+                        enemy.Attack(player,tsl)
                         loading(1)
                         
                     if aksi_battle == 2:
                         clear()
-                        player.Guard()
+                        player.Guard(tsl)
                         
                         loading(1)
-                        enemy.Attack(player)
+                        enemy.Attack(player,tsl)
                         loading(1)
                         
                         pass
@@ -135,18 +242,30 @@ Pilih aksi yang tersedia:
                         while True:
                             
                             try:
+                                
+                                if not player.inventory:
+                                    
+                                    dash()
+                                    print(f"{printf({tsl['encounter']['battle']['empty']})}")
+                                    dashn()
+                                    break
+                                
                                 a = 1
                                 for i in player.inventory :
-                                    print(f"{a:>2}. {Makanan.detail_buah[i]['name']}")
+                                    if i in Makanan.buah:
+                                        print(f"{printf(a,Makanan.detail_buah[i]['name'])}")
+                                        continue
+                                    print(f"{printf(a,i)}")
+                                    print
                                     a += 1
-                                pilih_item = int(input("Pilih item yang ingin digunakan: "))
+                                pilih_item = int(input(f"{tsl['encounter']['battle']['itempick']} "))
                                 #fungsi_item
                                 maintenance()
                                 
                                 break
                             except ValueError:
                                 clear()
-                                print("Harap masukkan index yang valid!")
+                                print(f"{tsl['invalidnum']}")
                                 loading(1)
                                 
                     if aksi_battle == 4:
@@ -158,11 +277,15 @@ Pilih aksi yang tersedia:
                         try:
                             kabur = player.Run()
                             if kabur:
-                                print("kamu kabur")
+                                
+                                dash()
+                                print("{printf(tsl['encounter']['battle']['escape'])}")
+                                dashn()
+                                
                                 loading(1)
                                 break
                             else:
-                                print("gagal")
+                                print(f"{tsl['encounter']['battle']['escapefail']}")
                                 loading(1)
                                 clear()
                         except TypeError:
@@ -173,7 +296,11 @@ Pilih aksi yang tersedia:
                         pass
                 except ValueError:
                     clear()
-                    print("Harap masukkan input yang valid(1/2/3/4)!\n")
+                    
+                    dash()
+                    print(f"{printf(tsl['invalidnum'])}")
+                    dashn()
+                    
             if player.health <= 0:
                 return False
                 
@@ -193,7 +320,7 @@ def pergi():
 
     
 #encounter
-def encounter(hero):
+def encounter(hero,tsl=tsl):
     
     berjalan = pergi()
     
@@ -202,15 +329,23 @@ def encounter(hero):
     if berjalan == 1:
        while on:
         
-        enemy = Enemy(randomizer(musuh),randomizer(roles),randomizer(),randomizer(),randomizer(),randomizer(),randomizer(),randomizer())
+        enemy = Enemy(randomizer(musuh),randomizer(roles),randomizer(subroles),randomizer(),randomizer(),randomizer(),randomizer(),percent(randomizer()),randomizer(),randomizer(),randomizer(),randomizer())
         
-        enemy.getStat()
-        lanjut = input("Serang? (y/n) : ").lower()
-        
-        if lanjut == "y":
-                  hasil_pertarungan = battle(hero,enemy)
+        #enemy.getStat()
+        while True:
+            
+            clear()
+            
+            dash()
+            print(f"{printf(tsl['encounter']['meet'])}{printf(enemy.name)}")
+            dashn()
+            
+            lanjut = input(f"{tsl['encounter']['battle']['atkopt']} (y/n) : ").lower()
+            
+            if lanjut == "y":
+                  hasil_pertarungan = battle(hero,enemy,tsl)
                   if hasil_pertarungan == "kabur":
-                      print("\nKamu berhasil melarikan diri")
+                      print(f"{printf(tsl['encounter']['battle']['escape'])}")
                       loading(1)
                       break
                   if hasil_pertarungan == True:
@@ -221,24 +356,38 @@ def encounter(hero):
                       print("Game over")
                       loading(1)
                       break
-        if lanjut == 'n':
-            print(f"\nKamu menghiraukan {enemy.name}\n\n")
-            enemy = None
-            loading(1)
+            elif lanjut == 'n':
+                print(f"\n{tsl['encounter']['ignore']}{enemy.name}\n\n")
+                enemy = None
+                loading(1)
+                break
+                
+            else:
+                clear()
+                
+                dash()
+                print(f"{printf(tsl['invalid'])}")
+                dashn()
+                
+                confirm()
+                continue
+            
             break
-     
+            
     if berjalan == 2:
-        shop(hero)
+        shop(hero,tsl)
         clear()
         
     else:
         clear()
-        print("Kamu berjalan tanpa arah")
-
+        
+        dash()
+        print(f"{printf(tsl['walk'])}")
+        dashn()
 
 
 #special shop interaction checker
-def isSpecialShop(player):
+def isSpecialShop(player,tsl=tsl):
     if player.role == "thief":
         print(f"\n0)Mencuri? :v")
         pass
@@ -257,15 +406,27 @@ def isSpecialShop(player):
         pass
         
 #shop
-def shop(player):
+def shop(player,tsl=tsl):
     
-    aksi = True
-    
+    encounter = 0
     pilihan = None
-    while aksi:
+    
+    while True:
         clear()
+        
+        if dialogue(encounter):
+            pass
+        
+        else:
+            
+            dash()
+            print(f"{tsl['shop']['greet']}")
+            dashn()
+            
+        
+        
         print(f"Your balance: {player.coin}G")
-        print(f"Selamat datang di toko, orang asing! heheh..\n")
+        
         isSpecialShop(player)
         print("1)Beli\n2)Jual\n3)Pergi")
         try:
@@ -285,16 +446,17 @@ def shop(player):
             break
     
         if pilihan == 1:
-            buy(player)
+            buy(player,tsl)
             pass
             
         if pilihan == 2:
             
-            sell(player) #not stable
+            sell(player,tsl)
             pass
         
         if pilihan == 3:
-            aksi = False
+            encounter+=1 #adds how many you encounter the shop
+            break
             
         else:
             pass
@@ -320,7 +482,7 @@ def eat(player,item):
             Apple(player)
             
 #buy
-def buy(player):
+def buy(player,tsl=tsl):
     keranjang = []
     receipt = {}
     while True:
@@ -332,7 +494,7 @@ def buy(player):
             
             
             dash()
-            print(f"{'DAFTAR KERANJANG':^36}")
+            print(f"{printf(tsl['shop']['cart'])}")
             dash()
             
             
@@ -351,12 +513,11 @@ def buy(player):
             
             print(f"""
 {dash(r=True)}
-Jangan input apapun jika lanjut beli
-Input "0" untuk melakukan pembayaran
+{tsl['shop']['confirm']}
 {dash(r=True)}
-0. Bayar
-k. kembali
-h. hapus item
+0. {tsl['shop']['pay']}
+k. {tsl['shop']['back']}
+h. {tsl['shop']['delete']}
 """)
             buah = input("Buah yang ingin dibeli : ")
             
@@ -375,7 +536,7 @@ h. hapus item
                 if keranjang == []:
                     dash()
                     print("KAMU BELUM MEMBELI APAPUN")
-                    dash()
+                    dashn()
                     pass
                     
                 else:
@@ -421,13 +582,17 @@ h. hapus item
 
 
 
-def sell(player):
+def sell(player,tsl=tsl):
     daftar_buah, daftar_harga = Makanan.getDaftarBuah()
 
     while True:
         if not player.inventory:  # Check if inventory is empty
             clear()
-            print("You don't have anything to sell :D\n\n")
+            
+            dash()
+            print(f"{printf(tsl['shop']['empty'])}")
+            dashn()
+            
             confirm()
             loading(0.5)
             break
@@ -471,6 +636,8 @@ def sell(player):
                             
                         elif membeli == "n":
                             print("\nCanceled the selling.")
+                            loading(1)
+                            break
                             
                         else:
                             print(f"{tsl['invalid']}")

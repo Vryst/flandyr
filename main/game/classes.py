@@ -9,6 +9,8 @@ from game.prep import clear
 from game.prep import random
 from game.prep import json
 from game.prep import os
+from game.prep import printf
+
 
 roles_index = [
 1,
@@ -27,13 +29,16 @@ roles = [
 "archer",
 "mage",
 "assassin",
-"hero",
-"bandit",
 "cleric",
 "alchemist",
 "monk"
 ]
 
+subroles = [
+"hero",
+"bandit"
+
+]
 special_shop = [
 "hero",
 "assassin",
@@ -124,17 +129,37 @@ def get_loot(enemy):
 #============={{HERO}}===============
 class Hero:
     
-    def __init__(self,name=None,role=None,health=1,attack=0,defend=0,crate=0,cdamage=0,strength=1,vitality=1,intelligence=1,agility=1,coin=0,ctime=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),guard=False,inventory=[],reputation=0):
+    def __init__(self,
+    name="Dummy",
+    role="Dummy",
+    subroles=[],
+    health=1,
+    attack=0,
+    defend=0,
+    crate=0,
+    cdamage=0,
+    strength=1,
+    vitality=1,
+    agility=1,
+    intelligence=1,
+    coin=0,
+    reputation=0,
+    inventory=[],
+    
+    ctime=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+    guard=False):
+        
         self.name = name
         self.role = role
+        self.subroles = subroles
         
         self.strength = strength
         self.vitality = vitality
-        self.intelligence = intelligence
         self.agility = agility
+        self.intelligence = intelligence
         
         self.health = int(health * (self.vitality * 0.5))
-        self.attack = attack
+        self.attack = int(attack * (self.strength * 0.8))
         self.defend = defend
         self.crate = crate
         self.cdamage = cdamage
@@ -152,9 +177,9 @@ class Hero:
         self.minute = ctime[14:16]
         self.second = ctime[17:19]
         
-        if role == "hero":
+        if "hero" in self.subroles:
             
-            self.reputation = 100
+            self.reputation = reputation + 100
         else:
             self.reputation = reputation
         
@@ -178,18 +203,22 @@ Date created:
     Second : {self.second}
 ==================== PROFILE         
 Name  = {self.name}
-Class = {self.role}
-Coins = {self.coin}
+ Class = {self.role}
+  Sub-class = {" ".join(i for i in subroles)}
+   Coins = {self.coin}
+    Reputation = {self.reputation}
 ==================== STATS
 HP = {self.health}
  ATK = {self.attack}
   DEF = {self.defend}
-   AGI = {self.agility}
-    CRIT RATE = {self.crate}%
-     CRIT DAMAGE = {int(self.cdamage*100)}%
-      
+   CRIT RATE = {self.crate}%
+    CRIT DAMAGE = {int(self.cdamage*100)}%
+==================== MULTIPLIER
+STR = {self.strength}
+ VIT = {self.vitality}
+  AGI = {self.agility}
+   INT = {self.intelligence}
 ==================== INVENTORY
-        
         """)
         self.getInv()
         return ""
@@ -244,13 +273,17 @@ HP = {self.health}
             health=data['health'],
             attack=data['attack'],
             defend=data['defend'],
+            strength=data['strength'],
+            vitality=data['vitality'],
             agility=data['agility'],
+            intelligence=data['intelligence'],
             crate=data['crate'],
             cdamage=data['cdamage'],
             guard=data['guard'],
             inventory=[i for i in data['inventory']],
             ctime=data['ctime'],
             reputation=data['reputation']
+            
             
         )
     
@@ -269,15 +302,17 @@ HP = {self.health}
         counter = 1
         
         if self.inventory == []:
-            print("You didn't have anything! :D\n")
+            
+            print(f"{tsl['noitem']}")
+        
         for item in self.inventory:
+            index = 1
             if buah in Makanan.buah:
                 
                 print(f"{counter:>2}. {Makanan.detail_buah[item]['name']}")
                 counter+=1
             else:
-                pass
-        dash()
+                print(f"{printf(index,item)}")
                 
         
     def getStat(self):
@@ -292,23 +327,23 @@ HP = {self.health}
         CRIT DAMAGE = {self.cdamage}
         """)
         
-    def Attack(self, target):
+    def Attack(self, target, tsl=tsl):
         clear()
         
         total_damage = self.attack
         crit = critical(self)
         
         if target.health <=0 and self.health <= 0:
-            print(f"{self.name} dan {target.name} telah mati\n")
+            print(f"{self.name} & {target.name} {tsl['encounter']['battle']['dead']}\n")
             
         elif target.health <= 0:
-            print(f"{target.name} sudah mati :v")
+            print(f"{target.name} {tsl['encounter']['battle']['dead']}")
             print(f"{self.name} HP = {self.health}\n{target.name} HP = {target.health}")
             
             pass
             
         elif self.health <= 0:
-            print(f"{self.name} sudah mati :v")
+            print(f"{self.name} {tsl['encounter']['battle']['dead']}")
             print(f"{self.name} HP = {self.health}\n{target.name} HP = {target.health}")
             
             pass
@@ -324,7 +359,7 @@ HP = {self.health}
                 
                 if crit:
                     
-                    total_damage += int(self.attack * self.cdamage)
+                    total_damage += int(self.attack * percent(self.cdamage))
                     target.health -= total_damage
                     
                     
@@ -342,12 +377,14 @@ HP = {self.health}
                 
             print(f"{self.name} HP = {self.health}\n{target.name} HP = {target.health}")
             
-            print(f"\n\n{self.name} telah memberikan damage {total_damage} ke {target.name}")
+            print(f"\n\n{self.name} {tsl['encounter']['battle']['dealt']} {total_damage} {tsl['to']} {target.name}")
+        
         total_damage = self.attack
             
-    def Guard(self):
+    def Guard(self,tsl=tsl):
         self.guard = True
-        print(f"Defend milik {self.name} telah meningkat 2x lipat!")
+        print(f"{tsl['encounter']['battle']['guard1']} {self.name} {tsl['encounter']['battle']['guard2']}")
+        #print(f"Defend milik {self.name} telah meningkat 2x lipat!")
         
     def Run(self):
         return random.randint(1, 100) <= self.agility

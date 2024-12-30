@@ -1,30 +1,85 @@
 {
     "startnew": "Start New Game",
     "new": "Starting a new game...",
+    "maintenance":"Feature on maintenance!",
+    
     "startload": "Load Game",
     "loads": "Loading game from ",
     "successload": "Character loaded successfully.",
     "errload": "File corrupted or modified.\nDon't ever try to cheat! git gut noob :D",
     "chooseload": "Choose a file to load",
     "indexload": "Pick one of those files",
+    
+    
     "exit": "Exit",
     "exits": "Exiting the game...",
+    "quit": "Thanks for playing! :D",
+    
     "option": "Please choose an option",
     "invalid": "That was never an option :D",
     "invalidnum": "Please input a number",
+    
+    
     "loading": "Now Loading...",
     "errloading": "Error loading game: {error}",
+    
+    
     "lang":"Language",
     "chooselang":"Please choose a language",
     "langs":"Language choosed",
+    
+    
     "process": "Processing...",
     "success":"Success!",
     "fail": "Failed...",
+    
+    
     "inputname": "Please input your name: ",
     "inputrole": "Choose your role :",
     "errinputrole": "Role not found!",
+    
+    
     "welcome": "Welcome to Flandyr!",
+    
     "continue": "Input anything to continue",
     "name":"Name",
-    "nosave": "No saved games found."
+    "nosave": "No saved games found.",
+    "noitem": "You didn't have anything! :D",
+    
+    
+    "walk":"You're walking where the wind flows",
+    "to":"to",
+    
+    
+    "shop":{
+        "greet":"Welcome to my shop, stranger! huhah! :v",
+        "empty":"You didn't have anything to sell :D",
+        "cart":"CART LIST",
+        "confirm":"Do not input anything if you still adding items\nInput '0' to proceed buying",
+        "pay":"Bayar",
+        "back":"Kembali",
+        "delete":"Hapus item"
+    },
+    
+    "encounter":{
+        "ignore":"You're ignoring ",
+        "meet":"You meet",
+        "battle":{
+            "atkopt":"Attack",
+            "dead":"already dead",
+            "dealt":"dealt damage",
+            
+            "guardopt":"Defend",
+            "guard1":"The",
+            "guard2":"'s defend has increased 2x !",
+            
+            "itemopt":"Item",
+            "empty":"You didn't have anything! :D",
+            "itempick":"Pick an item to use:",
+            
+            "runopt":"Escape",
+            "escape":"You managed to escape!",
+            "escapefail":"Failed to escape..."
+        }
+    }
 }
