@@ -1,0 +1,140 @@
+{
+  "sword": {
+    "name": "sword",
+    "price": 150,
+    "rarity": "common",
+    "effect": null,
+    "hp": 300,
+    "STR": 5
+  },
+  "light helmet": {
+    "name": "light helmet",
+    "price": 50,
+    "rarity": "common",
+    "effect": null,
+    "hp": 150,
+    "DEF": 2
+  },
+  "medium armor": {
+    "name": "medium armor",
+    "price": 200,
+    "rarity": "uncommon",
+    "effect": null,
+    "hp": 500,
+    "DEF": 10
+  },
+  "medium legging": {
+    "name": "medium legging",
+    "price": 100,
+    "rarity": "common",
+    "effect": null,
+    "hp": 250,
+    "DEF": 5
+  },
+  "leather boots": {
+    "name": "leather boots",
+    "price": 75,
+    "rarity": "uncommon",
+    "effect": "Increase movement speed",
+    "hp": 150,
+    "AGI": 2
+  },
+  "bow": {
+    "name": "bow",
+    "price": 180,
+    "rarity": "uncommon",
+    "effect": "Increase critical rate",
+    "hp": 250,
+    "AGI": 5
+  },
+  "light ranger suit": {
+    "name": "light ranger suit",
+    "price": 220,
+    "rarity": "uncommom",
+    "effect": "Increase evasion",
+    "hp": 400,
+    "DEF": 7,
+    "AGI": 3
+  },
+  "swift boots": {
+    "name": "swift boots",
+    "price": 100,
+    "rarity": "uncommon",
+    "effect": "Increase dodge chance",
+    "hp": 200,
+    "AGI": 3
+  },
+  "staff": {
+    "name": "staff",
+    "price": 300,
+    "rarity": "uncommon",
+    "effect": "Increase magic power",
+    "hp": 200,
+    "INT": 7
+  },
+  "medium robe": {
+    "name": "medium robe",
+    "price": 150,
+    "rarity": "uncommon",
+    "effect": "Reduce spell cooldown",
+    "hp": 300,
+    "DEF": 4,
+    "INT": 3
+  },
+  "arcane boots": {
+    "name": "arcane boots",
+    "price": 120,
+    "rarity": "uncommon",
+    "effect": "Increase mana pool",
+    "hp": 250,
+    "INT": 4
+  },
+  "dagger": {
+    "name": "dagger",
+    "price": 100,
+    "rarity": "uncommon",
+    "effect": "Increase attack speed",
+    "hp": 200,
+    "AGI": 5
+  },
+  "cloak": {
+    "name": "cloak",
+    "price": 90,
+    "rarity": "uncommon",
+    "effect": "Reduce detection chance",
+    "hp": 150,
+    "AGI": 2
+  },
+  "sneak boots": {
+    "name": "sneak boots",
+    "price": 110,
+    "rarity": "uncommon",
+    "effect": "Increase stealth duration",
+    "hp": 200,
+    "AGI": 4
+  },
+  "grimoire": {
+    "name": "grimoire",
+    "price": 250,
+    "rarity": "uncommon",
+    "effect": "Boost healing power",
+    "hp": 200,
+    "INT": 6
+  },
+  "light robe": {
+    "name": "light robe",
+    "price": 120,
+    "rarity": "uncommon",
+    "effect": "Increase mana regeneration",
+    "hp": 250,
+    "INT": 2
+  },
+  "medium boots": {
+    "name": "medium boots",
+    "price": 90,
+    "rarity": "common",
+    "effect": null,
+    "hp": 250,
+    "DEF": 3
+  }
+}

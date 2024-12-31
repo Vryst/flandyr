@@ -16,105 +16,36 @@ def dialogue(player):
     
     
     
-def create_hero(hero_name, hero_class, subroles=[]):
+def create_hero(hero_name, hero_class, *subroles):
     """
-       ("role",
-       [subroles],
-       HP,
-       ATK,
-       DEF,
-       CRATE,
-       CDMG,
-       STR,
-       VIT,
-       AGI,
-       INT,
-       COIN,
-       REPUTATION,
-       ,INVENTORY (list)
-       )
+    Mengembalikan instance Hero
+    
+    berdasarkan data role di dictionary roles.
     """
+    if hero_class not in roles_dict:
+        raise ValueError(f"Invalid hero class: {hero_class}")
     
-    roles = [
-        ("warrior",
-        subroles,
-        1000,
-        130,
-        30,
-        35,
-        80,
-        5,
-        8,
-        15,
-        3,
-        0,
-        0,
-        ["sword","light helmet","medium armor","medium legging","leather boots"]),
-        
-        ("archer",
-        subroles,
-        700,
-        80,
-        25,
-        50,
-        100,
-        4,
-        2,
-        45,
-        4,
-        0,
-        0,
-        ["bow","light ranger suit","light legging","swift boots"]),
-        
-        ("mage",
-        subroles,
-        400,
-        270,
-        15,
-        10,
-        120,
-        1,
-        2,
-        15,
-        8,
-        0,
-        0,
-        ["staff","medium robe","light legging","arcane boots"]),
-        
-        ("assassin",
-        subroles,
-        450,
-        50,
-        15,
-        75,
-        200,
-        3,
-        4,
-        70,
-        4,
-        0,
-        0,
-        ["dagger","cloak","light legging","sneak boots"]),
-        
-        ("cleric",
-        subroles,
-        500,
-        30,
-        70,
-        10,
-        20,
-        1,
-        3,
-        15,
-        5,
-        0,
-        0,
-        ["grimoire","light robe","medium legging","medium boots"])
-    ]
+    # Ambil data role dari dictionary
+    role_data = roles[hero_class]
     
-    role, subroles, health, attack, defend, crit_rate, crit_dmg, strength, vitality, agility, intelligence, coin, reputation, inventory = roles[hero_class - 1]
-    return Hero(hero_name, role, subroles, health, attack, defend, crit_rate, percent(crit_dmg), strength, vitality, agility, intelligence, coin, reputation, inventory)
-
+    # Return sesuai dengan class Hero seperti format kode Anda
+    return Hero(
+        hero_name,
+        hero_class,
+        subroles,
+        role_data["HP"],
+        role_data["ATK"],
+        role_data["DEF"],
+        role_data["CRATE"],
+        role_data["CDMG"],
+        role_data["STR"],
+        role_data["VIT"],
+        role_data["AGI"],
+        role_data["INT"],
+        role_data["COIN"],
+        role_data["REPUTATION"],
+        role_data["INVENTORY"]
+    )
 
 
 
@@ -175,7 +106,9 @@ def pilih_role(tsl):
             if hero_class in roles_index:
                 break
             else:
-                pass
+                print(f"{printf(tsl['invalid'])}")
+                loading(0.5)
+                clear()
                 
         
         
@@ -190,7 +123,7 @@ def pilih_role(tsl):
 
 def battle(player,enemy,tsl=tsl):
             clear()
-            print(f"Kamu bertarung melawan {enemy.name}!\n")
+            print(f"{tsl['encounter']['fight']} {enemy.name}!\n")
             
             while True:
                 
@@ -208,7 +141,7 @@ Pilih aksi yang tersedia:
       2. {tsl['encounter']['battle']['guardopt']}
       3. {tsl['encounter']['battle']['itemopt']}
       4. {tsl['encounter']['battle']['runopt']}\n""")
-                            aksi_battle = int(input("Pilihan(1/2/3/4): "))
+                            aksi_battle = int(input(f"{tsl['choose']}"))
                             if aksi_battle in [1, 2, 3, 4]:
                                 break  # Exit the loop if valid input is given
                             else:
@@ -421,20 +354,20 @@ def shop(player,tsl=tsl):
         else:
             
             dash()
-            print(f"{tsl['shop']['greet']}")
+            print(f"{printf(tsl['shop']['greet'])}")
             dashn()
             
         
         
-        print(f"Your balance: {player.coin}G")
+        print(f"{printf(f'Your balance: {player.coin}G')}")
         
         isSpecialShop(player)
-        print("1)Beli\n2)Jual\n3)Pergi")
+        printl(tsl['shop']['buy'],tsl['shop']['sell'],tsl['shop']['exit'])
         try:
             
             pilihan = int(input("\nPilih(1,2,3) : "))
-            if pilihan not in [0,1,2,3,4]:
-                print("Harap masukkan pilihan yang tersedia! (1/2/3)")
+            if pilihan not in [0,1,2,3]:
+                print(f"{printf(tsl['invalid'])}")
                 loading(1)
         except ValueError:
             print("Apakah kau bisa baca oh orang asing?")
@@ -536,9 +469,9 @@ h. {tsl['shop']['delete']}
                 
                 if keranjang == []:
                     dash()
-                    print("KAMU BELUM MEMBELI APAPUN")
+                    print(f"{printf('KAMU BELUM MEMBELI APAPUN')}")
                     dashn()
-                    pass
+                    confirm()
                     
                 else:
                     
@@ -601,7 +534,7 @@ def sell(player,tsl=tsl):
             clear()
             try:
                 
-                print("What do you want to sell?")
+                print(f"{printf('What do you want to sell?')}")
                 dash()
                 counter = 1
                 
@@ -614,29 +547,48 @@ def sell(player,tsl=tsl):
                         counter += 1
 
                 if not inventory_map:  # If no sellable items are found
-                    print("No sellable items in your inventory!")
+                    dash()
+                    print(f"{printf('No sellable items in your inventory!')}")
+                    dashn()
+                    
                     confirm()
                     break
                 
                 # Get user input
                 try:
                     
-                    beli = int(input("\nEnter the item number: "))
+                    beli = int(input(f"\n\n{printf('Enter the item number (0 to go back)')}"))
                     selected_item = inventory_map.get(beli)
-
+                    
+                    if beli == 0:
+                        break
+                        
                     if selected_item:
-                        print(f"\n\nSell {daftar_harga[selected_item]['name']} for {daftar_harga[selected_item]['price']}? (y/n)")
+                        selectedItemText = f"Sell {daftar_harga[selected_item]['name']} for {daftar_harga[selected_item]['price']}? (y/n)"
+                        dash()
+                        print(f"{printf(selectedItemText)}")
+                        dashn()
+                        
                         membeli = input(": ").strip().lower()
 
                         if membeli == "y":
                             player.inventory.remove(selected_item)
                             player.coin += daftar_harga[selected_item]['price']
-                            print(f"\nYou sold {daftar_harga[selected_item]['name']}!")
+                            
+                            clear()
+                            soldText = f"You sold {daftar_harga[selected_item]['name']}!"
+                            dash()
+                            print(f"{printf(soldText)}")
+                            dashn()
+                            
                             confirm()
                             continue
                             
                         elif membeli == "n":
-                            print("\nCanceled the selling.")
+                            dash()
+                            print(f"{printf('Canceled the selling.')}")
+                            dashn()
+                            
                             loading(1)
                             break
                             
@@ -646,7 +598,10 @@ def sell(player,tsl=tsl):
                         pass
                         
                     else:
-                        print("Item not found!")
+                        dash()
+                        print(f"{printf('Item not found!')}")
+                        dashn()
+                        
                         loading(1)
                         
                 except ValueError:

@@ -25,10 +25,17 @@ from game.fun import *
 
 # testing method
 #a = Hero()
+#b = Enemy()
+#a.subroles = ["Hero","Demon"]
+#a.addInv(["Aku","Aob"])
+#print(a)
 #a.addInv(Makanan.buah)
 #b = [i for i in Makanan.getDaftarBuah()]
 # run perfectly
 
+
+#shop(a)
+#battle(a,b)
 # checking if there is any item in inventory
 #print(a.inventory)
 # try except works fine

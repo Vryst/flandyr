@@ -10,35 +10,183 @@ from game.prep import random
 from game.prep import json
 from game.prep import os
 from game.prep import printf
+from game.prep import printl
 
 
-roles_index = [
-1,
-2,
-3,
-4,
-5,
-6
-]
 
 #roles_index.append(len(roles_index)+1)
 #print(roles_index)
 
-roles = [
-"warrior",
-"archer",
-"mage",
-"assassin",
-"cleric",
-"alchemist",
-"monk"
-]
+roles = {
+    "warrior": {
+        "HP": 1000, "ATK": 130, "DEF": 30, "CRATE": 35, "CDMG": 80,
+        "STR": 5, "VIT": 8, "AGI": 15, "INT": 3, "COIN": 0, "REPUTATION": 0,
+        "INVENTORY": ["sword", "light helmet", "medium armor", "medium legging", "leather boots"]
+    },
+    "archer": {
+        "HP": 700, "ATK": 80, "DEF": 25, "CRATE": 50, "CDMG": 100,
+        "STR": 4, "VIT": 2, "AGI": 45, "INT": 4, "COIN": 0, "REPUTATION": 0,
+        "INVENTORY": ["bow", "light ranger suit", "light legging", "swift boots"]
+    },
+    "mage": {
+        "HP": 400, "ATK": 270, "DEF": 15, "CRATE": 10, "CDMG": 120,
+        "STR": 1, "VIT": 2, "AGI": 15, "INT": 8, "COIN": 0, "REPUTATION": 0,
+        "INVENTORY": ["staff", "medium robe", "light legging", "arcane boots"]
+    },
+    "assassin": {
+        "HP": 450, "ATK": 50, "DEF": 15, "CRATE": 75, "CDMG": 200,
+        "STR": 3, "VIT": 4, "AGI": 70, "INT": 4, "COIN": 0, "REPUTATION": 0,
+        "INVENTORY": ["dagger", "cloak", "light legging", "sneak boots"]
+    },
+    "cleric": {
+        "HP": 500, "ATK": 30, "DEF": 70, "CRATE": 10, "CDMG": 20,
+        "STR": 1, "VIT": 3, "AGI": 15, "INT": 5, "COIN": 0, "REPUTATION": 0,
+        "INVENTORY": ["grimoire", "light robe", "medium legging", "medium boots"]
+    }
+}
 
-subroles = [
-"hero",
-"bandit"
+roles_index = [i for i in range(len(roles))]
+#print(roles_index)
 
-]
+
+sub_roles = {
+    "warrior": {
+        "tank": {
+            "HP": 1200, "ATK": 100, "DEF": 50, "CRATE": 25, "CDMG": 75,
+            "STR": 7, "VIT": 10, "AGI": 10, "INT": 2,
+            "INVENTORY": ["shield", "heavy armor", "steel boots"]
+        },
+        "berserker": {
+            "HP": 900, "ATK": 150, "DEF": 20, "CRATE": 40, "CDMG": 120,
+            "STR": 10, "VIT": 5, "AGI": 20, "INT": 1,
+            "INVENTORY": ["great axe", "fur armor", "iron gauntlets"]
+        },
+        "commander": {
+            "HP": 1000, "ATK": 120, "DEF": 30, "CRATE": 30, "CDMG": 90,
+            "STR": 8, "VIT": 8, "AGI": 12, "INT": 4,
+            "INVENTORY": ["long sword", "plate armor", "golden helm"]
+        },
+        "knight": {
+            "HP": 1100, "ATK": 110, "DEF": 40, "CRATE": 20, "CDMG": 80,
+            "STR": 6, "VIT": 9, "AGI": 10, "INT": 3,
+            "INVENTORY": ["lance", "steel armor", "steel boots"]
+        },
+        "barbarian": {
+            "HP": 1000, "ATK": 140, "DEF": 25, "CRATE": 35, "CDMG": 100,
+            "STR": 9, "VIT": 6, "AGI": 15, "INT": 2,
+            "INVENTORY": ["war hammer", "leather armor", "fur boots"]
+        },
+    },
+    "archer": {
+        "sniper": {
+            "HP": 600, "ATK": 100, "DEF": 20, "CRATE": 60, "CDMG": 150,
+            "STR": 4, "VIT": 2, "AGI": 50, "INT": 3,
+            "INVENTORY": ["longbow", "camouflage suit", "swift boots"]
+        },
+        "ranger": {
+            "HP": 750, "ATK": 90, "DEF": 25, "CRATE": 50, "CDMG": 100,
+            "STR": 5, "VIT": 3, "AGI": 45, "INT": 4,
+            "INVENTORY": ["hunting bow", "leather armor", "ranger boots"]
+        },
+        "scout": {
+            "HP": 700, "ATK": 85, "DEF": 15, "CRATE": 55, "CDMG": 120,
+            "STR": 3, "VIT": 2, "AGI": 55, "INT": 2,
+            "INVENTORY": ["shortbow", "light armor", "scout boots"]
+        },
+        "trapmaster": {
+            "HP": 650, "ATK": 70, "DEF": 30, "CRATE": 40, "CDMG": 90,
+            "STR": 3, "VIT": 4, "AGI": 40, "INT": 5,
+            "INVENTORY": ["crossbow", "reinforced leather", "trap kit"]
+        },
+        "beastmaster": {
+            "STR": 6, "VIT": 5, "AGI": 40, "INT": 3,
+            "INVENTORY": ["hunting spear", "beast cloak", "animal whistle"]
+        },
+    },
+    "mage": {
+        "elementalist": {
+            "HP": 400, "ATK": 300, "DEF": 10, "CRATE": 15, "CDMG": 120,
+            "STR": 1, "VIT": 2, "AGI": 20, "INT": 10,
+            "INVENTORY": ["staff of fire", "wizard robe", "enchanted boots"]
+        },
+        "warlock": {
+            "HP": 450, "ATK": 270, "DEF": 15, "CRATE": 20, "CDMG": 150,
+            "STR": 2, "VIT": 3, "AGI": 15, "INT": 9,
+            "INVENTORY": ["dark tome", "shadow cloak", "arcane boots"]
+        },
+        "sorcerer": {
+            "HP": 400, "ATK": 280, "DEF": 15, "CRATE": 10, "CDMG": 130,
+            "STR": 1, "VIT": 2, "AGI": 18, "INT": 10,
+            "INVENTORY": ["arcane crystal", "silk robe", "magic sandals"]
+        },
+        "illusionist": {
+            "HP": 420, "ATK": 260, "DEF": 12, "CRATE": 25, "CDMG": 110,
+            "STR": 1, "VIT": 2, "AGI": 25, "INT": 8,
+            "INVENTORY": ["wand of illusions", "light robe", "swift boots"]
+        },
+        "necromancer": {
+            "HP": 400, "ATK": 250, "DEF": 10, "CRATE": 15, "CDMG": 140,
+            "STR": 1, "VIT": 3, "AGI": 10, "INT": 10,
+            "INVENTORY": ["bone staff", "death cloak", "dark boots"]
+        },
+    },
+    "assassin": {
+        "shadowblade": {
+            "HP": 500, "ATK": 70, "DEF": 15, "CRATE": 80, "CDMG": 180,
+            "STR": 4, "VIT": 3, "AGI": 75, "INT": 2,
+            "INVENTORY": ["dual blades", "shadow cloak", "silent boots"]
+        },
+        "ninja": {
+            "HP": 480, "ATK": 60, "DEF": 20, "CRATE": 70, "CDMG": 150,
+            "STR": 3, "VIT": 3, "AGI": 80, "INT": 3,
+            "INVENTORY": ["throwing stars", "ninja suit", "swift boots"]
+        },
+        "poisoner": {
+            "HP": 450, "ATK": 65, "DEF": 15, "CRATE": 75, "CDMG": 160,
+            "STR": 3, "VIT": 2, "AGI": 70, "INT": 5,
+            "INVENTORY": ["dagger", "cloak of toxins", "stealth boots"]
+        },
+        "hunter": {
+            "HP": 520, "ATK": 80, "DEF": 20, "CRATE": 60, "CDMG": 140,
+            "STR": 5, "VIT": 4, "AGI": 65, "INT": 3,
+            "INVENTORY": ["bow", "light armor", "tracker boots"]
+        },
+        "saboteur": {
+            "HP": 500, "ATK": 75, "DEF": 18, "CRATE": 65, "CDMG": 150,
+            "STR": 4, "VIT": 3, "AGI": 70, "INT": 4,
+            "INVENTORY": ["bombs", "reinforced cloak", "silent shoes"]
+        },
+    },
+    "cleric": {
+        "priest": {
+            "HP": 550, "ATK": 25, "DEF": 70, "CRATE": 10, "CDMG": 20,
+            "STR": 1, "VIT": 4, "AGI": 12, "INT": 6,
+            "INVENTORY": ["holy staff", "priest robe", "blessed sandals"]
+        },
+        "paladin": {
+            "HP": 900, "ATK": 100, "DEF": 60, "CRATE": 20, "CDMG": 80,
+            "STR": 6, "VIT": 8, "AGI": 10, "INT": 4,
+            "INVENTORY": ["hammer", "holy armor", "iron boots"]
+        },
+        "monk": {
+            "HP": 600, "ATK": 70, "DEF": 40, "CRATE": 15, "CDMG": 50,
+            "STR": 3, "VIT": 5, "AGI": 25, "INT": 5,
+            "INVENTORY": ["staff", "monk robes", "light boots"]
+        },
+        "inquisitor": {
+            "HP": 500, "ATK": 80, "DEF": 50, "CRATE": 30, "CDMG": 90,
+            "STR": 5, "VIT": 4, "AGI": 20, "INT": 6,
+            "INVENTORY": ["cross", "reinforced robes", "blessed shoes"]
+        },
+        "templar": {
+            "HP": 850, "ATK": 90, "DEF": 70, "CRATE": 25, "CDMG": 70,
+            "STR": 6, "VIT": 7, "AGI": 15, "INT": 4,
+            "INVENTORY": ["sword", "heavy armor", "steel boots"]
+        },
+    },
+}
+
+
 special_shop = [
 "hero",
 "assassin",
@@ -132,7 +280,7 @@ class Hero:
     def __init__(self,
     name="Dummy",
     role="Dummy",
-    subroles=[],
+    subroles=["Dummy"],
     health=1,
     attack=0,
     defend=0,
@@ -204,7 +352,7 @@ Date created:
 ==================== PROFILE         
 Name  = {self.name}
  Class = {self.role}
-  Sub-class = {" ".join(i for i in subroles)}
+  Sub-class = {",".join(i for i in self.subroles)}
    Coins = {self.coin}
     Reputation = {self.reputation}
 ==================== STATS
@@ -299,7 +447,7 @@ STR = {self.strength}
         
     
     def getInv(self):
-        counter = 1
+        
         
         if self.inventory == []:
             
@@ -307,13 +455,14 @@ STR = {self.strength}
         
         for item in self.inventory:
             index = 1
-            if buah in Makanan.buah:
+            if item in Makanan.buah:
                 
-                print(f"{counter:>2}. {Makanan.detail_buah[item]['name']}")
-                counter+=1
+                print(f"{index>2}. {Makanan.detail_buah[item]['name']}")
+                
             else:
                 print(f"{printf(index,item)}")
                 
+            index+=1
         
     def getStat(self):
         print(f"""
@@ -469,7 +618,11 @@ class Makanan(Item):
         if p == True:
             
             index = 1
-            print("\nDAFTAR BUAH\n=============")
+            
+            dash()
+            print(f"{printf('DAFTAR BUAH')}")
+            dashn()
+            
             for i in cls.buah:
                 print(f"{index:<2} {cls.detail_buah[i]['name']:<20} {cls.detail_buah[i]['price']:>3} G")
                 index +=1
@@ -547,7 +700,7 @@ Details:
 
         
         # Debug output
-        print(f"{'Receipt':^36}")
+        print(f"{printf('RECEIPT')}")
         dash()
         for i,j in receipt.items():
             print(f"{cls.detail_buah[i]['name']:<17}{'x':>6}{j:<2}{cls.detail_buah[i]['price']:>10}G")

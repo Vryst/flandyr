@@ -49,7 +49,7 @@
     
     "walk":"You're walking where the wind flows",
     "to":"to",
-    
+    "choose":"Choose: ",
     
     "shop":{
         "greet":"Welcome to my shop, stranger! huhah! :v",
@@ -58,12 +58,16 @@
         "confirm":"Do not input anything if you still adding items\nInput '0' to proceed buying",
         "pay":"Bayar",
         "back":"Kembali",
-        "delete":"Hapus item"
+        "delete":"Hapus item",
+        "buy":"Buy",
+        "sell":"Sell",
+        "exit":"Exit"
     },
     
     "encounter":{
         "ignore":"You're ignoring ",
         "meet":"You meet",
+        "fight":"You're fighting against",
         "battle":{
             "atkopt":"Attack",
             "dead":"already dead",

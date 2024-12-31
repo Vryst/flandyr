@@ -49,6 +49,8 @@
     
     "walk":"Kamu berjalan tanpa arah",
     "to":"ke",
+    "choose":"Pilih: ",
+    
     
     "shop":{
         "greet":"Selamat datang di toko, orang asing! heheh..",
@@ -57,13 +59,17 @@
         "confirm":"Jangan input apapun jika lanjut beli\nInput '0' untuk melakukan pembayaran",
         "pay":"Bayar",
         "back":"Kembali",
-        "delete":"Hapus item"
+        "delete":"Hapus item",
+        "buy":"Beli",
+        "sell":"Jual",
+        "exit":"Pergi"
     },
     
     "encounter":{
         
         "ignore":"Kamu mengabaikan ",
         "meet":"Kamu bertemu dengan",
+        "fight":"Kamu bertarung dengan",
         "battle":{
             "atkopt":"Serang",
             "dead":"sudah mati",

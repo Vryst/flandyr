@@ -166,6 +166,14 @@ def printf(index=None,text="error"):
         dashn()
         
         
+#loop printf
+def printl(*text):
+    n = 1
+    for i in text:
+        
+        print(f"{printf(n,i)}")
+        n += 1
+        
 # ====== TRANSLATION FUNCTION =====
 def load_translations(language="en"):
     try:
