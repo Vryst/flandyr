@@ -45,7 +45,7 @@ roles = {
     }
 }
 
-roles_index = [i for i in range(len(roles))]
+roles_index = [i+1 for i in range(len(roles))]
 #print(roles_index)
 
 
@@ -220,7 +220,7 @@ musuh = [
 def randomizer(a=100):
     try:
             if type(a) == int:
-                return random.choice(range(a))
+                return random.randint(1,a)
             elif type(a) == list:
                 return random.choice(a)
     except (TypeError, ValueError):
@@ -548,6 +548,16 @@ class Enemy(Hero):
 
 class Item:
     
+    item = []
+    item_detail = {}
+    
+    with open("../resources/items.json","r") as file:
+            item_list = json.load(file)
+            item.extend(item_list.keys())
+            
+            item_detail.update(item_list.items())
+            
+            
     def __init__(self, name, base_price, rarity):
         self.name = name
         self.base_price = base_price

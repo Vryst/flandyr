@@ -22,12 +22,16 @@ def create_hero(hero_name, hero_class, *subroles):
     
     berdasarkan data role di dictionary roles.
     """
-    if hero_class not in roles_dict:
-        raise ValueError(f"Invalid hero class: {hero_class}")
-    
-    # Ambil data role dari dictionary
+    clear()
+    index = 1
+    for data in subroles:
+        roleList = list(data.keys())
+        for role in roleList:
+            print(f"{printf(index,role)}")
+            index+=1
+        confirm()
+        
     role_data = roles[hero_class]
-    
     # Return sesuai dengan class Hero seperti format kode Anda
     return Hero(
         hero_name,
@@ -54,8 +58,8 @@ def main(load=False,translate=tsl):
     clear()
     
     if load == False:
-        hero_name, hero_class = pilih_role(translate)  # Pass directly
-        hero = create_hero(hero_name, hero_class)
+        hero_name, hero_class, sub = pilih_role(translate)  # Pass directly
+        hero = create_hero(hero_name, hero_class,sub)
         
     elif load != False:
         hero = Hero.loadData(load)
@@ -83,7 +87,7 @@ def main(load=False,translate=tsl):
     
 
 #pilih role
-def pilih_role(tsl):
+def pilih_role(tsl=tsl):
     
     dash()
     print(f"{printf(tsl['welcome'])}")
@@ -104,20 +108,32 @@ def pilih_role(tsl):
             hero_class = int(input(f"{tsl['inputrole']}"))
             
             if hero_class in roles_index:
+                hero_class = list(roles.keys())[hero_class-1]
+                #print(hero_class) role picked eg: 'warrior'
+                sub_roles_avaiable = sub_roles[hero_class]
+                #print(sub_roles_avaiable)
+                #confirm()
                 break
             else:
+                
+                dash()
                 print(f"{printf(tsl['invalid'])}")
+                dashn()
                 loading(0.5)
                 clear()
                 
         
         
         except:
-            print(f"{tsl['errinputrole']}")
-            pass
+            dash()
+            print(f"{printf(tsl['errinputrole'])}")
+            dashn()
+            loading(0.5)
+            clear()
+            
         
         
-    return hero_name, hero_class
+    return hero_name, hero_class, sub_roles_avaiable
     
     
 
@@ -212,7 +228,7 @@ Pilih aksi yang tersedia:
                             if kabur:
                                 
                                 dash()
-                                print("{printf(tsl['encounter']['battle']['escape'])}")
+                                print(f"{printf(tsl['encounter']['battle']['escape'])}")
                                 dashn()
                                 
                                 loading(1)
@@ -262,7 +278,7 @@ def encounter(hero,tsl=tsl):
     if berjalan == 1:
        while on:
         
-        enemy = Enemy(randomizer(musuh),randomizer(roles),randomizer(subroles),randomizer(),randomizer(),randomizer(),randomizer(),percent(randomizer()),randomizer(),randomizer(),randomizer(),randomizer())
+        enemy = Enemy(randomizer(musuh),randomizer(roles),['warrior'],randomizer(),randomizer(),randomizer(),randomizer(),percent(randomizer()),randomizer(10),randomizer(100),randomizer(50),randomizer(10))
         
         #enemy.getStat()
         while True:
@@ -278,8 +294,7 @@ def encounter(hero,tsl=tsl):
             if lanjut == "y":
                   hasil_pertarungan = battle(hero,enemy,tsl)
                   if hasil_pertarungan == "kabur":
-                      print(f"{printf(tsl['encounter']['battle']['escape'])}")
-                      loading(1)
+                      
                       break
                   if hasil_pertarungan == True:
                       print(f"\nKamu mengalahkan {enemy.name}!")
