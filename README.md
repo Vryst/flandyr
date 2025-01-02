@@ -49,11 +49,11 @@ Follow these steps to set up the project locally:
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/Vryst/text_based_rpg.git
+   git clone https://github.com/Vryst/flandyr.git
    ```
 2. Navigate into the project directory:
    ```bash
-   cd text_based_rpg
+   cd flandyr
    ```
 3. Create virtual environment
    ```bash
@@ -68,15 +68,24 @@ Follow these steps to set up the project locally:
      ```bash
      .\venv\Scripts\activate
      ```
-    
+5. Install the setup
+  ```bash
+  pip install -e .
+  ```
+
 6. Install the required dependencies:
   ```bash
   pip install -r requirements.txt
   ```
 
+7. Navigate to the main script
+  ```bash
+  cd main/game
+  ```
+
 8. Run the game :D
   ```bash
-  python main.py
+  python view.py
   ```
 
 ## Contribution
@@ -87,7 +96,7 @@ Contributions are welcome! To contribute to this project, follow these steps:
 
 2. Clone your fork to your local machine:
    ```bash
-   git clone https://github.com/Vryst/text_based_rpg.git
+   git clone https://github.com/Vryst/flandyr.git
    ```
 
 3. Create a new branch:
@@ -110,3 +119,12 @@ Contributions are welcome! To contribute to this project, follow these steps:
 ## LICENSE
 
 This project is licensed under the GNU General Public License v2.0 - see the LICENSE file for details.
+
+
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Features](#features)
+- [Installation](#installation)
+- [Contributing](#contributing)
+- [License](#license)
