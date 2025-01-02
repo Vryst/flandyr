@@ -24,7 +24,7 @@ from game.fun import *
 # answer : yes it can :D
 
 # testing method
-#a = Hero()
+a = Hero()
 #b = Enemy()
 #a.subroles = ["Hero","Demon"]
 #a.addInv(["Aku","Aob"])
@@ -33,7 +33,8 @@ from game.fun import *
 #b = [i for i in Makanan.getDaftarBuah()]
 # run perfectly
 
-
+main()
+#pilih_role()
 #shop(a)
 #battle(a,b)
 # checking if there is any item in inventory
@@ -50,7 +51,7 @@ from game.fun import *
 
 # saving data
 #Hero.saveData(c,"aca.json")
-# works fine
+# works fine{printf('replace_me')}
 
 
 
