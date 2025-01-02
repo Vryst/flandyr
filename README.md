@@ -68,22 +68,28 @@ Follow these steps to set up the project locally:
      ```bash
      .\venv\Scripts\activate
      ```
-5. Install the setup
+
+5. Set project root
+  ```bash
+  export PYTHONPATH=$(pwd):$PYTHONPATH
+  ```
+
+6. Install the setup
   ```bash
   pip install -e .
   ```
 
-6. Install the required dependencies:
+7. Install the required dependencies:
   ```bash
   pip install -r requirements.txt
   ```
 
-7. Navigate to the main script
+8. Navigate to the main script
   ```bash
   cd main/game
   ```
 
-8. Run the game :D
+9. Run the game :D
   ```bash
   python view.py
   ```
