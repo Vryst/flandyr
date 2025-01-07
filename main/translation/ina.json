@@ -60,9 +60,20 @@
         "pay":"Bayar",
         "back":"Kembali",
         "delete":"Hapus item",
+        
+        "reputation":"Reputasi kamu: ",
+        "balance":"Uang kamu: ",
         "buy":"Beli",
+        "buys":"Kamu membeli",
+        "notbuy":"Kamu belum membeli apapun",
         "sell":"Jual",
-        "exit":"Pergi"
+        "sells":"Kamu menjual",
+        "exit":"Pergi",
+        "sThief":"Mencuri",
+        "sHero":"Tunjukkan reputasi",
+        "sBandit":"Rampok",
+        "sPirate":"Rampok"
+        
     },
     
     "encounter":{

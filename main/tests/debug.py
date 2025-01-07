@@ -4,8 +4,11 @@
 
 from game.fun import *
 #from game.prep import *
-#from game.classes import *
+from game.classes import *
 
+
+#print(Item.item)
+#print(Item.item_detail.keys())
 #bug print 3x
 #fix = default argument on function is executed(i put function as the default argument'), so its'fixed now'
 #refresh_width(True)
@@ -28,12 +31,12 @@ a = Hero()
 #b = Enemy()
 #a.subroles = ["Hero","Demon"]
 #a.addInv(["Aku","Aob"])
-#print(a)
+print(a)
 #a.addInv(Makanan.buah)
 #b = [i for i in Makanan.getDaftarBuah()]
 # run perfectly
 
-main()
+#main()
 #pilih_role()
 #shop(a)
 #battle(a,b)

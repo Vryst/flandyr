@@ -59,9 +59,19 @@
         "pay":"Bayar",
         "back":"Kembali",
         "delete":"Hapus item",
+        
+        "reputation":"Your reputation: ",
+        "balance":"Your balance: ",
         "buy":"Buy",
+        "buys":"You bought",
+        "notbuy":"You haven't buying anything",
         "sell":"Sell",
-        "exit":"Exit"
+        "sells":"You sell",
+        "exit":"Exit",
+        "sThief":"Steal",
+        "sHero":"Showing off reputation",
+        "sBandit":"Rob",
+        "sPirate":"Rob"
     },
     
     "encounter":{

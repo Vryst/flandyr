@@ -338,17 +338,18 @@ def encounter(hero,tsl=tsl):
 #special shop interaction checker
 def isSpecialShop(player,tsl=tsl):
     if player.role == "thief":
-        print(f"\n0)Mencuri? :v")
+        print(f"{printf(0,tsl['shop']['sThief'])}")
         pass
     
     
     if player.role == "bandit":
-        print(f"\n0)Rampok? :v")
+        print(f"{printf(0,tsl['shop']['sBandit'])}")
         pass
     
     
     if player.role == "hero":
-        print(f"\n0)Tunjukkan jasa?\n(menyombongkan diri dengan poin reputasi)\n\nPoin reputasi: {player.reputation}:v")
+        print(f"{printf(tsl['shop']['reputation'])}")
+        print(f"{printf(0,tsl['shop']['sHero'])}")
         pass
         
     else:
@@ -373,14 +374,14 @@ def shop(player,tsl=tsl):
             dashn()
             
         
-        
-        print(f"{printf(f'Your balance: {player.coin}G')}")
+        playerBalanceText = f"{tsl['shop']['balance']} {player.coin}G"
+        print(f"{printf(playerBalanceText)}")
         
         isSpecialShop(player)
         printl(tsl['shop']['buy'],tsl['shop']['sell'],tsl['shop']['exit'])
         try:
             
-            pilihan = int(input("\nPilih(1,2,3) : "))
+            pilihan = int(input(f"{tsl['choose']}"))
             if pilihan not in [0,1,2,3]:
                 print(f"{printf(tsl['invalid'])}")
                 loading(1)
@@ -452,12 +453,13 @@ def buy(player,tsl=tsl):
                 
                 if duplicate > 1:
                     
-                    print(f"- {detail_buah[i]['name']:<20} {'x':>11}{duplicate}")
+                    duplicateText = f"- {detail_buah[i]['name']:<20} {'x':>11}{duplicate}"
+                    print(f"{printf(duplicateText)}")
                     receipt.update({i:duplicate})
                         
                 else:
-                    
-                    print(f"- {detail_buah[i]['name']}")
+                    nonDuplicateText = f"- {detail_buah[i]['name']:<20} {'x':>11}1"
+                    print(f"{printf(nonDuplicateText)}")
                     receipt.update({i:1})
             
             print(f"""
@@ -468,7 +470,7 @@ def buy(player,tsl=tsl):
 k. {tsl['shop']['back']}
 h. {tsl['shop']['delete']}
 """)
-            buah = input("Buah yang ingin dibeli : ")
+            buah = input(f"{printf('Buah yang ingin dibeli : ')}")
             
             
                 
@@ -484,7 +486,7 @@ h. {tsl['shop']['delete']}
                 
                 if keranjang == []:
                     dash()
-                    print(f"{printf('KAMU BELUM MEMBELI APAPUN')}")
+                    print(f"{printf(tsl['shop']['notbuy'])}")
                     dashn()
                     confirm()
                     

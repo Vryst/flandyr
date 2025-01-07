@@ -713,8 +713,11 @@ Details:
         print(f"{printf('RECEIPT')}")
         dash()
         for i,j in receipt.items():
-            print(f"{cls.detail_buah[i]['name']:<17}{'x':>6}{j:<2}{cls.detail_buah[i]['price']:>10}G")
-        print(f"\n{'Total:':>31}{total:>4}G\n")
+            receiptText = f"{cls.detail_buah[i]['name']:<17}{'x':>6}{j:<2}{cls.detail_buah[i]['price']:>10}G"
+            print(f"{printf(receiptText)}")
+        
+        totalText = f"{'Total:':>31}{total:>4}G"
+        print(f"\n{printf(totalText)}\n")
         return total
         
     #def sellFood(self,*foods):
