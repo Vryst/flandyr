@@ -1,4 +1,4 @@
-# Text-Based RPG
+# Flandyr RPG
 
 ![Build Status](https://img.shields.io/github/actions/workflow/status/Vryst/flandyr/main.yml)
 ![License](https://img.shields.io/github/license/Vryst/flandyr)
@@ -8,8 +8,7 @@ Welcome to **Flandyr** :D
 
 (this is my first game project here! please don't judge me harshly :'v)
 
-In this game, y'all will fight enemies(monsters obviously, there's many tribes too that could ended up having their blod on thy sword 💀), level up, and avoid the “Game Over” screen that comes after you make a ridiculously bad decision(git gud). Think of it as a choose-your-own-whatever book, with a lot more stats, combat, and questionable choices. All it takes is your imagination (and maybe a bit of kaffe ☕).
-So, grab your sword, dive into a world where anything is possible... welp, as long i have many ideas to put into this game
+In this game, you will fight enemies(monsters obviously, there's many tribes too that could ended up having their blod on thy sword 💀), level up, and avoid the “Game Over” screen that comes after you make a ridiculously bad decision(eating your equipment).
 
 YOUR SUGGESTIONS IS HIGHLY NEEDED (⁠≧⁠▽⁠≦⁠)
 
@@ -33,11 +32,18 @@ This game is perfect for those who enjoy classic RPG mechanics but without any g
 - Multiple classes with unique abilities and unique interaction
 - A simple leveling system for your character
 - Many places to venture at
-- Basic System
-   • Attack(skill,spell, and similiar to them will be added in this menu)
-   • Guard
-   • Item
-   • Run
+- Basic System<br>
+   <ul type="dash">
+      <li>Attack</li>
+      <ul type="none">
+         <li>|-- Skills</li>
+         <li>|-- Spells</li>
+         <li>|-- etc   </li>
+      </ul>
+      <li>Guard</li>
+      <li>Item </li>
+      <li>Escape</li>
+   </ul>
 - Shop that provides Potions, Supplies, and various Equipment
 - Create-your-own skill (future plan)
 - Easy-to-follow narrative flow with choices that affect outcomes
@@ -94,7 +100,7 @@ Follow these steps to set up the project locally:
   python view.py
   ```
 
-## Contribution
+## Contributing
 
 Contributions are welcome! To contribute to this project, follow these steps:
 
