@@ -1,0 +1,102 @@
+{
+    "startnew": "Mulai Game Baru",
+    "new": "Memulai game baru...",
+    "maintenance":"Fitur dalam pengembangan!",
+    
+    "startload": "Muat Game",
+    "loads": "Memuat game dari ",
+    "successload": "Karakter berhasil dimuat.",
+    "errload": "File rusak atau telah dimodifikasi.\nJangan coba-coba curang! Belajarlah, noob :D",
+    "chooseload": "File tersedia",
+    "indexload": "Masukkan nomor file (0 untuk kembali)",
+    
+    "exit": "Keluar",
+    "exits": "Keluar dari game...",
+    "quit": "Terimakasih telah bermain! :D",
+    
+    
+    "option": "Silakan pilih opsi",
+    "invalid": "Itu bukan opsi yang tersedia :D",
+    "invalidnum": "Silakan masukkan angka",
+    
+    
+    "loading": "Sedang Memuat...",
+    "errloading": "Kesalahan saat memuat game: {error}",
+    
+    
+    "lang":"Bahasa",
+    "chooselang":"Pilih bahasa",
+    "langs":"Bahasa dipilih",
+    
+    
+    "process": "Sedang Memproses...",
+    "success":"Berhasil!",
+    "fail": "Gagal...",
+    
+    
+    "inputname": "Silakan masukkan nama Anda: ",
+    "inputrole": "Pilih peran Anda: ",
+    "errinputrole": "Peran tidak ditemukan!",
+    
+    
+    "welcome": "Selamat datang di Flandyr!",
+    
+    "continue": "Masukkan apa saja untuk melanjutkan",
+    "name":"Nama",
+    "nosave":"Tidak ada game yang tersimpan.",
+    "noitem":"Kamu tidak memiliki apapun! :D",
+    
+    
+    "walk":"Kamu berjalan tanpa arah",
+    "to":"ke",
+    "choose":"Pilih: ",
+    
+    
+    "shop":{
+        "greet":"Selamat datang di toko, orang asing! heheh..",
+        "empty":"Kamu tidak memiliki sesuatu untuk dijual :D",
+        "cart":"DAFTAR KERANJANG",
+        "confirm":"Jangan input apapun jika lanjut beli\nInput '0' untuk melakukan pembayaran",
+        "pay":"Bayar",
+        "back":"Kembali",
+        "delete":"Hapus item",
+        
+        "reputation":"Reputasi kamu: ",
+        "balance":"Uang kamu: ",
+        "buy":"Beli",
+        "buys":"Kamu membeli",
+        "notbuy":"Kamu belum membeli apapun",
+        "sell":"Jual",
+        "sells":"Kamu menjual",
+        "exit":"Pergi",
+        "sThief":"Mencuri",
+        "sHero":"Tunjukkan reputasi",
+        "sBandit":"Rampok",
+        "sPirate":"Rampok"
+        
+    },
+    
+    "encounter":{
+        
+        "ignore":"Kamu mengabaikan ",
+        "meet":"Kamu bertemu dengan",
+        "fight":"Kamu bertarung dengan",
+        "battle":{
+            "atkopt":"Serang",
+            "dead":"sudah mati",
+            "dealt":"memberikan damage",
+            
+            "guardopt":"Bertahan",
+            "guard1":"Pertahanan milik",
+            "guard2":"telah meningkat 2x lipat!",
+            
+            "itemopt":"Item",
+            "empty":"Kamu tidak mempunyai apapun! :D",
+            "itempick":"Pilih item yang ingin digunakan:",
+            
+            "runopt":"Kabur",
+            "escape":"Kamu berhasil kabur!",
+            "escapefail":"Kamu gagal kabur..."
+        }
+    }
+}
