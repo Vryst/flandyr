@@ -61,9 +61,9 @@ Follow these steps to set up the project locally:
    cd flandyr
    ```
 3. Run the game :D
-  ```bash
-  python main.py
-  ```
+   ```bash
+   python main.py
+   ```
 
 ## Contributing
 
