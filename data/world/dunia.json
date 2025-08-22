@@ -1,0 +1,1021 @@
+{
+  "bumi": {
+    "deskripsi_planet": "Dunia yang terkutuk, di mana bencana dan keanehan telah menjadi bagian sehari-hari. Enam benua saling bersaing dalam kegelapan abadi mereka masing-masing.",
+    "Benua": {
+      "Darahrovia": {
+        "deskripsi_benua": "Benua Perang Abadi. Di sini, pertempuran tak pernah berhenti sejak Langit Berdarah terjadi.",
+        "Negara": {
+          "Kekaisaran Tanduk Hitam": {
+            "deskripsi_negara": "Monarki zombie dipimpin Raja Abadi Vorath the Wormeaten.",
+            "kota": {
+              "Vorathgrad": {
+                "deskripsi_kota": "Ibu kota kegelapan, istana Raja Vorath berdiri di atas tumpukan tengkorak.",
+                "distrik": {
+                  "Skull Plaza": "Alun-alun tengkorak tempat eksekusi massal dilakukan",
+                  "Worm Cathedral": "Katedral tempat cacing suci dipuja",
+                  "Rotting Noble Quarter": "Permukiman bangsawan zombie yang terus membusuk",
+                  "The Eternal Barracks": "Asrama prajurit abadi yang tak pernah beristirahat"
+                }
+              },
+              "Necropolia": {
+                "deskripsi_kota": "Kota mati yang bernafas, dindingnya terbuat dari tulang yang masih bergerak.",
+                "distrik": {
+                  "Bone Market": "Pasar tulang hidup untuk bahan bangunan",
+                  "The Whispering Catacombs": "Katakombe berbisik dengan suara orang mati",
+                  "Fleshcrafters Alley": "Pusat seni mengukir daging hidup",
+                  "Graveyard District": "Permukiman di antara kuburan yang aktif"
+                }
+              },
+              "Blightfang Citadel": {
+                "deskripsi_kota": "Benteng pertahanan para kesatria zombie.",
+                "distrik": {
+                  "Black Horn Barracks": "Markas kesatria tanduk hitam",
+                  "Plague Forge": "Tempat senjata beracun ditempa",
+                  "The Rotting Arena": "Gelanggang pertarungan untuk zombie",
+                  "Walls of Sighs": "Tembok pertahanan yang mengeluuhkan rintihan"
+                }
+              },
+              "Wormhaven": {
+                "deskripsi_kota": "Pusat pemujaan cacing suci pemakan daging.",
+                "distrik": {
+                  "Grand Temple of the Sacred Worm": "Kuil agung cacing pemakan daging",
+                  "The Burrow": "Terowongan tempat cacing raksasa dipelihara",
+                  "Feast Halls": "Balai jamuan daging korban persembahan",
+                  "The Nursery": "Tempat larva suci dibiakkan"
+                }
+              }
+            }
+          },
+          "Persekutuan Baja Berkarat": {
+            "deskripsi_negara": "Negara militer dengan ksatria mekanis yang rusak.",
+            "kota": {
+              "Ironrot Bastion": {
+                "deskripsi_kota": "Ibu kota mesin berkarat, di mana minyak hitam mengalir seperti darah.",
+                "distrik": {
+                  "The Cog Palace": "Istana pemerintah dari roda gigi raksasa",
+                  "Black Oil River": "Distrik industri dengan sungai minyak kental",
+                  "Rust Garden": "Taman dengan tanaman mekanis berkarat",
+                  "The Broken Forge": "Pabrik senjata yang tak pernah berhenti berderit"
+                }
+              },
+              "Gearspire": {
+                "deskripsi_kota": "Menara raksasa tempat mesin perang kuno dibangun kembali.",
+                "distrik": {
+                  "The Great Workshop": "Bengkel raksasa mesin perang",
+                  "Engineer's Crypt": "Pemakaman para insinyur dalam mesin",
+                  "The Testing Grounds": "Lapangan uji coba senjata baru",
+                  "Spare Parts Market": "Pasar suku cadang organik"
+                }
+              },
+              "Rustmire": {
+                "deskripsi_kota": "Lapangan uji coba untuk senjata terlarang.",
+                "distrik": {
+                  "Acid Pits": "Kolam pengujian senjata kimia",
+                  "The Forbidden Armory": "Gudang senjata yang terlalu berbahaya",
+                  "Scrapheap Slums": "Permukiman kumuh dari besi tua",
+                  "The Meltdown Crater": "Bekas ledakan eksperimen nuklir kuno"
+                }
+              },
+              "Scrapfort": {
+                "deskripsi_kota": "Pemukiman para budak yang memperbaiki mesin perang.",
+                "distrik": {
+                  "The Iron Chains": "Distrik budak dengan bengkel bawah tanah",
+                  "Rustborn Alley": "Permukiman para pekerja yang terikat mesin",
+                  "The Repair Pits": "Lubang tempat mesin-mesin tua diperbaiki",
+                  "Oilblood Tavern": "Kedai minyak untuk para budak"
+                }
+              }
+            }
+          },
+          "Takhta Kosong": {
+            "deskripsi_negara": "Kerajaan siluman diperintah oleh iblis penyamar.",
+            "kota": {
+              "Hollowkeep": {
+                "deskripsi_kota": "Istana tanpa raja, dihantui suara bisikan dari dinding.",
+                "distrik": {
+                  "The Whispering Court": "Pengadilan dengan hakim-hakim tak terlihat",
+                  "Mirror Halls": "Koridor dengan cermin yang memantulkan yang bukan diri",
+                  "The Empty Throne Room": "Ruangan singgasana yang selalu kosong",
+                  "Faceless Market": "Pasar pedagang tanpa wajah"
+                }
+              },
+              "Shadegrove": {
+                "deskripsi_kota": "Hutan kota tempat siluman berbaur dengan manusia.",
+                "distrik": {
+                  "Twilight Quarter": "Distrik peralihan antara manusia dan siluman",
+                  "The Changeling Orphanage": "Panti asuhan untuk anak-anak yang mungkin bukan manusia",
+                  "Veil Garden": "Taman di mana bayangan memiliki kehidupan sendiri",
+                  "The Halfway Inn": "Penginapan untuk makhluk di antara dua dunia"
+                }
+              },
+              "Mirrormire": {
+                "deskripsi_kota": "Kota di mana setiap bayangan bisa menjadi pengkhianat.",
+                "distrik": {
+                  "Reflection Square": "Alun-alun di mana bayangan tak sesuai aslinya",
+                  "The Shadow Prison": "Penjara untuk bayangan-bayangan yang membangkang",
+                  "Glassblinder Alley": "Gang tempat cermin membutakan yang memandang",
+                  "The Loyalty Test": "Distrik pengujian kesetiaan melalui bayangan"
+                }
+              },
+              "Fleshtheater": {
+                "deskripsi_kota": "Tempat panggung boneka daging hidup menghibur para bangsawan iblis.",
+                "distrik": {
+                  "The Grand Stage": "Panggung utama pertunjukan daging hidup",
+                  "Actor's Flesh Pits": "Tempat pembuatan aktor-aktor daging",
+                  "Noble Boxes": "Bilik-bilik VIP untuk bangsawan iblis",
+                  "The Scriptorium": "Tempat naskah ditulis dengan darah"
+                }
+              }
+            }
+          },
+          "Bastion Terakhir": {
+            "deskripsi_negara": "Kota bertembok dengan api pelindung yang mulai memudar.",
+            "kota": {
+              "Lastfire": {
+                "deskripsi_kota": "Ibu kota dengan nyala api suci yang semakin redup.",
+                "distrik": {
+                  "The Dimming Cathedral": "Kuil tempat api suci mulai redup",
+                  "Ember Square": "Pusat kota dengan bara terakhir",
+                  "The Watchman's District": "Permukiman para penjaga tembok",
+                  "Fuelmonger Alley": "Pasar bahan bakar terakhir"
+                }
+              },
+              "Emberhold": {
+                "deskripsi_kota": "Benteng para ksatria terakhir yang melawan kegelapan.",
+                "distrik": {
+                  "The Knight's Keep": "Menara terakhir para ksatria",
+                  "The Dying Armory": "Gudang senjata yang hampir kosong",
+                  "The Final Training Grounds": "Lapangan latihan terakhir",
+                  "The Veteran's Rest": "Tempat peristirahatan prajurit tua"
+                }
+              },
+              "Ashcross": {
+                "deskripsi_kota": "Pemakaman massal bagi yang gugur dalam perang abadi.",
+                "distrik": {
+                  "The Eternal Graves": "Kuburan tak berujung bagi para pahlawan",
+                  "The Mourning Quarter": "Distrik para pelayat profesional",
+                  "The Ash Garden": "Taman abu jenazah",
+                  "The Nameless Tombs": "Makam bagi mereka yang tak dikenali"
+                }
+              },
+              "Dwindlelight": {
+                "deskripsi_kota": "Desa kecil di tepi tembok, tempat harapan sekarat.",
+                "distrik": {
+                  "The Fading Market": "Pasar dengan semakin sedikit barang",
+                  "The Last Inn": "Penginapan terakhir sebelum kegelapan",
+                  "The Hopeless Alley": "Gang tempat warga menunggu ajal",
+                  "The Final Watchtower": "Menara pengawas di ujung tembok"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Kabutovia": {
+        "deskripsi_benua": "Negeri dalam Bayangan. Diselimuti kabut abadi yang menyembunyikan teror.",
+        "Negara": {
+          "Kekaisaran Mata Buta": {
+            "deskripsi_negara": "Dipimpin Ratu yang melihat melalui mimpi buruk.",
+            "kota": {
+              "Dreamspire": {
+                "deskripsi_kota": "Menara tinggi tempat Ratu memandang melalui tidur rakyatnya.",
+                "distrik": {
+                  "The Nightmare Chambers": "Ruangan mimpi buruk yang dipantau",
+                  "The Dreamweaver's Quarter": "Distrik para perajut mimpi",
+                  "The Sleeping Market": "Pasar yang hanya buka saat warga tidur",
+                  "The Somnium Library": "Perpustakaan mimpi terkumpul"
+                }
+              },
+              "Hollowveil": {
+                "deskripsi_kota": "Kota tanpa cermin, di mana wajah semua orang kosong.",
+                "distrik": {
+                  "The Faceless Square": "Alun-alun pertemuan tanpa identitas",
+                  "The Blank Mask Market": "Pasar topeng kosong",
+                  "The Hollow Theater": "Teater tanpa aktor yang terlihat",
+                  "The Memory Pits": "Tempat ingatan wajah dikubur"
+                }
+              },
+              "Nightgrasp": {
+                "deskripsi_kota": "Pusat ritual penglihatan gelap.",
+                "distrik": {
+                  "The Dark Ritual Square": "Tempat ritual massal dilakukan",
+                  "The Blind Oracle's Temple": "Kuil nabi buta",
+                  "The Shadow Ink District": "Distrik penulisan ramalan dengan tinta gelap",
+                  "The Third Eye Alley": "Gang tempat mata ketiga dibuka"
+                }
+              },
+              "Whisperwound": {
+                "deskripsi_kota": "Tempat suara-suara dari dunia lain terdengar jelas.",
+                "distrik": {
+                  "The Echoing Well": "Sumur yang memantulkan suara asing",
+                  "The Spirit Market": "Pasar barang-barang hantu",
+                  "The Wailing Quarter": "Distrik tempat tangisan dunia lain terdengar",
+                  "The Voice Thief Alley": "Tempat suara manusia dicuri entitas lain"
+                }
+              }
+            }
+          },
+          "Suku Rawa Merana": {
+            "deskripsi_negara": "Pemburu mutan penghuni rawa beracun.",
+            "kota": {
+              "Bogfen": {
+                "deskripsi_kota": "Desa terapung di atas rawa berlumpur.",
+                "distrik": {
+                  "The Floating Market": "Pasar di atas rakit-rakit besar",
+                  "The Mutant's Quarter": "Permukiman para mutan rawa",
+                  "The Poison Brewery": "Distrik pembuatan bir beracun",
+                  "The Shifting Walkways": "Jalan-jalan yang berpindah tempat"
+                }
+              },
+              "Mirehollow": {
+                "deskripsi_kota": "Kuburan hidup bagi mereka yang terinfeksi spora.",
+                "distrik": {
+                  "The Spore Gardens": "Taman tempat spora berbahaya dibiakkan",
+                  "The Living Crypts": "Kuburan bagi yang terinfeksi tapi belum mati",
+                  "The Fungus Market": "Pasar jamur pemakan daging",
+                  "The Infected Quarter": "Permukiman mereka yang menunggu transformasi"
+                }
+              },
+              "Rotfang": {
+                "deskripsi_kota": "Pemukiman pemburu monster rawa.",
+                "distrik": {
+                  "The Trophy Halls": "Balai pameran kepala monster",
+                  "The Hunter's Lodge": "Markas pemburu profesional",
+                  "The Beast Pens": "Kandang monster yang dijinakkan",
+                  "The Poison Forge": "Tempat senjata beracun dibuat"
+                }
+              },
+              "Dankroot": {
+                "deskripsi_kota": "Pusat penyembahan entitas akar busuk.",
+                "distrik": {
+                  "The Root Temple": "Kuil dengan altar akar bergerak",
+                  "The Undergrowth Labyrinth": "Labirin tanaman pemangsa",
+                  "The Sap Taverns": "Kedai-kedai getah beracun",
+                  "The Rotting Nursery": "Tempat pembibitan tanaman ganas"
+                }
+              }
+            }
+          },
+          "Persekutuan Batu Hitam": {
+            "deskripsi_negara": "Pemuja entitas dari dunia bawah.",
+            "kota": {
+              "Deepaltar": {
+                "deskripsi_kota": "Kota kuil di atas jurang tanpa dasar.",
+                "distrik": {
+                  "The Abyss Temple": "Kuil utama di tepi jurang",
+                  "The Offering Cliffs": "Tebing tempat korban dilempar",
+                  "The Echoing Catacombs": "Kuburan yang menggema ke dunia bawah",
+                  "The Dark Priest Quarter": "Permukiman para imam pemuja kegelapan"
+                }
+              },
+              "Blackvein": {
+                "deskripsi_kota": "Tambang tempat batu hitam berdenyup seperti jantung.",
+                "distrik": {
+                  "The Pulsing Mines": "Tambang batu hidup",
+                  "The Heart Chamber": "Ruangan dengan batu jantung raksasa",
+                  "The Miner's Madhouse": "Asrama penambang yang mulai gila",
+                  "The Stoneblood Refinery": "Tempat darah batu dimurnikan"
+                }
+              },
+              "Shuddergate": {
+                "deskripsi_kota": "Pintu gerbang ke dunia bawah yang terkunci.",
+                "distrik": {
+                  "The Gate District": "Distrik penjagaan gerbang",
+                  "The Seal Guardian's Barracks": "Markas penjaga segel",
+                  "The Forbidden Approach": "Jalan menuju gerbang yang diawasi ketat",
+                  "The Whispering Walls": "Tembok yang berbisik tentang apa yang ada di balik gerbang"
+                }
+              },
+              "Eldritchspire": {
+                "deskripsi_kota": "Menara tempat ritual pemanggian iblis dilakukan.",
+                "distrik": {
+                  "The Summoning Pits": "Lubang-lubang pemanggian",
+                  "The Occult Scholar's Quarter": "Distrik para peneliti ilmu terlarang",
+                  "The Unspeakable Library": "Perpustakaan pengetahuan yang tak boleh diucapkan",
+                  "The Distortion Fields": "Area di mana realitas mulai melengkung"
+                }
+              }
+            }
+          },
+          "Kerudung Abu": {
+            "deskripsi_negara": "Negeri vampir penjaga malam.",
+            "kota": {
+              "Duskcrown": {
+                "deskripsi_kota": "Ibu kota vampir, di mana matahari tak pernah terbit.",
+                "distrik": {
+                  "The Eternal Night Palace": "Istana sang penguasa malam",
+                  "The Blood Fountain Square": "Alun-alun dengan air mancur darah",
+                  "The Aristocrat's Quarter": "Permukiman bangsawan vampir",
+                  "The Moonlight Market": "Pasar yang hanya buka di bawah sinar bulan"
+                }
+              },
+              "Palevein": {
+                "deskripsi_kota": "Peternakan manusia bagi para bangsawan abu-abu.",
+                "distrik": {
+                  "The Herding Grounds": "Area penggembalaan manusia",
+                  "The Blood Harvest District": "Distrik panen darah",
+                  "The Livestock Pens": "Kandang manusia",
+                  "The Dairy": "Tempat produksi susu manusia"
+                }
+              },
+              "Nocturnelle": {
+                "deskripsi_kota": "Teater opera tempat korban dikurbankan dalam seni.",
+                "distrik": {
+                  "The Grand Opera House": "Teater pengorbanan megah",
+                  "The Diva's Quarter": "Permukiman bintang opera vampir",
+                  "The Bloodstage": "Panggung pertunjukan berdarah",
+                  "The Tragic Muse Gallery": "Galeri inspirasi penderitaan"
+                }
+              },
+              "Crimsonwaste": {
+                "deskripsi_kota": "Padang tempat vampir tua berhibernasi.",
+                "distrik": {
+                  "The Ancient Tombs": "Makam vampir kuno",
+                  "The Blood Drought Plains": "Padang persiapan hibernasi",
+                  "The Sleeping Lords District": "Distrik vampir yang tertidur",
+                  "The Awakening Grounds": "Tempat vampir bangun dari tidur panjang"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Busukrovia": {
+        "deskripsi_benua": "Tanah yang Sakit. Di sini tanah itu sendiri bernafas penyakit.",
+        "Negara": {
+          "Dominasi Taring Busuk": {
+            "deskripsi_negara": "Manusia sengaja bermutasi menjadi monster.",
+            "kota": {
+              "Festerhold": {
+                "deskripsi_kota": "Ibu kota mutasi, di mana tubuh manusia direkayasa.",
+                "distrik": {
+                  "The Grand Flesh Vats": "Tempat pencelupan manusia dalam cairan mutasi",
+                  "The Surgeon's Quarter": "Distrik para ahli bedah gila",
+                  "The New Form Showcases": "Pameran mutasi terbaru",
+                  "The Harvesting District": "Distrik pengambilan organ untuk eksperimen"
+                }
+              },
+              "Rotcrawl": {
+                "deskripsi_kota": "Labirin lorong penuh daging hidup.",
+                "distrik": {
+                  "The Living Alleyways": "Gang-gang dengan dinding yang bernafas",
+                  "The Fleshmarket": "Pasar daging hidup",
+                  "The Symbiote District": "Distrik penyatuan manusia dengan parasit",
+                  "The Crawling Slums": "Permukiman bagi mereka yang mulai bermutasi"
+                }
+              },
+              "Poxmark": {
+                "deskripsi_kota": "Kota pasar gelap organ mutan.",
+                "distrik": {
+                  "The Black Organ Market": "Pasar organ ilegal",
+                  "The Plague Doctor's Quarter": "Distrik dokter wabah",
+                  "The Mutation Brothels": "Rumah pelacuran mutan",
+                  "The Gifted District": "Permukiman mereka dengan mutasi berharga"
+                }
+              },
+              "Blightvein": {
+                "deskripsi_kota": "Pusat penyebaran wabah terkontrol.",
+                "distrik": {
+                  "The Plague Gardens": "Taman tempat penyakit dibiakkan",
+                  "The Inoculation District": "Distrik penyuntikan penyakit",
+                  "The Pestilence Research Labs": "Laboratorium penelitian wabah",
+                  "The Carrier's Quarter": "Permukiman penyebar penyakit terkontrol"
+                }
+              }
+            }
+          },
+          "Wabah Hijau": {
+            "deskripsi_negara": "Hutan pemakan manusia.",
+            "kota": {
+              "Vinegrave": {
+                "deskripsi_kota": "Kota yang ditelan akar bergerak.",
+                "distrik": {
+                  "The Rootstrangled Square": "Alun-alun dengan tiang-tiang akar",
+                  "The Photosynthesis District": "Distrik manusia-tumbuhan hibrida",
+                  "The Chlorophyll Market": "Pasar hasil fotosintesis manusia",
+                  "The Overgrown Slums": "Permukiman yang perlahan ditelan tanaman"
+                }
+              },
+              "Chlorofang": {
+                "deskripsi_kota": "Pusat kultus pemuja tumbuhan pemangsa.",
+                "distrik": {
+                  "The Great Thorn Temple": "Kuil tanaman pemangsa",
+                  "The Fertilizer Pits": "Lubang kompos manusia",
+                  "The Sacred Grove": "Hutan suci tempat ritual dilakukan",
+                  "The Pollen District": "Distrik produksi serbuk sari mematikan"
+                }
+              },
+              "Canopyclaw": {
+                "deskripsi_kota": "Desa di atas pohon, di bawah ancaman daun bergigi.",
+                "distrik": {
+                  "The Upper Branches": "Distrik elit di ketinggian",
+                  "The Trunk Markets": "Pasar di sekitar batang pohon",
+                  "The Falling District": "Permukiman mereka yang hampir jatuh",
+                  "The Underleaf Slums": "Permukiman di bawah daun pemangsa"
+                }
+              },
+              "Bloomrot": {
+                "deskripsi_kota": "Tempat bunga mekar dengan bau daging busuk.",
+                "distrik": {
+                  "The Flowering Square": "Alun-alun dengan bunga pemakan daging",
+                  "The Perfume Distilleries": "Distrik pembuatan parfum dari daging",
+                  "The Pollen Madness Asylum": "Rumah sakit jiwa bagi yang teracuni serbuk sari",
+                  "The Fertilizer Quarter": "Distrik produksi pupuk manusia"
+                }
+              }
+            }
+          },
+          "Kolektif Karat-Daging": {
+            "deskripsi_negara": "Perpaduan logam dan daging hidup.",
+            "kota": {
+              "Amalgamark": {
+                "deskripsi_kota": "Pabrik raksasa tempat manusia disambung dengan mesin.",
+                "distrik": {
+                  "The Grand Foundry": "Tempat peleburan manusia dan mesin",
+                  "The Augmentation Clinics": "Klinik penyambungan mesin",
+                  "The Hybrid Quarter": "Permukiman manusia-mesin",
+                  "The Rejection Pits": "Tempat pembuangan eksperimen gagal"
+                }
+              },
+              "Rustflesh": {
+                "deskripsi_kota": "Pemukiman para cyborg sakit.",
+                "distrik": {
+                  "The Rusting Quarter": "Distrik cyborg yang mulai berkarat",
+                  "The Oilblood Taverns": "Kedai minyak untuk cyborg",
+                  "The Fleshrot Clinics": "Klinik perawatan daging yang membusuk",
+                  "The Scrapyard Slums": "Permukiman dari besi tua dan daging busuk"
+                }
+              },
+              "Geargrind": {
+                "deskripsi_kota": "Kota di mana jalanan bergerak seperti conveyor.",
+                "distrik": {
+                  "The Moving Market": "Pasar di atas conveyor raksasa",
+                  "The Clockwork Quarter": "Distrik mekanik presisi",
+                  "The Breakdown District": "Area dengan mesin yang sering rusak",
+                  "The Gearheart Plaza": "Alun-alun dengan jantung mekanik raksasa"
+                }
+              },
+              "Ironpulse": {
+                "deskripsi_kota": "Jantung mekanis Kolektif yang berdetak kacau.",
+                "distrik": {
+                  "The Central Pump": "Jantung buatan raksasa",
+                  "The Artery Districts": "Distrik-distrik pipa utama",
+                  "The Clogged Alleyways": "Gang dengan sirkulasi macet",
+                  "The Bleeding Valve Square": "Alun-alun tempat kebocoran sering terjadi"
+                }
+              }
+            }
+          },
+          "Suku Daging Liar": {
+            "deskripsi_negara": "Kanibal pemuja gunung berdarah.",
+            "kota": {
+              "Bloodcrust": {
+                "deskripsi_kota": "Desa di kaki gunung yang selalu mengeluarkan darah.",
+                "distrik": {
+                  "The Bloodfall District": "Distrik di bawah air terjun darah",
+                  "The Sacred Butchery": "Rumah jagal ritual",
+                  "The Crimson Market": "Pasar produk darah dan daging",
+                  "The Offering Path": "Jalan menuju gunung untuk persembahan"
+                }
+              },
+              "Meathenge": {
+                "deskripsi_kota": "Lingkaran batu dari tulang dan daging kering.",
+                "distrik": {
+                  "The Stone Circle": "Tempat upacara lingkaran batu",
+                  "The Drying Yards": "Halaman pengawetan daging manusia",
+                  "The Bone Carver's Quarter": "Distrik pengukir tulang",
+                  "The Eternal Feast Hall": "Balai jamuan tak berujung"
+                }
+              },
+              "Huntgulch": {
+                "deskripsi_kota": "Lembah tempat perburuan manusia menjadi ritual.",
+                "distrik": {
+                  "The Hunting Grounds": "Area perburuan ritual",
+                  "The Trophy Hall": "Balai kepala trofi",
+                  "The Chase District": "Distrik persiapan perburuan",
+                  "The Prey Pens": "Kandang manusia yang akan diburu"
+                }
+              },
+              "Fangmire": {
+                "deskripsi_kota": "Rawa tempat airnya adalah darah kental.",
+                "distrik": {
+                  "The Bloodbog": "Rawa darah tempat ritual dilakukan",
+                  "The Cannibal's Quarter": "Permukiman kanibal",
+                  "The Thirsty Market": "Pasar minuman darah",
+                  "The Drowning Pits": "Lubang eksekusi dengan darah"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Sihirovia": {
+        "deskripsi_benua": "Negeri Mantra Terkutuk. Di mana sihir lebih berbahaya daripada pedang.",
+        "Negara": {
+          "Perjanjian Bintang Hitam": {
+            "deskripsi_negara": "Penyihir pemanggil batu bintang.",
+            "kota": {
+              "Obsidian Spire": {
+                "deskripsi_kota": "Menara tempat batu bintang disimpan.",
+                "distrik": {
+                  "The Star Vault": "Ruangan penyimpanan batu bintang",
+                  "The Celestial Observatory": "Observatorium pemantau bintang",
+                  "The Voidcaller's Quarter": "Distrik para pemanggil kosmos",
+                  "The Falling Star Plaza": "Alun-alun tempat meteorit dipamerkan"
+                }
+              },
+              "Voidwell": {
+                "deskripsi_kota": "Sumur tanpa dasar tempat energi kosong dipanen.",
+                "distrik": {
+                  "The Well District": "Distrik sekitar sumur kosong",
+                  "The Hunger Market": "Pasar energi kosong",
+                  "The Voidtouched Quarter": "Permukiman mereka yang tersentuh kehampaan",
+                  "The Abyssal Research Labs": "Laboratorium penelitian jurang"
+                }
+              },
+              "Eclipsehold": {
+                "deskripsi_kota": "Benteng yang hanya muncul saat gerhana.",
+                "distrik": {
+                  "The Ephemeral Quarter": "Distrik sementara saat gerhana",
+                  "The Shadow Archives": "Arsip pengetahuan yang hanya terbaca saat gerhana",
+                  "The Twilight Market": "Pasar barang-barang bayangan",
+                  "The Eclipse Altar": "Altar ritual gerhana"
+                }
+              },
+              "Starchain": {
+                "deskripsi_kota": "Kota terapung yang diikat oleh mantra gravitasi.",
+                "distrik": {
+                  "The Floating Bazaar": "Pasar terapung",
+                  "The Sky Docks": "Dermaga untuk kendaraan udara",
+                  "The Weightless Quarter": "Distrik dengan gravitasi minimal",
+                  "The Falling Ward": "Area pengaman bagi yang terjatuh"
+                }
+              }
+            }
+          },
+          "Dinasti Duri Darah": {
+            "deskripsi_negara": "Monarki darah para penyihir.",
+            "kota": {
+              "Crimson Throne": {
+                "deskripsi_kota": "Istana yang dibangun dari tulang musuh.",
+                "distrik": {
+                  "The Bone Palace": "Istana kerajaan dari tulang",
+                  "The Bloodscript Archives": "Perpustakaan mantra darah",
+                  "The Thorned Quarter": "Permukiman bangsawan penyihir",
+                  "The Pain Gardens": "Taman dengan tanaman yang menyiksa"
+                }
+              },
+              "Veinwall": {
+                "deskripsi_kota": "Kota dengan tembok hidup yang berdenyut.",
+                "distrik": {
+                  "The Pulse District": "Distrik di dekat arteri utama tembok",
+                  "The Bloodmarket": "Pasar perdagangan darah ajaib",
+                  "The Living Wall Walk": "Jalan di atas tembok hidup",
+                  "The Clot Alley": "Gang tempat aliran darah tersumbat"
+                }
+              },
+              "Sanguiscript": {
+                "deskripsi_kota": "Perpustakaan mantra bertinta darah.",
+                "distrik": {
+                  "The Blood Library": "Perpustakaan utama dengan buku hidup",
+                  "The Scribe's Quarter": "Distrik penulis mantra darah",
+                  "The Forbidden Tomes District": "Area buku-buku terlarang",
+                  "The Inkwell Plaza": "Alun-alun dengan sumur tinta darah"
+                }
+              },
+              "Thorncrypt": {
+                "deskripsi_kota": "Penjara bagi penyihir yang melanggar sumpah.",
+                "distrik": {
+                  "The Pain Cells": "Sel-sel penyiksaan ajaib",
+                  "The Blood Oath Square": "Alun-alun tempat sumpah dilanggar",
+                  "The Warden's Quarter": "Permukiman sipir penjara",
+                  "The Broken Seal District": "Distrik tempat mantan penyihir tinggal"
+                }
+              }
+            }
+          },
+          "Cendekiawan Kosong": {
+            "deskripsi_negara": "Pencari pengetahuan yang kehilangan jiwa.",
+            "kota": {
+              "Hollow Library": {
+                "deskripsi_kota": "Arsip raksasa berisi buku-buku yang memakan ingatan.",
+                "distrik": {
+                  "The Memory Vaults": "Ruangan penyimpanan ingatan",
+                  "The Forgotten Quarter": "Distrik mereka yang kehilangan diri",
+                  "The Hungry Tomes District": "Area buku-buku paling rakus",
+                  "The Scholar's Asylum": "Rumah sakit jiwa untuk cendekiawan"
+                }
+              },
+              "Mindwaste": {
+                "deskripsi_kota": "Tempat para cendekiawan menjadi zombie pengetahuan.",
+                "distrik": {
+                  "The Hollowed Scholar's Quarter": "Permukiman cendekiawan tanpa pikiran",
+                  "The Rote Recitation Halls": "Balai pengulangan pengetahuan kosong",
+                  "The Memory Pits": "Lubang tempat ingatan dibuang",
+                  "The Autoscriptorium": "Tempat buku menulis sendiri tanpa makna"
+                }
+              },
+              "Soulforge": {
+                "deskripsi_kota": "Tempat jiwa ditempa menjadi bahan sihir.",
+                "distrik": {
+                  "The Soul Smelters": "Tempat peleburan jiwa",
+                  "The Essence Market": "Pasar bahan baku jiwa",
+                  "The Hollow Craftsmen": "Distrik pengrajin tanpa jiwa",
+                  "The Anvil of Despair": "Landasan keputusasaan"
+                }
+              },
+              "Blankspire": {
+                "deskripsi_kota": "Menara tanpa nama, tanpa ingatan.",
+                "distrik": {
+                  "The Nameless Quarter": "Distrik tanpa identitas",
+                  "The Silent Market": "Pasar tanpa penjual atau pembeli yang dikenal",
+                  "The Erasure Fields": "Area penghapusan ingatan",
+                  "The Void Altar": "Altar ketiadaan"
+                }
+              }
+            }
+          },
+          "Klan Taring Penyihir": {
+            "deskripsi_negara": "Barbar pemuja dewa sihir purba.",
+            "kota": {
+              "Runehunt": {
+                "deskripsi_kota": "Desa pemburu mantra liar.",
+                "distrik": {
+                  "The Rune Graveyard": "Kuburan mantra usang",
+                  "The Wild Magic Quarter": "Distrik sihir tak terkendali",
+                  "The Shaman's Circle": "Lingkaran pertemuan dukun",
+                  "The Bloodrune Market": "Pasar mantra darah"
+                }
+              },
+              "Spellscar": {
+                "deskripsi_kota": "Lembah tempat langit terkoyak oleh sihir.",
+                "distrik": {
+                  "The Scarred Quarter": "Distrik di bawah luka langit",
+                  "The Wild Surge Fields": "Area ledakan sihir acak",
+                  "The Broken Sky Temple": "Kuil pemujaan langit pecah",
+                  "The Spellwaste": "Tanah tak berguna karena sihir berlebihan"
+                }
+              },
+              "Glyphmaw": {
+                "deskripsi_kota": "Gua dengan dinding yang mengunyah mantra.",
+                "distrik": {
+                  "The Devouring Tunnels": "Terowongan pemakan sihir",
+                  "The Silent Quarter": "Distrik di mana sihir tak bisa digunakan",
+                  "The Glyph Butchers": "Tukang daging mantra",
+                  "The Hunger Pits": "Lubang tempat mantra dilempar untuk dimakan"
+                }
+              },
+              "Witchfang": {
+                "deskripsi_kota": "Kota suku tempat sihir diajarkan melalui luka.",
+                "distrik": {
+                  "The Pain Academy": "Sekolah sihir melalui siksaan",
+                  "The Scar Market": "Pasar luka ajaib",
+                  "The Bloodlesson Quarter": "Distrik pengajaran melalui pengorbanan",
+                  "The Initiate's Torment": "Area inisiasi para penyihir muda"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Apovaria": {
+        "deskripsi_benua": "Kerajaan Api Abadi. Dunia yang terbakar namun tak pernah padam.",
+        "Negara": {
+          "Kerajaan Lahir Api": {
+            "deskripsi_negara": "Peradaban yang berkembang di laut api.",
+            "kota": {
+              "Pyrehold": {
+                "deskripsi_kota": "Istana terapung di atas lautan magma.",
+                "distrik": {
+                  "The Floating Throne": "Singgasana di atas magma",
+                  "The Eternal Flame District": "Distrik api tak pernah padam",
+                  "The Magma Docks": "Dermaga perahu tahan api",
+                  "The Ashen Noble Quarter": "Permukiman bangsawan abu"
+                }
+              },
+              "Flamecradle": {
+                "deskripsi_kota": "Tempat kelahiran para kesatia api.",
+                "distrik": {
+                  "The Birthfires": "Api kelahiran para ksatria",
+                  "The Ember Training Grounds": "Lapangan latihan dalam bara",
+                  "The Phoenix Quarter": "Distrik mereka yang terlahir kembali",
+                  "The Eternal Pyre": "Api pengujian terakhir"
+                }
+              },
+              "Ashenvein": {
+                "deskripsi_kota": "Jalur perdagangan di atas batu yang membara.",
+                "distrik": {
+                  "The Burning Road": "Jalan berapi tempat perdagangan",
+                  "The Heathen Market": "Pasar barang tahan api",
+                  "The Caravan Quarter": "Distrik kafilah pemberani",
+                  "The Melted Gate": "Pintu masuk yang selalu meleleh"
+                }
+              },
+              "Emberveil": {
+                "deskripsi_kota": "Kota tersembunyi di balik tirai api.",
+                "distrik": {
+                  "The Veiled Quarter": "Distrik tersembunyi dalam api",
+                  "The Secret Flame": "Sumber api misterius",
+                  "The Hidden Ember Market": "Pasar rahasia",
+                  "The Blazing Labyrinth": "Labirin api pelindung"
+                }
+              }
+            }
+          },
+          "Suku Abu Berjalan": {
+            "deskripsi_negara": "Pengembara gurun abu.",
+            "kota": {
+              "Dustcrawl": {
+                "deskripsi_kota": "Oasis abu tempat karavan beristirahat.",
+                "distrik": {
+                  "The Ash Oasis": "Sumber air di lautan abu",
+                  "The Nomad's Rest": "Tempat peristirahatan pengembara",
+                  "The Scorchmark Bazaar": "Pasar sementara di pasir",
+                  "The Buried Quarter": "Permukiman setengah tertimbun"
+                }
+              },
+              "Scorchmark": {
+                "deskripsi_kota": "Pasar gelap di tengah badai api.",
+                "distrik": {
+                  "The Black Market": "Pasar barang terlarang",
+                  "The Stormcellar District": "Distrik perlindungan badai",
+                  "The Fireproof Vaults": "Penyimpanan tahan api",
+                  "The Smuggler's Alley": "Gang penyelundup"
+                }
+              },
+              "Nomadspyre": {
+                "deskripsi_kota": "Tempat suku menyembah matahari hitam.",
+                "distrik": {
+                  "The Black Sun Temple": "Kuil matahari hitam",
+                  "The Pilgrim's Quarter": "Distrik peziarah",
+                  "The Eclipse Grounds": "Tempat ritual gerhana",
+                  "The Prophet's Cave": "Gua nabi suku"
+                }
+              },
+              "Hearthgrave": {
+                "deskripsi_kota": "Kuburan massal bagi yang gugur dalam perjalanan.",
+                "distrik": {
+                  "The Ash Graves": "Kuburan dalam abu",
+                  "The Mourner's Quarter": "Distrik pelayat profesional",
+                  "The Final Camp": "Tempat peristirahatan terakhir",
+                  "The Windblown Memorial": "Monumen yang terus berubah"
+                }
+              }
+            }
+          },
+          "Tempa Hitam": {
+            "deskripsi_negara": "Pembuat senjata dari neraka.",
+            "kota": {
+              "Forgehell": {
+                "deskripsi_kota": "Pabrik senjata di dalam kawah gunung berapi.",
+                "distrik": {
+                  "The Infernal Forge": "Tempat penempaan utama",
+                  "The Armorer's Quarter": "Distrik pembuat baju besi",
+                  "The Weapon Testing Pits": "Lubang uji senjata",
+                  "The Slagheap Slums": "Permukiman pekerja di tumpukan terak"
+                }
+              },
+              "Anvilscar": {
+                "deskripsi_kota": "Tempat senjata terkutuk ditempa.",
+                "distrik": {
+                  "The Cursed Forge": "Tempat penempaan senjata terkutuk",
+                  "The Dark Artisan's Quarter": "Distrik pengrajin gelap",
+                  "The Bloodiron Market": "Pasar senjata haus darah",
+                  "The Wailing Anvil": "Landasan yang merintih"
+                }
+              },
+              "Slagvein": {
+                "deskripsi_kota": "Tambang logam neraka.",
+                "distrik": {
+                  "The Hellmine": "Tambang logam terkutuk",
+                  "The Miner's Purgatory": "Permukiman penambang",
+                  "The Molten Quarter": "Distrik peleburan",
+                  "The Devil's Refinery": "Pemurnian logam iblis"
+                }
+              },
+              "Hammerdark": {
+                "deskripsi_kota": "Kota tempat setiap pukulan membutuhkan pengorbanan.",
+                "distrik": {
+                  "The Sacrificial Forge": "Tempat penempaan dengan korban",
+                  "The Bloodhammer Plaza": "Alun-alun dengan palu raksasa",
+                  "The Price District": "Distrik penghitungan biaya",
+                  "The Unpaid Debt Quarter": "Permukiman mereka yang belum membayar"
+                }
+              }
+            }
+          },
+          "Kultus Burung Api": {
+            "deskripsi_negara": "Pemuja kebangkitan dari abu.",
+            "kota": {
+              "Phoenixspire": {
+                "deskripsi_kota": "Menara tempat ritual kebangkitan dilakukan.",
+                "distrik": {
+                  "The Rebirth Spire": "Menara utama kebangkitan",
+                  "The Ashen Priest Quarter": "Distrik pendeta abu",
+                  "The Immolation Grounds": "Tempat pembakaran diri",
+                  "The Rising Market": "Pasar barang-barang reinkarnasi"
+                }
+              },
+              "Cindergrace": {
+                "deskripsi_kota": "Tempat para fanatik membakar diri sendiri.",
+                "distrik": {
+                  "The Self-Immolation Square": "Alun-alun pembakaran diri",
+                  "The Blessed Asylum": "Rumah bagi yang selamat dari api",
+                  "The Purification District": "Distrik pembersihan melalui api",
+                  "The Final Pyre": "Api perpisahan terakhir"
+                }
+              },
+              "Ashfeather": {
+                "deskripsi_kota": "Desa tempat burung api dianggap suci.",
+                "distrik": {
+                  "The Phoenix Roost": "Sarang burung api suci",
+                  "The Sacred Ashes": "Tempat abu suci disimpan",
+                  "The Featherweaver's Quarter": "Distrik perajut bulu api",
+                  "The Molten Egg Temple": "Kuil telur-telur membara"
+                }
+              },
+              "Blazewing": {
+                "deskripsi_kota": "Kuil terbang di atas sayap api.",
+                "distrik": {
+                  "The Flying Sanctuary": "Tempat suci yang melayang",
+                  "The Skyfire Altars": "Altar-altar api langit",
+                  "The Winged Priest Quarter": "Distrik pendeta terbang",
+                  "The Eternal Flight": "Area latihan terbang tanpa henti"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Banovaria": {
+        "deskripsi_benua": "Benua yang Ditelan Air. Kota-kota yang tenggelam menyimpan rahasia terlarang.",
+        "Negara": {
+          "Kekaisaran Tenggelam": {
+            "deskripsi_negara": "Kerajaan hantu bawah laut.",
+            "kota": {
+              "Drowned Throne": {
+                "deskripsi_kota": "Istana di dasar laut, dihuni arwah bangsawan.",
+                "distrik": {
+                  "The Sunken Court": "Pengadilan bawah air",
+                  "The Ghostly Noble Quarter": "Permukiman bangsawan hantu",
+                  "The Watery Halls": "Balai-balai berisi air",
+                  "The Eternal Ballroom": "Tempat dansa tak berujung"
+                }
+              },
+              "Coralbone": {
+                "deskripsi_kota": "Kota karang dari tulang manusia.",
+                "distrik": {
+                  "The Bone Reef": "Terumbu tulang manusia",
+                  "The Skeletal Sculptor's Quarter": "Distrik pemahat tulang",
+                  "The Ossuary Market": "Pasar kerangka dan karang",
+                  "The Marrow Gardens": "Taman sumsum manusia"
+                }
+              },
+              "Tideprison": {
+                "deskripsi_kota": "Penjara bagi yang dikutuk tenggelam selamanya.",
+                "distrik": {
+                  "The Water Cells": "Sel-sel berisi air",
+                  "The Drowning Yard": "Halaman eksekusi",
+                  "The Warden's Quarter": "Permukiman sipir air",
+                  "The Forgotten Depths": "Area tahanan yang terlupakan"
+                }
+              },
+              "Abyssal Script": {
+                "deskripsi_kota": "Perpustakaan tablet yang ditulis dengan tinta air asin.",
+                "distrik": {
+                  "The Dripping Archives": "Arsip yang selalu basah",
+                  "The Salt Scribe's Quarter": "Distrik penulis tinta asin",
+                  "The Waterlogged Library": "Perpustakaan bawah air",
+                  "The Tidal Reading Rooms": "Ruang baca yang tergantung pasang"
+                }
+              }
+            }
+          },
+          "Klan Air Asin": {
+            "deskripsi_negara": "Manusia amfibi pemburu kapal.",
+            "kota": {
+              "Saltshroud": {
+                "deskripsi_kota": "Desa terapung di atas kapal karam.",
+                "distrik": {
+                  "The Wreckage District": "Distrik kapal-kapal karam",
+                  "The Hull Market": "Pasar di lambung kapal",
+                  "The Sailor's Ghost Quarter": "Permukiman hantu pelaut",
+                  "The Floating Taverns": "Kedai-kedai terapung"
+                }
+              },
+              "Brinefang": {
+                "deskripsi_kota": "Pangkalan perompak mutan.",
+                "distrik": {
+                  "The Mutant's Dock": "Dermaga para mutan",
+                  "The Raid Planning Quarter": "Distrik perencanaan serangan",
+                  "The Loot Vaults": "Penyimpanan jarahan",
+                  "The Shark Pens": "Kandang hiu peliharaan"
+                }
+              },
+              "Tidehunt": {
+                "deskripsi_kota": "Menara pengawas untuk mencari mangsa.",
+                "distrik": {
+                  "The Lookout Spire": "Menara pengawas utama",
+                  "The Hunter's Quarter": "Distrik pemburu kapal",
+                  "The Signal Fires": "Api-api pemberi isyarat",
+                  "The Victim's View": "Tempat mengamati mangsa"
+                }
+              },
+              "Kelpveil": {
+                "deskripsi_kota": "Kota tersembunyi di hutan rumput laut.",
+                "distrik": {
+                  "The Kelp Forest": "Hutan rumput laut pelindung",
+                  "The Hidden Harbor": "Pelabuhan rahasia",
+                  "The Camouflage Quarter": "Distrik penyamaran",
+                  "The Underwater Approach": "Jalan masuk bawah air"
+                }
+              }
+            }
+          },
+          "Pakta Jurang": {
+            "deskripsi_negara": "Penyembah dewa laut raksasa.",
+            "kota": {
+              "Depthaltar": {
+                "deskripsi_kota": "Kuil di mulut palung laut.",
+                "distrik": {
+                  "The Abyssal Temple": "Kuil utama menghadap jurang",
+                  "The Offering Cliffs": "Tebing tempat korban dilempar",
+                  "The Deep Priest Quarter": "Distrik pendeta laut dalam",
+                  "The Echoing Chasm": "Jurang yang menggema"
+                }
+              },
+              "Leviathanspire": {
+                "deskripsi_kota": "Menara tempat panggilan raksasa dilakukan.",
+                "distrik": {
+                  "The Calling Tower": "Menara pemanggilan",
+                  "The Beast Speaker's Quarter": "Distrik komunikator monster",
+                  "The Sacrificial Docks": "Dermaga pengorbanan",
+                  "The Ripple Observatory": "Tempat mengamati gelombang kedatangan"
+                }
+              },
+              "Abyssgrasp": {
+                "deskripsi_kota": "Pelabuhan tempat kapal dikorbankan.",
+                "distrik": {
+                  "The Ship Graveyard": "Kuburan kapal korban",
+                  "The Drowning Priest Quarter": "Distrik pendeta tenggelam",
+                  "The Hungry Tide": "Area pasang pemakan",
+                  "The Final Sail": "Distrik persiapan kapal terakhir"
+                }
+              },
+              "Tentaclecross": {
+                "deskripsi_kota": "Persimpangan tempat dinding bergerak.",
+                "distrik": {
+                  "The Writhing District": "Distrik dengan dinding hidup",
+                  "The Kraken's Mark": "Area tanda cengkraman kraken",
+                  "The Moving Alleyways": "Gang-gang yang berubah",
+                  "The Embrace Plaza": "Alun-alun dengan patung tentakel"
+                }
+              }
+            }
+          },
+          "Perompak Darah Garam": {
+            "deskripsi_negara": "Bajak laut mutan.",
+            "kota": {
+              "Bloodharbor": {
+                "deskripsi_kota": "Markas para perompak kanibal.",
+                "distrik": {
+                  "The Crimson Docks": "Dermaga berdarah",
+                  "The Cannibal's Quarter": "Distrik kanibal",
+                  "The Meat Market": "Pasar daging manusia",
+                  "The Salty Taverns": "Kedai-kedai air asin dan darah"
+                }
+              },
+              "Sirenscourge": {
+                "deskripsi_kota": "Pulau tempat nyanyian mematikan.",
+                "distrik": {
+                  "The Siren's Rock": "Batu tempat sirene bernyanyi",
+                  "The Deaf Quarter": "Distrik mereka yang sengaja memekakkan telinga",
+                  "The Lure District": "Area umpan manusia",
+                  "The Echoing Caves": "Gua yang memantulkan nyanyian"
+                }
+              },
+              "Krakenshell": {
+                "deskripsi_kota": "Benteng dari cangkang monster laut.",
+                "distrik": {
+                  "The Shell Keep": "Benteng dari cangkang",
+                  "The Kraken Cult Quarter": "Distrik pemuja kraken",
+                  "The Tentacle Markets": "Pasar barang-barang tentakel",
+                  "The Pearl Altars": "Altar mutiara hitam"
+                }
+              },
+              "Marooners Maw": {
+                "deskripsi_kota": "Teluk tempat kapal dikunyah karang hidup.",
+                "distrik": {
+                  "The Chewing Harbor": "Pelabuhan pemakan kapal",
+                  "The Living Reef": "Distrik karang hidup",
+                  "The Shipwreck Taverns": "Kedai di bangkai kapal",
+                  "The Coral Teeth": "Area pertahanan karang bergigi"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

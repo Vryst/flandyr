@@ -1,0 +1,30 @@
+{
+  "warrior": {
+    "power strike": {
+      "type": "active",
+      "cost": 0,
+      "effect": {
+        "PA bonus": 15,
+        "cooldown": 1
+      },
+      "message": "{name} charges with a brutal Power Strike!"
+    },
+    "tough skin": {
+      "type": "passive",
+      "effect": {
+        "PD bonus": 10
+      }
+    }
+  },
+  "mage": {
+    "fireball": {
+      "type": "active",
+      "cost": 20,
+      "effect": {
+        "MA multiplier": 1.5,
+        "mp_cost": 20
+      },
+      "message": "{name} casts a blazing Fireball!"
+    }
+  }
+}

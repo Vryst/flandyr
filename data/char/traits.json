@@ -1,0 +1,22 @@
+{
+    "insomniac": {
+        "desc": "You rarely sleep, allowing you to work at all hours. However, you suffer from fatigue and poor decision-making during prolonged tasks.",
+        "buff": ["extra activity time"],
+        "debuff": ["fatigue", "blank brain"]
+    },
+    "night owl": {
+        "desc": "You function best at night, gaining strength and focus during the late hours, but you’re sluggish during the day.",
+        "buff": ["night vision", "as day so night"],
+        "debuff": ["daytime slug","unbearable sleep debt"]
+    },
+    "brutal": {
+        "desc": "You take no mercy in combat, granting you extra damage and resilience, but making you less aware of your surroundings.",
+        "buff": ["damage boost", "resilience"],
+        "debuff": ["unaware"]
+    },
+    "deceptive": {
+        "desc": "You have an uncanny ability to manipulate and deceive others, but this can backfire if people discover your true intentions.",
+        "buff": ["deception", "charm"],
+        "debuff": ["suspicion"]
+    }
+}

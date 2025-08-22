@@ -1,0 +1,44 @@
+{
+  "human": {
+    "desc": "Versatile and adaptable. Known for their determination and rapid growth in all areas.",
+    "buff": ["skill point 1", "learn 1"],
+    "debuff": [],
+    "special_trait": "Adaptive Growth - Gains random minor stat boosts after every major battle."
+  },
+  "elf": {
+    "desc": "Graceful beings attuned to nature and magic, with unmatched precision and agility.",
+    "buff": ["magic affinity 1", "high evasion"],
+    "debuff": ["reduced physical defense", "slow physical growth"],
+    "special_trait": "Moonstep - Gains temporary invisibility when standing still in forests or at night."
+  },
+  "dwarf": {
+    "desc": "Sturdy and resilient folk who excel in crafting and close combat endurance.",
+    "buff": ["armor durability 1", "physical resistance 1"],
+    "debuff": ["no mana", "slow 1"],
+    "special_trait": "Forgeborn - Can repair or reinforce equipment without a forge once per day."
+  },
+  "beastman": {
+    "desc": "Feral humanoids with primal instincts and beast-like reflexes.",
+    "buff": ["awareness 2", "critical chance boost"],
+    "debuff": ["low social influence", "unstable mana"],
+    "special_trait": "Predator Instinct - Reveals hidden enemies or traps when in combat mode."
+  },
+  "druid": {
+    "desc": "Spiritual entities bound to the balance of nature, capable of both healing and decay.",
+    "buff": ["regeneration", "nature magic affinity 1"],
+    "debuff": ["dark magic vulnerability 1", "power reduction 1"],
+    "special_trait": "Nature’s Pact - Can summon a minor forest spirit once per exploration zone."
+  },
+  "dragonkin": {
+    "desc": "Descendants of ancient dragons, bearing scales and elemental breath.",
+    "buff": ["elemental resistance", "breath attack"],
+    "debuff": ["mana overflow", "arrogance"],
+    "special_trait": "Draconic Awakening - Temporarily enter a rage state with bonus elemental damage."
+  },
+  "demon": {
+    "desc": "Infernal beings from dark realms, wielding chaotic power with ease.",
+    "buff": ["dark magic affinity 1", "intimidating 1"],
+    "debuff": ["tarnished", "trust not"],
+    "special_trait": "Sin Harvest - Gains power from nearby dying enemies, storing it for the next attack."
+  }
+}

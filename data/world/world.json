@@ -1,0 +1,79 @@
+{
+  "earth": {
+    "ivy": {
+      "gardana": {
+        "auxz": [ 
+          "desa manuk":{
+               "aku aob"
+          }
+          "blacksmith",
+          "alchemist",
+          "magic aja aja",
+          "black market",
+          "slave auction",
+          "king's palace"
+        ],
+        "pa'toi": [
+          "pohon berkeinginan:v",
+          "goa"
+        ]
+      },
+      "khan'joyt": {
+        "zarn": [
+          "gladiator arena",
+          "tavern",
+          "blacksmith",
+          "underground lab",
+          "sewer hideout"
+        ],
+        "mourn'kai": [
+          "abandoned fortress",
+          "black market",
+          "witch's den",
+          "cult shrine"
+        ]
+      }
+    },
+    "narm": {
+      "t'surahn": {
+        "el-manuk": [
+          "floating bazaar",
+          "elemental shrine",
+          "crystal forge",
+          "sorcerer's tower"
+        ],
+        "aj'akai": [
+          "teleportation gate",
+          "arcane library",
+          "summoning circle"
+        ]
+      },
+      "verdan": {
+        "irgdan": [
+          "hunters' lodge",
+          "beast arena",
+          "forest spirit altar"
+        ],
+        "sarden": [
+          "healer's grove",
+          "druidic circle",
+          "natural spring"
+        ]
+      }
+    },
+    "arctora": {
+      "vostak": {
+        "brynja": [
+          "ice forge",
+          "warrior's hall",
+          "runestone sanctum"
+        ],
+        "nirvak": [
+          "frozen tomb",
+          "oracle's peak",
+          "snow bear stables"
+        ]
+      }
+    }
+  }
+}

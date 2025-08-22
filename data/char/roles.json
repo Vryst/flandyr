@@ -1,0 +1,102 @@
+{
+  "warrior": {
+    "desc": "Fierce and tough for long combat.",
+    "skills": ["tough", "adrenaline", "slash"],
+    "inventory": ["sword"],
+    "evolves_to": ["knight", "gladiator", "barbarian"],
+    "stats": {
+      "max_hp": 2000,
+      "max_mana": 0,
+      "max_energy": 300,
+      "pa": 100,
+      "pp": 0,
+      "pd": 40,
+      "ma": 0,
+      "mp": 0,
+      "md": 10,
+      "armor": 10,
+      "critical_rate": 5,
+      "critical_damage": 110
+    }
+  },
+  "mage": {
+    "desc": "High damage along with the huge risk.",
+    "skills": ["mana regen", "chant magic", "fireball", "mana blast"],
+    "inventory": ["wooden staff"],
+    "evolves_to": ["arcane mage", "elemental mage", "dark mage"],
+    "stats": {
+      "max_hp": 1100,
+      "max_mana": 500,
+      "max_energy": 100,
+      "pa": 10,
+      "pp": 0,
+      "pd": 5,
+      "ma": 120,
+      "mp": 0,
+      "md": 20,
+      "armor": 0,
+      "critical_rate": 10,
+      "critical_damage": 120
+    }
+  },
+  "rogue": {
+    "desc": "Fast, sneaky, and deadly in quick strikes.",
+    "skills": ["sneak", "backstab", "evade"],
+    "inventory": ["dagger"],
+    "evolves_to": ["assassin", "ninja", "trickster"],
+    "stats": {
+      "max_hp": 1300,
+      "max_mana": 0,
+      "max_energy": 350,
+      "pa": 85,
+      "pp": 0,
+      "pd": 20,
+      "ma": 0,
+      "mp": 0,
+      "md": 5,
+      "armor": 5,
+      "critical_rate": 20,
+      "critical_damage": 150
+    }
+  },
+  "cleric": {
+    "desc": "Protects and heals allies, resilient in battle.",
+    "skills": ["heal", "blessing", "mana shield"],
+    "inventory": ["mace"],
+    "evolves_to": ["priest", "paladin", "oracle"],
+    "stats": {
+      "max_hp": 1700,
+      "max_mana": 300,
+      "max_energy": 100,
+      "pa": 40,
+      "pp": 0,
+      "pd": 30,
+      "ma": 50,
+      "mp": 0,
+      "md": 15,
+      "armor": 8,
+      "critical_rate": 5,
+      "critical_damage": 100
+    }
+  },
+  "archer": {
+    "desc": "Balanced ranged attacker with agility.",
+    "skills": ["aim", "rapid shot", "eagle eye"],
+    "inventory": ["bow"],
+    "evolves_to": ["sniper", "ranger", "hunter"],
+    "stats": {
+      "max_hp": 1400,
+      "max_mana": 0,
+      "max_energy": 250,
+      "pa": 90,
+      "pp": 0,
+      "pd": 15,
+      "ma": 0,
+      "mp": 0,
+      "md": 10,
+      "armor": 4,
+      "critical_rate": 15,
+      "critical_damage": 130
+    }
+  }
+}

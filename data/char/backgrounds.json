@@ -1,0 +1,33 @@
+{
+    "the survivor": {
+        "desc": "A survivor of all harshness, giving you chance of finding useful loot and multiplying it.",
+        "buff": ["scavenger", "loot"],
+        "debuff": ["traumatic backstory", "terminal disease"]
+    },
+    "the wicked": {
+        "desc": "Worst fate flies around your life; you may consider this as an extra difficulty.",
+        "buff": ["eternal revenge", "eternal wound"],
+        "debuff": ["madness", "mental instability"]
+    },
+    "the slave": {
+        "desc": "These chains shattered by an outer space rock when the catastrophe occurs, is it a mere luck?.. no.",
+        "buff": ["fatal adrenaline","stamina boost", "resistance", "less hunger"],
+        "debuff": ["malnutrition", "emotionless",""]
+    },
+    "the scholar of forbidden": {
+        "desc": "You dabbled in knowledge man wasn't meant to know. Higher magic affinity but suffer gradual sanity loss.",
+        "buff": ["arcane knowledge", "mana regen", "ancient language"],
+        "debuff": ["insanity", "cursed soul"]
+    },
+    "the wanderer from beyond": {
+        "desc": "Not from this realm — or any known one. Your presence distorts reality. Gain passive mystery aura but attract anomaly events.",
+        
+        "buff": ["cosmic aura", "dimensional sense"],
+        "debuff": ["anomaly magnet", "identity fracture"]
+    },
+    "the pactbound": {
+        "desc": "You made a pact to survive. Gain unnatural strength, but that debt will be collected one day.",
+        "buff": ["pact strength", "damage boost", "fear aura"],
+        "debuff": ["soul debt", "uncontrollable urges"]
+    }
+}
