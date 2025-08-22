@@ -1,6 +1,5 @@
 # Flandyr RPG
 
-![Build Status](https://img.shields.io/github/actions/workflow/status/Vryst/flandyr/main.yml)
 ![License](https://img.shields.io/github/license/Vryst/flandyr)
 ![Version](https://img.shields.io/github/v/release/Vryst/flandyr)
 
