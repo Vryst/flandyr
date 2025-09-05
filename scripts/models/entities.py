@@ -1,12 +1,9 @@
 
 
 import random
-from time import sleep
-from os import system
-from .helpers import fade_in
-
-def clear():
-    system("clear")
+from scripts.helpers import *
+from .container import Container
+from .item import Item
 
 class Character:
     
@@ -19,30 +16,56 @@ class Character:
     background=None,
     role=None,
     trait=None,
+    is_player=True,
     
     # ====== CONDITIONS ======
     karma=0,
     stigma=None,
     buff=None,
     debuff=None,
-    equipments=None,
+    
+    # ====== ARMORY ======
+    head=None,
+    neck=None,
+    torso=None,
+    left_arm=None,
+    left_hand=None,
+    right_arm=None,
+    right_hand=None,
+    hip=None,
+    left_leg=None,
+    left_knee=None,
+    left_foot=None,
+    right_leg=None,
+    right_knee=None,
+    right_foot=None,
+    
+    # ====== BELONGINGS ======
     inventory=None,
+    bag=None,
+    coins=None,
+    max_weight=None,
+    weight=None,
+    
+    # ====== STATS ======
     stat=None,
     skill=None,
     skill_dict=None
     ):
         
+        self.is_player = is_player
         self.name = name if name else "dummy name"
         self.race = race if race else "dummy race"
         self.background = background if background else "dummy background"
         self.role = role if role else []
         self.trait = trait if trait else []
+        
         self.karma = karma
         self.stigma = stigma if stigma else []
         self.buff = buff if buff else []
         self.debuff = debuff if debuff else []
-        self.equipments = equipments if equipments else []
-        self.inventory = inventory = inventory if inventory else []
+        
+        self.inventory = inventory if inventory else Container()
         self.stats = {
             "max_hp":0,
             "hp":0,
@@ -77,11 +100,11 @@ class Character:
         self.skill = skill if skill else []
         self.skill_dict = skill_dict if skill_dict else []
         
-                
+    # ====== METHODS ======
     def isAlive(self):
         return self.stats["hp"] > 0
         
-    
+        
     def attack(self, target):
         
         if not self.isAlive():
@@ -114,7 +137,12 @@ class Character:
         
         print(f"{target.name} taking {final_damage} damage !!!\n\n")
         
+        
     def load_abilities(self):
+        '''
+        Loads all the abilities from the JSON
+        into the player with corresponding role/class.
+        '''
         with open("data/char/abilities.json") as file:
             all_abilities = json.load(file)
             self.abilities = {
@@ -122,43 +150,12 @@ class Character:
                 if data["class"] == self.role[0]
         }
         
-    def use_ability(self, ability_name, target=None):
-        ability = self.abilities.get(ability_name)
-        
-        if not ability:
-            print(f"{self.name} doesn’t have that ability.")
-            return
-
-        effect = ability["effect"]
-        msg = effect.get("message", "").format(name=self.name)
-        print(msg)
-    
-        if ability["type"] == "active":
-            if "mp_cost" in effect and self.mana < effect["mp_cost"]:
-                print("Not enough mana!")
-                return
-
-            if "mp_cost" in effect:
-                self.mana -= effect["mp_cost"]
-    
-            if "pa_bonus" in effect:
-                original = self.pa
-                self.pa += effect["pa_bonus"]
-                self.attack(target)
-                self.pa = original
-    
-            if "ma_multiplier" in effect:
-                damage = max(0, self.ma * effect["ma_multiplier"] - target.md)
-                target.hp -= damage
-                print(f"{target.name} took {damage} magic damage!")
-        
-        elif ability["type"] == "passive":
-            if "pd_bonus" in effect:
-                self.pd += effect["pd_bonus"]
-                print(f"{self.name}'s defense increased permanently!")
-        
     
     def print_skills(self):
+        '''
+        For loop to each Passives and Actives skill
+        the players had, along with the title and effect.
+        '''
         try:
             skill_data = self.skill_dict
             print(f"{' '*2}- Passive:")
@@ -177,32 +174,33 @@ class Character:
                         fade_in(f"{' '*10}{effect.upper()}: {value}", 0.010)
         except Exception as e:
             print(e)
-
         
-
-
-# BATTLE TEST
-a = Character(name="A")
-
-b = Character(name="B")
-
-
-
-if __name__ == "__main__":
     
-    
-    while True:
-        
-        io = str(input("Attack? (y/n): ")).lower()
-        clear()
-        if io == "y":
+    def loot(self, container, item=None):
+        # PLAYER: pilih item
+        if self.is_player:
+            if not container.items:
+                print(f"{container.name} kosong.")
+                return
+
+            print(f"\nIsi {container.name}:")
+            for i, obj in enumerate(container.items, start=1):
+                print(f"{i}. {obj.name} ({obj.type}) - Berat {obj.weight}")
             
-            print(f"Battle!!!\n\nA vs B\n==========")
-            a.attack(b)
+            choice = input("Pilih nomor item: ")
+            if not choice.isdigit() or int(choice) < 1 or int(choice) > len(container.items):
+                print("Pilihan tidak valid.")
+                return
             
-        elif io == "n":
-            clear()
-            print("Thanks for playing")
-            
-        b.attack(a)
+            item = container.items[int(choice)-1]
+            print("\nDetail item:")
+            print(item.describe())
+
+        # NPC atau player sudah pilih item
+        if item and container.remove_item(item):
+            if self.inventory.add_item(item):
+                print(f"{self.name} mengambil {item.name} dari {container.name}")
+            else:
+                container.add_item(item)
+                print(f"{self.name} tidak bisa membawa {item.name}")
     

@@ -35,6 +35,15 @@ def clear():
 def sleep(delay):
     time.sleep(delay)
     
+def confirm(translate=1):
+    dash()
+    if translate != 1:
+        print(printf(translate.get('continue', 'Press any key to continue')))
+        
+    print(printf("Enter anything to continue"))
+    dashn()
+    input()
+    
 def refresh_width(debug=False):
     now = shutil.get_terminal_size().columns
     global warning
@@ -147,16 +156,6 @@ def open_json(path):
             keys.append(i)
             
     return dict,keys
-            
-            
-def confirm(translate=1):
-    dash()
-    if translate != 1:
-        print(printf(translate.get('continue', 'Press any key to continue')))
-        
-    print(printf("Enter anything to continue"))
-    dashn()
-    input()
 
 
 def confirm_choose(message="You sure? (y/n): "):
@@ -165,6 +164,7 @@ def confirm_choose(message="You sure? (y/n): "):
     return confirm
     
     
+# ===== JSON =====
 def open_desc(json):
     effects = [*json["buff"],*json["debuff"]]
     while True:
@@ -186,6 +186,86 @@ def open_desc(json):
             case 0:
                 break
         
+#EXAMPLE:
+#data = load_json_file(path)
+#data output = {"dummy":"dummy"}
+def load_json_file(path):
+    try:
+        with open(path, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        error(f"Failed to load {path}: {e}")
+        return {}
+        
+def choose_from_json(path, prompt):
+    try:
+        f, options = open_json(path)
+    except Exception as e:
+        dash()
+        fade_in("Failed to load JSON file")
+        print("Reason:\n",e)
+        return None
+
+    while True:
+        clear()
+        dash()
+        print(printf(prompt))
+        printt(options)
+        dashn()
+
+        try:
+            choice = int(input(": "))
+        except Exception as e:
+            print(e)
+            fade_in_out("Please input a number, CODE: NUM-001", 0.01, 0.5, 0.01)
+            continue
+
+        if 0 <= choice - 1 < len(options):
+            dash()
+            choosen = f[options[choice - 1]]
+            
+            print(printf(options[choice - 1].title()))
+            print(printf(choosen["desc"]))
+            
+            
+            if "buff" in choosen.keys():
+                
+                print(f"\nBuff:")
+                if choosen["buff"] != []:
+                    for buff in choosen['buff']:
+                        print(f"{' '*4}-{buff.title()}")
+                else:
+                    print(f"{' '*4}-None")
+                    
+                print(f"\nDebuff:")
+                if choosen["debuff"] != []:
+                    for debuff in choosen['debuff']:
+                        print(f"{' '*4}-{debuff.title()}")
+                else:
+                    print(f"{' '*4}-None")
+                    
+                dashn(d="-")
+                confirm = confirm_choose(f"Input 0 to read the buff/debuff description.\n\nOtherwise, continue? (y/n): ")
+            
+            #if there is no buff of debuff available (eg. Class/Role)
+            else:
+                dash()
+                confirm = confirm_choose(f"You choose the {options[choice - 1]}, proceed? (y/n): ")
+            
+            if confirm == "0":
+                open_desc(choosen)
+            elif confirm == "y":
+                return options[choice - 1]
+            elif confirm == "n":
+                continue
+            else:
+                error("The choice beyond limit, CODE: LMT-001")
+                continue
+        else:
+            error("Choice index out of range, CODE: OOR-001")
+            continue
+            
+
 def error(message):
     dash()
     fade_in_out(message,0.01,1,0.01)

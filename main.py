@@ -1,9 +1,6 @@
 
 
 
-from scripts.helpers import *
-from scripts.functions import main
+#main_menu()
 
-if __name__ == '__main__':
-   
-   main()
+from scripts.models.unitTest import *
