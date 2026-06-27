@@ -1,20 +1,83 @@
+# ========================
+# OS Files
+# ========================
+.DS_Store
+Thumbs.db
+desktop.ini
 
+# ========================
+# Editor & IDE
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.cursor/
 
-# Byte-compiled files
+# ========================
+# Environment & Secrets
+# ========================
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+*.pem
+*.key
+
+# ========================
+# Python
+# ========================
 __pycache__/
 *.pyc
 *.pyo
-
-# Distribution / Packaging
 *.egg-info/
 dist/
 build/
-
-# Virtual Environments
 venv/
 .env/
 
-# Logs and temporary files
+# ========================
+# Next.js / Node.js
+# ========================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/dist/
+frontend/build/
+frontend/.cache/
+frontend/.parcel-cache/
+frontend/.turbo/
+frontend/.vercel/
+
+# ========================
+# Go Backend
+# ========================
+backend/bin/
+backend/dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+# ========================
+# Logs & Temp
+# ========================
 *.log
-*.tmp
 *.sh
+logs/
+*.tmp
+*.temp
+tmp/
+
+# ========================
+# Misc
+# ========================
+*.bak
+*.orig
