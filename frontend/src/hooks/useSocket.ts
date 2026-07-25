@@ -44,7 +44,8 @@ export function useSocket() {
   const [cooldowns, setCooldowns] = useState<Cooldowns>({ skill: 0, zone: 0, teleport: 0 });
 
   useEffect(() => {
-    const socket = new WebSocket("ws://172.16.100.22:8080/ws")
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:8080/ws";
+    const socket = new WebSocket(wsUrl);
     ws.current = socket;
 
     socket.onopen = () => { setConnected(true); console.log("connected"); };
@@ -64,6 +65,13 @@ export function useSocket() {
         setMe({ id: data.id, x: data.x, y: data.y, hp: data.hp });
       }
       if (data.type === "monsters") setMonsters(data.monsters);
+
+      // Bug 1 fix: cooldown sekarang di-set dari konfirmasi server (cooldownAck),
+      // bukan dari asumsi durasi di frontend. Server adalah satu-satunya otoritas.
+      if (data.type === "cooldownAck") {
+        const endsAt = Date.now() + (data.durationMs as number);
+        setCooldowns((prev) => ({ ...prev, [data.action as string]: endsAt }));
+      }
 
       if (data.type === "skillEffect") {
         const effect: SkillEffect = {
@@ -88,26 +96,24 @@ export function useSocket() {
     return () => { socket.close(); };
   }, []);
 
-  const send = (data: any) => {
+  const send = (data: unknown) => {
     if (!ws.current || ws.current.readyState !== WebSocket.OPEN) return;
     ws.current.send(JSON.stringify(data));
   };
 
-  const setAvatar = (avatarUrl: string) => send({ type: "setAvatar", avatarUrl });
-
   const placeZone = (x: number, y: number) => {
     send({ type: "placeZone", x, y });
-    setCooldowns((prev) => ({ ...prev, zone: Date.now() + 5000 }));
+    // cooldown akan diupdate saat server membalas dengan cooldownAck
   };
 
   const useSkill = () => {
     send({ type: "skill" });
-    setCooldowns((prev) => ({ ...prev, skill: Date.now() + 3000 }));
+    // cooldown akan diupdate saat server membalas dengan cooldownAck
   };
 
   const teleport = (dir: string) => {
     send({ type: "teleport", dir });
-    setCooldowns((prev) => ({ ...prev, teleport: Date.now() + 4000 }));
+    // cooldown akan diupdate saat server membalas dengan cooldownAck
   };
 
   return {
@@ -120,7 +126,6 @@ export function useSocket() {
     monsters,
     cooldowns,
     send,
-    setAvatar,
     placeZone,
     useSkill,
     teleport,

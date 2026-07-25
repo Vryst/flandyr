@@ -42,7 +42,7 @@ export default function Home() {
   const {
     players, playerId, me, send,
     skillEffects, zoneEffects, monsters,
-    cooldowns, setAvatar, placeZone, useSkill, teleport,
+    cooldowns, placeZone, useSkill, teleport,
   } = useSocket();
 
   const keys = useRef({ w: false, a: false, s: false, d: false });
@@ -122,13 +122,26 @@ export default function Home() {
     return () => window.removeEventListener("keydown", handleSkill);
   }, [useSkill]);
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 300 * 1024) { alert("Gambar terlalu besar! Maksimal 300KB."); return; }
-    const reader = new FileReader();
-    reader.onload = () => setAvatar(reader.result as string);
-    reader.readAsDataURL(file);
+
+    // Bug 2 fix: upload via HTTP, bukan base64 lewat WebSocket.
+    // Ini mencegah file 300KB di-broadcast ke semua client setiap ada ganti avatar.
+    const uploadUrl = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080") + "/upload-avatar";
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    try {
+      const res = await fetch(uploadUrl, { method: "POST", body: formData });
+      if (!res.ok) { alert("Gagal upload avatar."); return; }
+      const { url } = await res.json();
+      // beritahu server URL avatar lewat WS (hanya string URL pendek, bukan base64)
+      send({ type: "updateAvatarUrl", avatarUrl: url });
+    } catch {
+      alert("Gagal upload avatar.");
+    }
   };
 
   const handleArenaMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
