@@ -42,14 +42,14 @@ const Player = {
     const c = CONFIG.marker.color;
 
     ctx.strokeStyle = `rgba(${c},${0.9 - pulse * 0.4})`;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(this.target.x, this.target.y, 14 + pulse * 8, 0, Math.PI * 2);
+    ctx.arc(this.target.x, this.target.y, 7 + pulse * 4, 0, Math.PI * 2);
     ctx.stroke();
 
     ctx.fillStyle = `rgba(${c},.9)`;
     ctx.beginPath();
-    ctx.arc(this.target.x, this.target.y, 5, 0, Math.PI * 2);
+    ctx.arc(this.target.x, this.target.y, 2.5, 0, Math.PI * 2);
     ctx.fill();
   },
 
@@ -78,14 +78,14 @@ const Player = {
     ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = '#111';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2;
     ctx.stroke();
 
     // penunjuk arah hadap
     ctx.fillStyle = '#111';
     ctx.beginPath();
     ctx.arc(this.x + Math.cos(this.angle) * r * 0.55,
-            this.y + Math.sin(this.angle) * r * 0.55, r * 0.14, 0, Math.PI * 2);
+            this.y + Math.sin(this.angle) * r * 0.55, Math.max(2, r * 0.16), 0, Math.PI * 2);
     ctx.fill();
   },
 };

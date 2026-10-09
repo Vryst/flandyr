@@ -21,11 +21,14 @@ function draw() {
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
   ctx.save();
+  ctx.scale(Camera.zoom, Camera.zoom);
   ctx.translate(-Camera.x, -Camera.y);
   World.draw(ctx);
   Player.drawMarker(ctx);
   Player.draw(ctx);
   ctx.restore();
+
+  Fog.draw(ctx);
 }
 
 let last = performance.now();
