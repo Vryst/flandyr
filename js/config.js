@@ -2,7 +2,7 @@
 
 // ===== SKALA DUNIA =====
 // pxPerKm   : 100 px = 1 km
-// timeScale : 1 detik nyata = berapa detik waktu game (360 = 1 detik nyata = 6 menit game)
+// timeScale : 1 detik nyata = berapa detik waktu game (360 = 1 detik nyata = 6 menit game, alias 1:360)
 const SCALE = {
   pxPerKm: 100,
   timeScale: 360,
@@ -10,11 +10,11 @@ const SCALE = {
 
 const CONFIG = {
   world: {
-    width: 8000,
-    height: 8000,
+    width: 736,               // = lebar gambar map (px)
+    height: 1308,             // = tinggi gambar map (px)
     color: '#2a3326',
     gridSize: 100,            // grid sementara, set 0 untuk matikan
-    backgroundImage: null,    // contoh: 'assets/images/map/map.png'
+    backgroundImage: 'assets/images/map/map.png',
   },
 
   player: {
