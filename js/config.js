@@ -172,6 +172,16 @@ const CONFIG = {
   marker: {
     color: '255,255,255',
   },
+
+  // Sambungan Firebase Realtime Database (lihat js/online.js + js/firebase-config.js)
+  online: {
+    enabled: true,            // false = main offline murni (tanpa Firebase)
+    connectTimeoutMs: 8000,   // lebih lama dari ini waktu mulai -> main offline
+    presenceMs: 200,          // interval kirim posisi ke pemain lain (ms)
+    presenceStaleMs: 60000,   // pemain tanpa kabar selama ini disembunyikan
+    saveDelayMs: 400,         // jeda simpan progress setelah inventory berubah
+    positionSaveMs: 3000,     // simpan posisi tiap sekian ms (kalau berubah)
+  },
 };
 
 // ===== NILAI TURUNAN (jangan diedit, ubah angka di atas) =====

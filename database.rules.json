@@ -1,0 +1,168 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "players": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        "save": {
+          ".validate": "newData.hasChildren(['mode','x','y'])",
+          "mode": {
+            ".validate": "newData.isString() && (newData.val() === 'world' || newData.val() === 'tower')"
+          },
+          "floor": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 3"
+          },
+          "x": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 30000"
+          },
+          "y": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 30000"
+          },
+          "bagId": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
+          },
+          "items": {
+            "$u": {
+              ".validate": "newData.hasChildren(['id','x','y'])",
+              "id": {
+                ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
+              },
+              "x": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 50"
+              },
+              "y": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 50"
+              },
+              "r": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          },
+          "t": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "presence": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['x','y','loc','t'])",
+        "x": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 30000"
+        },
+        "y": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 30000"
+        },
+        "a": {
+          ".validate": "newData.isNumber() && newData.val() >= -10 && newData.val() <= 10"
+        },
+        "loc": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
+        },
+        "n": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 24"
+        },
+        "t": {
+          ".validate": "newData.isNumber()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "world": {
+      ".read": "auth != null",
+      "meta": {
+        "epoch": {
+          ".write": "auth != null && !data.exists()",
+          ".validate": "newData.isNumber()"
+        },
+        "seeded": {
+          ".write": "auth != null && !data.exists()",
+          ".validate": "newData.val() === true"
+        },
+        "$other": {
+          ".validate": false
+        }
+      },
+      "items": {
+        "$key": {
+          ".write": "auth != null",
+          ".validate": "newData.hasChildren(['id','x','y','loc'])",
+          "id": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
+          },
+          "x": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 30000"
+          },
+          "y": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 30000"
+          },
+          "loc": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      },
+      "bags": {
+        "$key": {
+          ".write": "auth != null",
+          ".validate": "newData.hasChildren(['bagId','x','y','loc'])",
+          "bagId": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
+          },
+          "x": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 30000"
+          },
+          "y": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 30000"
+          },
+          "loc": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
+          },
+          "items": {
+            "$u": {
+              ".validate": "newData.hasChildren(['id','x','y'])",
+              "id": {
+                ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
+              },
+              "x": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 50"
+              },
+              "y": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 50"
+              },
+              "r": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      },
+      "$other": {
+        ".validate": false
+      }
+    }
+  }
+}

@@ -20,7 +20,8 @@ function itemDef(id) {
 }
 
 // uid unik untuk semua item / tas, supaya item bisa pindah antar wadah tanpa bentrok
-const Uid = { n: 1, next() { return this.n++; } };
+// Awal hitungan diacak per sesi, jadi uid tidak bentrok antar pemain (dipakai juga sebagai kunci di Firebase, lihat online.js)
+const Uid = { n: Math.floor(Math.random() * 9e9) * 1e5 + 1, next() { return this.n++; } };
 
 class Grid {
   constructor(cols, rows, items = []) {
@@ -171,9 +172,9 @@ const Inventory = {
   fits(size, x, y, ignoreUid = null) { return this.grid ? this.grid.fits(size, x, y, ignoreUid) : false; },
   findSpot(size, ignoreUid = null) { return this.grid ? this.grid.findSpot(size, ignoreUid) : null; },
 
-  add(id) {
+  add(id, uid) {                 // uid opsional: dipertahankan saat barang diambil dari tanah (identitas sama di seluruh dunia)
     if (!this.grid) return null;
-    const it = this.grid.add(id);
+    const it = this.grid.add(id, uid);
     if (it) this.emit();
     return it;
   },

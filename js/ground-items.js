@@ -59,7 +59,7 @@ const GroundItems = {
   take(uid) {
     const i = this.list.findIndex((it) => it.uid === uid);
     if (i < 0) return false;
-    if (!Inventory.add(this.list[i].id)) return false;   // tas penuh / tidak bawa tas
+    if (!Inventory.add(this.list[i].id, this.list[i].uid)) return false;   // tas penuh / tidak bawa tas (uid ikut)
     this.list.splice(i, 1);
     return true;
   },

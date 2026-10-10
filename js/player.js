@@ -56,46 +56,66 @@ const Player = {
   },
 
   draw(ctx, radius) {
+    this.render(ctx, this.x, this.y, this.angle, radius || CONFIG.player.radius);
+  },
+
+  // pemain lain (online.js): potret yang sama, garis tepi berwarna sesuai pemain + nama di atas kepala
+  drawOther(ctx, o, radius) {
     const r = radius || CONFIG.player.radius;
+    this.render(ctx, o.rx, o.ry, o.a || 0, r, { border: `hsl(${o.hue} 75% 58%)`, label: o.n });
+  },
+
+  render(ctx, x, y, angle, r, opt = {}) {
     const sprite = Assets.get('player');
+    const border = opt.border || '#111';
 
     // bayangan
     ctx.fillStyle = 'rgba(0,0,0,.3)';
     ctx.beginPath();
-    ctx.ellipse(this.x, this.y + r * 0.8, r, r * 0.45, 0, 0, Math.PI * 2);
+    ctx.ellipse(x, y + r * 0.8, r, r * 0.45, 0, 0, Math.PI * 2);
     ctx.fill();
 
     if (sprite) {
       ctx.save();
-      ctx.translate(this.x, this.y);
-      if (CONFIG.player.rotateSprite) ctx.rotate(this.angle);
+      ctx.translate(x, y);
+      if (CONFIG.player.rotateSprite) ctx.rotate(angle);
       ctx.beginPath();
       ctx.arc(0, 0, r, 0, Math.PI * 2);
       ctx.save();
       ctx.clip();                                   // pastikan selalu bulat
       ctx.drawImage(sprite, -r, -r, r * 2, r * 2);
       ctx.restore();
-      ctx.strokeStyle = '#111';                     // garis tepi lingkaran
+      ctx.strokeStyle = border;                     // garis tepi lingkaran
       ctx.lineWidth = Math.max(1.5, r * 0.12);
       ctx.stroke();
       ctx.restore();
-      return;
+    } else {
+      // placeholder lingkaran
+      ctx.fillStyle = CONFIG.player.color;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = border;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // penunjuk arah hadap
+      ctx.fillStyle = '#111';
+      ctx.beginPath();
+      ctx.arc(x + Math.cos(angle) * r * 0.55, y + Math.sin(angle) * r * 0.55, Math.max(2, r * 0.16), 0, Math.PI * 2);
+      ctx.fill();
     }
 
-    // placeholder lingkaran
-    ctx.fillStyle = CONFIG.player.color;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#111';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // penunjuk arah hadap
-    ctx.fillStyle = '#111';
-    ctx.beginPath();
-    ctx.arc(this.x + Math.cos(this.angle) * r * 0.55,
-            this.y + Math.sin(this.angle) * r * 0.55, Math.max(2, r * 0.16), 0, Math.PI * 2);
-    ctx.fill();
+    if (opt.label) {
+      const fs = Math.max(9, r * 0.8);
+      ctx.font = `600 ${fs}px system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.lineWidth = Math.max(2, fs * 0.25);
+      ctx.strokeStyle = 'rgba(0,0,0,.75)';
+      ctx.strokeText(opt.label, x, y - r - 3);
+      ctx.fillStyle = '#f2efe4';
+      ctx.fillText(opt.label, x, y - r - 3);
+    }
   },
 };

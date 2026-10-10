@@ -10,6 +10,7 @@ function resize() {
 }
 
 function update(dt) {
+  Online.update(dt);                // jam, posisi pemain lain, kirim posisi sendiri (tetap jalan walau inventory terbuka)
   if (InventoryUI.open) return;   // game di-pause selama layar inventory terbuka
   let coord;
   if (Interior.active) {
@@ -37,6 +38,7 @@ function draw() {
   World.draw(ctx);
   Objects.draw(ctx);
   GroundItems.draw(ctx);
+  Online.drawOthers(ctx, 'world', CONFIG.player.radius);   // pemain lain
   Player.drawMarker(ctx);
   Player.draw(ctx);
   ctx.restore();
@@ -81,6 +83,12 @@ async function start() {
   if (CONFIG.world.backgroundImage && !CONFIG.world.mapTiles) list.map = CONFIG.world.backgroundImage;
   Object.assign(list, Objects.assetList(), Interior.assetList(), GroundItems.assetList());
   await Assets.load(list);
+
+  // sambung ke Firebase (login anonim, muat progress, dunia bersama). Gagal / offline -> main lokal.
+  await Online.init();
+  const boot = document.getElementById('boot');
+  if (boot) boot.remove();
+  last = performance.now();
 
   requestAnimationFrame(loop);
 }

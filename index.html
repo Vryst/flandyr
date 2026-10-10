@@ -8,8 +8,16 @@
 </head>
 <body>
   <canvas id="game"></canvas>
-  <div id="coords"><span id="coords-text"></span><span id="place-tag"></span></div>
+  <div id="coords"><span id="net"></span><span id="clock"></span><span id="coords-text"></span><span id="place-tag"></span></div>
+  <div id="toast"></div>
+  <div id="boot">Menghubungkan ke server…</div>
   
+  <!-- SDK Firebase (versi compat, dimuat dari CDN; kalau gagal dimuat game jalan offline) -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+
   <!-- Urutan load penting: config -> utilitas -> objek game -> main -->
   <script src="js/config.js"></script>
   <script src="js/assets.js"></script>
@@ -26,6 +34,7 @@
   <script src="js/inventory.js"></script>
   <script src="js/ground-items.js"></script>
   <script src="js/inventory-ui.js"></script>
+  <script src="js/online.js"></script>
   <script src="js/input.js"></script>
   <script src="js/main.js"></script>
 </body>

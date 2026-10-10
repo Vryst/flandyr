@@ -301,6 +301,7 @@ const Interior = {
     }
 
     GroundItems.draw(ctx, GroundItems.loc(), 22);   // barang yang dijatuhkan di lantai ini
+    Online.drawOthers(ctx, GroundItems.loc(), CONFIG.interior.playerRadius);   // pemain lain di lantai ini
     Player.drawMarker(ctx);
     Player.draw(ctx, CONFIG.interior.playerRadius);
 

@@ -41,3 +41,24 @@ Tekan `I` / `Tab` atau klik tombol tas (kiri bawah). Ukuran grid ikut tas di `CO
 
 ## Map berpetak
 Map (9208 x 7424) dipecah jadi petak 2048 px di `assets/images/map/tiles/` supaya HP tidak perlu memuat 1 gambar raksasa. Kalau `map.png` diganti, jalankan `python3 tools/gen_map_tiles.py`. Set `CONFIG.world.mapTiles` ke `null` untuk kembali ke gambar utuh.
+
+## Firebase (Realtime Database)
+Backend memakai project `flandyr-1`. Kode: `js/online.js` (logika), `js/firebase-config.js` (kunci web, memang publik), SDK compat dimuat dari CDN di `index.html`. Matikan dengan `CONFIG.online.enabled = false` (game jalan offline seperti dulu; offline juga otomatis kalau SDK / koneksi gagal).
+
+### Yang disinkron
+| Data | Lokasi di database | Catatan |
+|---|---|---|
+| Progress pemain | `players/{uid}/save` | posisi, dunia / lantai menara, tas + isinya. Pribadi (hanya pemilik) |
+| Posisi pemain lain | `presence/{uid}` | tampil di map, halaman, dan lantai menara yang sama; hilang otomatis saat putus |
+| Barang & tas di tanah | `world/items`, `world/bags` | dunia bersama; ambil barang/tas lewat transaksi (tidak bisa dobel) |
+| Jam game | `world/meta/epoch` | semua pemain jam yang sama (mulai 06:00 hari ke-1), tampil di HUD |
+
+### Setup sekali (di Firebase console)
+1. **Authentication > Sign-in method > Anonymous > Enable.**
+2. **Realtime Database > Rules**: tempel isi `database.rules.json` lalu Publish (atau `firebase deploy --only database`; `firebase.json` + `.firebaserc` sudah disiapkan).
+3. Buka game lewat http(s), jangan double-click file: `python3 -m http.server` lalu buka `http://localhost:8000` (`localhost` sudah termasuk domain yang diizinkan Auth). Kalau di-host, tambahkan domainnya di **Authentication > Settings > Authorized domains**.
+
+### Catatan
+- Pemain pertama yang masuk menulis isi awal dunia dari `CONFIG.worldItems` / `worldBags` (penanda `world/meta/seeded`). Mengubah config itu setelahnya tidak otomatis muncul: hapus node `world` di console untuk mengisi ulang.
+- Validasi di sisi client + Security Rules (format data, batas angka, progress hanya milik sendiri). Pemain yang memodifikasi client masih bisa curang (mis. menghapus semua barang dunia). Untuk anti-cheat sungguhan, aksi ambil/pindah barang perlu dipindah ke Cloud Functions.
+- Presence mengirim posisi ~5x per detik per pemain yang bergerak dan semua pemain membaca semuanya. Untuk pemain banyak, nanti dibatasi per area.
