@@ -8,11 +8,8 @@
 </head>
 <body>
   <canvas id="game"></canvas>
-  <div id="coords">x: 0, y: 0</div>
-  <div id="place-name"></div>
-  <button id="action-btn" type="button"></button>
-  <div id="fade"></div>
-
+  <div id="coords"><span id="coords-text"></span><span id="place-tag"></span></div>
+  
   <!-- Urutan load penting: config -> utilitas -> objek game -> main -->
   <script src="js/config.js"></script>
   <script src="js/assets.js"></script>
@@ -25,6 +22,7 @@
   <script src="js/fog.js"></script>
   <script src="js/interior.js"></script>
   <script src="js/interact.js"></script>
+  <script src="js/hud.js"></script>
   <script src="js/input.js"></script>
   <script src="js/main.js"></script>
 </body>

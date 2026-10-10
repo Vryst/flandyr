@@ -7,7 +7,12 @@ const World = {
     if (bg) {
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(bg, 0, 0, width, height);
+      // gambar hanya potongan map yang kelihatan di layar (map-nya raksasa, 9208 x 7424)
+      const k = bg.width / width;
+      const x0 = Math.max(0, Math.floor(Camera.x * k)) , y0 = Math.max(0, Math.floor(Camera.y * k));
+      const x1 = Math.min(bg.width,  Math.ceil((Camera.x + window.innerWidth  / Camera.zoom) * k));
+      const y1 = Math.min(bg.height, Math.ceil((Camera.y + window.innerHeight / Camera.zoom) * k));
+      if (x1 > x0 && y1 > y0) ctx.drawImage(bg, x0, y0, x1 - x0, y1 - y0, x0 / k, y0 / k, (x1 - x0) / k, (y1 - y0) / k);
     } else {
       ctx.fillStyle = color;
       ctx.fillRect(0, 0, width, height);

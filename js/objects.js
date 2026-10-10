@@ -11,7 +11,10 @@ const Objects = {
   },
 
   draw(ctx) {
+    const vw = window.innerWidth / Camera.zoom, vh = window.innerHeight / Camera.zoom;
     for (const o of this.list) {
+      if (o.x + o.radius < Camera.x || o.x - o.radius > Camera.x + vw ||
+          o.y + o.radius < Camera.y || o.y - o.radius > Camera.y + vh) continue;   // di luar layar
       const img = Assets.get('obj:' + o.id);
       ctx.save();
       ctx.beginPath();

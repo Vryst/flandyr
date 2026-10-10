@@ -1,7 +1,6 @@
 // Entry point: setup canvas, load asset, jalankan game loop.
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
-const coordsEl = document.getElementById('coords');
 
 function resize() {
   const dpr = window.devicePixelRatio || 1;
@@ -11,15 +10,18 @@ function resize() {
 }
 
 function update(dt) {
+  let coord;
   if (Interior.active) {
     Interior.update(dt);
-    coordsEl.textContent = `Lantai ${Interior.floorId}`;
+    Interact.update();
+    coord = '';
   } else {
     Player.update(dt);
     Camera.update(Player);
-    coordsEl.textContent = `x: ${Math.round(Player.x)}, y: ${Math.round(Player.y)} · ${Terrain.info(Player.x, Player.y).name}`;
+    Interact.update();
+    coord = `x: ${Math.round(Player.x)}, y: ${Math.round(Player.y)} · ${Terrain.info(Player.x, Player.y).name}`;
   }
-  Interact.update();
+  Hud.set(coord, Interact.place);   // mis. "x: 17990, y: 18010 · Hutan" + "· Tower of Mabel" (animasi)
 }
 
 function draw() {
@@ -53,7 +55,7 @@ async function start() {
   window.addEventListener('resize', resize);
   Terrain.init();
   Interior.init();
-  Interact.init();
+  Hud.init();
   Input.init(canvas);
 
   // load asset kalau path-nya diisi di config.js

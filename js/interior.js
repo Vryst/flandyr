@@ -203,16 +203,47 @@ const Interior = {
     return x > z.x - m && x < z.x + z.w + m && y > z.y - m && y < z.y + z.h + m;
   },
 
+  // semua zona interaksi di lantai ini: tangga + pintu keluar
+  zones() {
+    const fl = this.floor, out = [];
+    fl.stairs.forEach((st, i) => out.push({
+      key: 'stair' + i, rect: st,
+      run: () => this.goTo(st.to, st.arrive),
+    }));
+    if (fl.exit) out.push({ key: 'exit', rect: fl.exit, run: () => this.exit() });
+    return out;
+  },
+
+  // zona yang bisa dipakai dari posisi player sekarang (atau null)
   action() {
-    const fl = this.floor;
-    for (const s of fl.stairs) {
-      if (this.near(s)) {
-        return { label: s.dir === 'up' ? `Naik ke Lantai ${s.to}` : `Turun ke Lantai ${s.to}`,
-                 run: () => this.goTo(s.to, s.arrive) };
-      }
-    }
-    if (fl.exit && this.near(fl.exit)) return { label: 'Keluar', run: () => this.exit() };
-    return null;
+    return this.zones().find((z) => this.near(z.rect)) || null;
+  },
+
+  // hitung ukuran & posisi lantai di layar (dipakai draw, klik, dan transisi)
+  layout() {
+    const W = window.innerWidth, H = window.innerHeight, fl = this.floor;
+    const f = Math.min(W / fl.w, H / fl.h) * 0.94;
+    this.view = { f, ox: (W - fl.w * f) / 2, oy: (H - fl.h * f) / 2 };
+    return this.view;
+  },
+
+  // posisi player di layar
+  screenPos() {
+    const { f, ox, oy } = this.layout();
+    return { x: ox + Player.x * f, y: oy + Player.y * f };
+  },
+
+  // posisi layar -> koordinat lantai
+  toLocal(clientX, clientY) {
+    const { f, ox, oy } = this.view;
+    return { x: (clientX - ox) / f, y: (clientY - oy) / f };
+  },
+
+  // zona yang ada di titik lantai (x, y), dipakai untuk double-click
+  zoneAt(x, y) {
+    const pad = 10 * this.S;
+    return this.zones().find(({ rect: r }) =>
+      x >= r.x - pad && x <= r.x + r.w + pad && y >= r.y - pad && y <= r.y + r.h + pad) || null;
   },
 
   // ---- gambar ----
@@ -221,9 +252,7 @@ const Interior = {
     ctx.fillStyle = '#0c0b09';
     ctx.fillRect(0, 0, W, H);
 
-    const f = Math.min(W / fl.w, H / fl.h) * 0.94;
-    const ox = (W - fl.w * f) / 2, oy = (H - fl.h * f) / 2;
-    this.view = { f, ox, oy };
+    const { f, ox, oy } = this.layout();
 
     ctx.save();
     ctx.translate(ox, oy);

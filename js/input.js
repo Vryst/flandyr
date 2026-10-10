@@ -4,6 +4,7 @@ const Input = {
   pinchDist: 0,
   pinched: false,        // true kalau gesture ini adalah pinch (bukan tap)
   down: null,            // posisi awal tap
+  lastTap: null,         // tap sebelumnya (untuk deteksi klik 2x)
 
   init(canvas) {
     canvas.addEventListener('pointerdown', (e) => {
@@ -32,11 +33,17 @@ const Input = {
         Math.hypot(e.clientX - this.down.x, e.clientY - this.down.y) < 10;
       this.pointers.delete(e.pointerId);
       if (e.type === 'pointerup' && wasTap) {
+        const now = performance.now();
+        const dbl = !!this.lastTap && now - this.lastTap.t < 350 &&
+          Math.hypot(e.clientX - this.lastTap.x, e.clientY - this.lastTap.y) < 30;
+        this.lastTap = dbl ? null : { t: now, x: e.clientX, y: e.clientY };
+
         if (Interior.active) Interior.tap(e.clientX, e.clientY);
         else {
           const p = Camera.toWorld(e.clientX, e.clientY);
           Player.moveTo(p.x, p.y);
         }
+        Interact.onTap(e.clientX, e.clientY, dbl);
       }
     };
     canvas.addEventListener('pointerup', end);

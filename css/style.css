@@ -30,53 +30,16 @@ canvas {
   pointer-events: none;
 }
 
-#place-name {
-  position: fixed;
-  top: 14px;
-  left: 50%;
-  transform: translate(-50%, -8px);
-  padding: 9px 22px;
-  border-radius: 999px;
-  background: rgba(20, 16, 10, .72);
-  border: 1px solid rgba(232, 200, 114, .45);
-  color: #f3e6bf;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 17px;
-  letter-spacing: .04em;
+/* nama tempat di HUD: melebar + fade + geser saat muncul, kebalikannya saat hilang */
+#place-tag {
+  display: inline-block;
+  vertical-align: bottom;
+  max-width: 0;
+  overflow: hidden;
   white-space: nowrap;
   opacity: 0;
-  pointer-events: none;
-  transition: opacity .25s, transform .25s;
+  transform: translateX(10px);
+  transition: max-width .6s cubic-bezier(.22, .8, .3, 1), opacity .5s ease, transform .6s cubic-bezier(.22, .8, .3, 1);
 }
-#place-name.show { opacity: 1; transform: translate(-50%, 0); }
-
-#action-btn {
-  position: fixed;
-  left: 50%;
-  bottom: max(28px, env(safe-area-inset-bottom));
-  transform: translate(-50%, 10px);
-  padding: 14px 34px;
-  border-radius: 14px;
-  border: 1px solid rgba(232, 200, 114, .7);
-  background: linear-gradient(#4a3a1d, #2b2111);
-  color: #f7e9bd;
-  font: 600 17px system-ui, sans-serif;
-  cursor: pointer;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, .45);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .2s, transform .2s;
-}
-#action-btn.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
-#action-btn:hover { filter: brightness(1.2); }
-#action-btn:active { transform: translate(-50%, 2px); }
-
-#fade {
-  position: fixed;
-  inset: 0;
-  background: #000;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .18s;
-}
-#fade.on { opacity: 1; pointer-events: auto; }
+#place-tag.show { opacity: 1; transform: none; }      /* max-width diatur dari hud.js sesuai lebar teks */
+#coords-text:not(:empty) + #place-tag::before { content: '\00a0· '; }
