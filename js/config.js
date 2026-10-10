@@ -18,15 +18,18 @@ const CONFIG = {
     color: '#2a3326',
     gridSize: 100,            // grid sementara, set 0 untuk matikan
     backgroundImage: 'assets/images/map/map.png',
+    // Map dipecah jadi petak (hasil tools/gen_map_tiles.py) supaya HP tidak perlu memuat 1 gambar raksasa.
+    // Set ke null untuk kembali memakai backgroundImage utuh.
+    mapTiles: { dir: 'assets/images/map/tiles', size: 2048, cols: 5, rows: 4, width: 9208, height: 7424 },
   },
 
   player: {
     radius: 12,               // ukuran lingkaran/sprite (px). Skala 300 px = 1 km, jadi ini hanya ikon simbolis
-    speedKmh: 15,             // kecepatan jalan (km/jam, waktu game); sebelumnya 5
+    speedKmh: 2,              // kecepatan jalan (km/jam, waktu game)
     speed: 0,                 // px per detik nyata, dihitung otomatis di bawah
     color: '#e8ecdf',
-    sprite: null,             // contoh: 'assets/images/player/player.png'
-    rotateSprite: true,       // sprite ikut menghadap arah jalan
+    sprite: 'assets/images/player/player.png',   // potret karakter (sudah bulat)
+    rotateSprite: false,      // false = potret tetap tegak (true = ikut memutar sesuai arah jalan)
   },
 
   // Jenis medan (id sesuai Terrain: 0 darat, 1 air, 2 hutan).
@@ -60,18 +63,33 @@ const CONFIG = {
   //   stairs  : tangga. dir 'up' / 'down', `to` = lantai tujuan, `arrive` = posisi player setelah sampai di lantai itu
   //   exit    : pintu keluar menara (hanya lantai 1)
   //   spawn   : posisi player waktu masuk dari luar (hanya lantai 1)
+  //   Lantai 0 = Halaman (di luar menara, sebelum masuk). Lantai 3 memakai gambar yang SAMA dengan halaman (imageFrom: 0), tapi collision-nya beda.
+  //   Opsional per lantai: label (nama di pojok kanan atas), zoom (>1 = kamera ikut player), blockedPolys (poligon yang tidak bisa diinjak).
   interior: {
     scale: 2,                 // gambar lantai diperbesar 2x
+    startFloor: 0,            // masuk dari peta dunia -> mulai di Halaman
     speed: 260,               // px per detik (px lantai yang sudah di-scale)
     playerRadius: 26,         // ukuran karakter di dalam menara (px lantai ter-scale)
     margin: 26,               // jarak (px lantai) dari tangga / pintu supaya tombol muncul
+    pickupRadius: 50,         // jarak (px lantai ter-scale) barang masih muncul di panel Pencarian di dalam menara
     floors: [
+      {
+        id: 0, image: 'assets/images/tower/yard.jpg', w: 1200, h: 896, label: 'Halaman', zoom: 1.8,
+        walls: [[10,10],[1190,10],[1190,886],[10,886]],     // seluruh gambar bebas dijelajahi (tepi gambar = batas)
+        blocked: [],
+        blockedPolys: [
+          [[626,226],[797,226],[897,322],[897,534],[803,630],[627,630],[522,534],[522,322]],     // hanya menara yang collision
+        ],
+        stairs: [{ x: 740, y: 606, w: 56, h: 26, dir: 'in', to: 1, arrive: { x: 251, y: 78 } }],    // pintu di tembok bawah menara (di atas jalan berbatu) -> lantai 1
+        exit: { x: 690, y: 862, w: 110, h: 34 },                                                    // jalan di bawah -> peta dunia
+        spawn: { x: 740, y: 835 },
+      },
       {
         id: 1, image: 'assets/images/tower/floor1.png', w: 503, h: 495,
         walls: 'oct',
         blocked: [[41,290,213,90],[131,240,48,52],[252,293,44,44],[363,253,96,110],[381,373,36,35],[366,103,93,142],[119,388,90,70],[274,423,109,32]],
         stairs: [{ x: 36, y: 133, w: 87, h: 135, dir: 'up', to: 2, arrive: { x: 140, y: 240 } }],
-        exit: { x: 214, y: 38, w: 74, h: 36 },     // pintu di tembok atas
+        exit: { x: 214, y: 38, w: 74, h: 36, to: 0, arrive: { x: 768, y: 650 } },     // pintu di tembok atas -> keluar ke Halaman (depan pintu menara)
         spawn: { x: 251, y: 78 },
       },
       {
@@ -80,17 +98,59 @@ const CONFIG = {
         blocked: [[219,46,74,166],[296,41,80,36],[96,66,75,95],[36,128,45,43],[437,139,28,28],[63,356,85,75],[203,381,160,70]],
         stairs: [
           { x: 33, y: 181, w: 88, h: 115, dir: 'down', to: 1, arrive: { x: 140, y: 200 } },
-          { x: 381, y: 179, w: 87, h: 147, dir: 'up',   to: 3, arrive: { x: 362, y: 260 } },
+          { x: 381, y: 179, w: 87, h: 147, dir: 'up',   to: 3, arrive: { x: 775, y: 460 } },
         ],
       },
       {
-        id: 3, image: 'assets/images/tower/floor3.png', w: 503, h: 497,
-        walls: 'oct',
-        blocked: [[49,335,90,95]],
-        stairs: [{ x: 383, y: 208, w: 85, h: 130, dir: 'down', to: 2, arrive: { x: 362, y: 240 } }],
+        // Atap menara: gambar SAMA dengan Halaman (imageFrom: 0), koordinat di ruang gambar yang sama; hanya atapnya yang bisa diinjak.
+        id: 3, imageFrom: 0, w: 1200, h: 896, zoom: 2.4,
+        walls: [[615,250],[800,250],[866,320],[866,542],[800,601],[615,601],[552,542],[552,320]],
+        blocked: [[566,520,66,64]],
+        stairs: [{ x: 797, y: 397, w: 69, h: 125, dir: 'down', to: 2, arrive: { x: 362, y: 240 } }],
       },
     ],
   },
+
+  // Inventory berbasis slot (grid) ala Resident Evil / Delta Force.
+  // Ukuran grid ditentukan oleh tas yang dipakai (bag): cols x rows slot.
+  inventory: {
+    bag: 'backpack',          // id tas yang sedang dipakai (kunci di `bags`)
+    character: null,          // gambar karakter, mis. 'assets/images/player/char.png' (null = siluet bawaan)
+    // Slot perlengkapan di sekitar karakter (area karakter 360 x 300 px).
+    //   side: 'left' / 'right' / 'center', top: jarak dari atas (px), w / h: ukuran slot (px, default 64 x 64).
+    // Slot 'bag' menentukan ukuran grid; slot lain masih kosong (menunggu item).
+    slots: [
+      { id: 'bag',   label: 'Tas',          side: 'left',  top: 14  },   // samping kepala (ada tombol Jatuhkan)
+      { id: 'armor', label: 'Baju / Armor', side: 'left',  top: 134 },   // di bawah tas
+      { id: 'hand',  label: 'Tangan',       side: 'right', top: 134 },   // samping badan
+    ],
+    cellSize: 52,             // ukuran maksimal 1 slot (px). Otomatis mengecil supaya tas besar tetap muat di layar
+    minCellSize: 26,          // batas terkecil; kalau tas lebih besar lagi, layar bisa di-scroll
+    pickupRadius: 50,         // jarak (px dunia) barang masih muncul di panel Pencarian (50 px ≈ 167 m)
+    start: [],                // isi tas waktu mulai game (id item, kosongkan [] kalau tidak mau)
+    bags: {
+      backpack: { name: 'Ransel', cols: 3, rows: 3, image: 'assets/images/items/backpack.png' },
+      // tas lain nanti tinggal tambah di sini, mis. { name: 'Tas Besar', cols: 5, rows: 4, image: '...' }
+    },
+  },
+
+  // Definisi item. Format:
+  //   id: { name: 'Pisau', w: 1, h: 2, icon: 'assets/images/items/pisau.png', color: '#4a4a52' }
+  // w x h = jumlah slot yang dipakai item di grid. icon boleh dikosongkan (tampil nama + warna `color`).
+  // Tas juga bisa jadi item (lihat CONFIG.inventory.bags), jadi tidak perlu didaftarkan di sini.
+  items: {
+    pisau: { name: 'Pisau', w: 1, h: 2, icon: 'assets/images/items/pisau.png' },
+  },
+
+  // Barang tergeletak di dunia (di luar tas): { id: 'pisau', x: 17800, y: 17400 }
+  worldItems: [
+    { id: 'pisau', x: 17780, y: 16700 },
+  ],
+
+  // Tas tergeletak di dunia, lengkap dengan isinya: { bag: 'backpack', x, y, items: ['pisau'] }
+  worldBags: [
+    { bag: 'backpack', x: 17690, y: 16650, items: [] },
+  ],
 
   camera: {
     zoom: 1,                  // zoom awal

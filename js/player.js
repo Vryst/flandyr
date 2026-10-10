@@ -69,7 +69,15 @@ const Player = {
       ctx.save();
       ctx.translate(this.x, this.y);
       if (CONFIG.player.rotateSprite) ctx.rotate(this.angle);
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.save();
+      ctx.clip();                                   // pastikan selalu bulat
       ctx.drawImage(sprite, -r, -r, r * 2, r * 2);
+      ctx.restore();
+      ctx.strokeStyle = '#111';                     // garis tepi lingkaran
+      ctx.lineWidth = Math.max(1.5, r * 0.12);
+      ctx.stroke();
       ctx.restore();
       return;
     }

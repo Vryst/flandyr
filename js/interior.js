@@ -12,7 +12,7 @@ const Interior = {
 
   assetList() {
     const out = {};
-    for (const f of CONFIG.interior.floors) out['floor' + f.id] = f.image;
+    for (const f of CONFIG.interior.floors) if (f.image) out['floor' + f.id] = f.image;   // lantai dengan imageFrom memakai gambar lantai lain
     return out;
   },
 
@@ -27,9 +27,15 @@ const Interior = {
         id: f.id, w: f.w * S, h: f.h * S,
         poly: (f.walls === 'oct' ? oct : f.walls).map(([x, y]) => ({ x: x * S, y: y * S })),
         blocked: f.blocked.map(rect),
+        blockedPolys: (f.blockedPolys || []).map((p) => p.map(([x, y]) => ({ x: x * S, y: y * S }))),
+        imageKey: 'floor' + (f.imageFrom !== undefined ? f.imageFrom : f.id),
+        label: f.label || ('Lantai ' + f.id),
+        zoom: f.zoom || 1,
         stairs: f.stairs.map((s) => ({ ...rect([s.x, s.y, s.w, s.h]), dir: s.dir, to: s.to,
                                        arrive: { x: s.arrive.x * S, y: s.arrive.y * S } })),
-        exit: f.exit ? rect([f.exit.x, f.exit.y, f.exit.w, f.exit.h]) : null,
+        // exit tanpa `to` = keluar ke peta dunia; dengan `to` + `arrive` = pindah ke lantai lain (mis. Halaman)
+        exit: f.exit ? { ...rect([f.exit.x, f.exit.y, f.exit.w, f.exit.h]), to: f.exit.to,
+                         arrive: f.exit.arrive ? { x: f.exit.arrive.x * S, y: f.exit.arrive.y * S } : null } : null,
         spawn: f.spawn ? { x: f.spawn.x * S, y: f.spawn.y * S } : null,
       };
     }
@@ -42,7 +48,7 @@ const Interior = {
   enter(tower) {
     this.tower = tower;
     this.active = true;
-    this.floorId = 1;
+    this.floorId = CONFIG.interior.startFloor || 0;
     const sp = this.floor.spawn;
     Player.x = sp.x; Player.y = sp.y; Player.target = null; this.path = [];
   },
@@ -61,8 +67,8 @@ const Interior = {
   },
 
   // ---- gerak ----
-  inPoly(x, y) {
-    const p = this.floor.poly; let inside = false;
+  inPoly(x, y, p = this.floor.poly) {
+    let inside = false;
     for (let i = 0, j = p.length - 1; i < p.length; j = i++) {
       if ((p[i].y > y) !== (p[j].y > y) &&
           x < (p[j].x - p[i].x) * (y - p[i].y) / (p[j].y - p[i].y) + p[i].x) inside = !inside;
@@ -77,6 +83,11 @@ const Interior = {
     }
     for (const b of this.floor.blocked) {
       if (x > b.x - r && x < b.x + b.w + r && y > b.y - r && y < b.y + b.h + r) return false;
+    }
+    for (const poly of this.floor.blockedPolys) {      // poligon yang tidak bisa diinjak (menara, kolam, semak)
+      for (const [dx, dy] of [[0, 0], [r, 0], [-r, 0], [0, r], [0, -r]]) {
+        if (this.inPoly(x + dx, y + dy, poly)) return false;
+      }
     }
     return true;
   },
@@ -210,7 +221,8 @@ const Interior = {
       key: 'stair' + i, rect: st,
       run: () => this.goTo(st.to, st.arrive),
     }));
-    if (fl.exit) out.push({ key: 'exit', rect: fl.exit, run: () => this.exit() });
+    if (fl.exit) out.push({ key: 'exit', rect: fl.exit,
+      run: () => (fl.exit.to !== undefined ? this.goTo(fl.exit.to, fl.exit.arrive) : this.exit()) });
     return out;
   },
 
@@ -222,8 +234,11 @@ const Interior = {
   // hitung ukuran & posisi lantai di layar (dipakai draw, klik, dan transisi)
   layout() {
     const W = window.innerWidth, H = window.innerHeight, fl = this.floor;
-    const f = Math.min(W / fl.w, H / fl.h) * 0.94;
-    this.view = { f, ox: (W - fl.w * f) / 2, oy: (H - fl.h * f) / 2 };
+    const f = Math.min(W / fl.w, H / fl.h) * 0.94 * fl.zoom;
+    // zoom 1 = seluruh lantai di tengah layar; zoom > 1 = kamera ikut player (tidak keluar dari tepi gambar)
+    const axis = (size, view, p) => (size * f <= view ? (view - size * f) / 2
+                                                         : Math.min(0, Math.max(view - size * f, view / 2 - p * f)));
+    this.view = { f, ox: axis(fl.w, W, Player.x), oy: axis(fl.h, H, Player.y) };
     return this.view;
   },
 
@@ -257,11 +272,12 @@ const Interior = {
     ctx.save();
     ctx.translate(ox, oy);
     ctx.scale(f, f);
-    const img = Assets.get('floor' + fl.id);
+    const img = Assets.get(fl.imageKey);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
     if (img) ctx.drawImage(img, 0, 0, fl.w, fl.h);
 
+    GroundItems.draw(ctx, GroundItems.loc(), 22);   // barang yang dijatuhkan di lantai ini
     Player.drawMarker(ctx);
     Player.draw(ctx, CONFIG.interior.playerRadius);
 
@@ -278,6 +294,11 @@ const Interior = {
     ctx.fillStyle = 'rgba(255,0,0,.28)';
     ctx.strokeStyle = 'rgba(255,0,0,.9)';
     for (const b of fl.blocked) { ctx.fillRect(b.x, b.y, b.w, b.h); ctx.strokeRect(b.x, b.y, b.w, b.h); }
+    for (const poly of fl.blockedPolys) {
+      ctx.beginPath();
+      poly.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+    }
     // zona interaksi (tangga / pintu) hanya tampil di mode debug
     const m = CONFIG.interior.margin * this.S;
     ctx.strokeStyle = 'rgba(80,170,255,.9)';

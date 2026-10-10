@@ -10,6 +10,7 @@ function resize() {
 }
 
 function update(dt) {
+  if (InventoryUI.open) return;   // game di-pause selama layar inventory terbuka
   let coord;
   if (Interior.active) {
     Interior.update(dt);
@@ -25,6 +26,7 @@ function update(dt) {
 }
 
 function draw() {
+  if (InventoryUI.open) return;   // layar inventory menutupi game: tidak perlu menggambar map raksasa di belakangnya
   if (Interior.active) { Interior.draw(ctx); return; }
   ctx.fillStyle = '#111';
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
@@ -34,6 +36,7 @@ function draw() {
   ctx.translate(-Camera.x, -Camera.y);
   World.draw(ctx);
   Objects.draw(ctx);
+  GroundItems.draw(ctx);
   Player.drawMarker(ctx);
   Player.draw(ctx);
   ctx.restore();
@@ -56,13 +59,27 @@ async function start() {
   Terrain.init();
   Interior.init();
   Hud.init();
+  Inventory.init();
+  GroundItems.init();
+  InventoryUI.init();
+  // Balik dari inventory ke game: buat ulang canvas bersih supaya tidak ada sisa/korup di buffer GPU
+  InventoryUI.onToggle = (open) => { if (!open) { resize(); last = performance.now(); } };
   Input.init(canvas);
+
+  // HP / tablet: layar penuh begitu pemain menyentuh layar pertama kali (browser butuh sentuhan dulu)
+  if (window.matchMedia('(pointer: coarse)').matches) {
+    window.addEventListener('pointerup', () => {
+      const el = document.documentElement;
+      const req = el.requestFullscreen || el.webkitRequestFullscreen;
+      if (req && !document.fullscreenElement) { try { Promise.resolve(req.call(el)).catch(() => {}); } catch (e) {} }
+    }, { once: true });
+  }
 
   // load asset kalau path-nya diisi di config.js
   const list = {};
   if (CONFIG.player.sprite) list.player = CONFIG.player.sprite;
-  if (CONFIG.world.backgroundImage) list.map = CONFIG.world.backgroundImage;
-  Object.assign(list, Objects.assetList(), Interior.assetList());
+  if (CONFIG.world.backgroundImage && !CONFIG.world.mapTiles) list.map = CONFIG.world.backgroundImage;
+  Object.assign(list, Objects.assetList(), Interior.assetList(), GroundItems.assetList());
   await Assets.load(list);
 
   requestAnimationFrame(loop);

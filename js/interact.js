@@ -14,7 +14,7 @@ const Interact = {
     let place = null, action = null;
 
     if (Interior.active) {
-      place = `${Interior.tower.name} · Lantai ${Interior.floorId}`;
+      place = `${Interior.tower.name} · ${Interior.floor.label}`;
       action = Interior.action();
     } else {
       const o = Objects.nearby(Player.x, Player.y);
