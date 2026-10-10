@@ -148,11 +148,28 @@ const Interior = {
     const closed = new Uint8Array(N), open = [];
     const si = s.r * cols + s.c, ei = e.r * cols + e.c;
     const h = (i) => Math.hypot((i % cols) - e.c, Math.floor(i / cols) - e.r);
-    gs[si] = 0; open.push([h(si), si]);
+    const push = (item) => {                       // min-heap berdasarkan nilai f
+      let i = open.push(item) - 1;
+      while (i > 0) { const q = (i - 1) >> 1; if (open[q][0] <= item[0]) break; open[i] = open[q]; i = q; }
+      open[i] = item;
+    };
+    const pop = () => {
+      const top = open[0], last = open.pop();
+      if (open.length) {
+        let i = 0;
+        for (;;) {
+          let c = 2 * i + 1; if (c >= open.length) break;
+          if (c + 1 < open.length && open[c + 1][0] < open[c][0]) c++;
+          if (open[c][0] >= last[0]) break;
+          open[i] = open[c]; i = c;
+        }
+        open[i] = last;
+      }
+      return top;
+    };
+    gs[si] = 0; push([h(si), si]);
     while (open.length) {
-      let bi = 0;
-      for (let i = 1; i < open.length; i++) if (open[i][0] < open[bi][0]) bi = i;
-      const [, cur] = open.splice(bi, 1)[0];
+      const [, cur] = pop();
       if (closed[cur]) continue;
       closed[cur] = 1;
       if (cur === ei) break;
@@ -165,7 +182,7 @@ const Interior = {
         if (!ok[ni] || closed[ni]) continue;
         if (dc && dr && (!ok[cr * cols + nc] || !ok[nr * cols + cc])) continue;   // jangan potong sudut
         const ng = gs[cur] + (dc && dr ? 1.414 : 1);
-        if (ng < gs[ni]) { gs[ni] = ng; from[ni] = cur; open.push([ng + h(ni), ni]); }
+        if (ng < gs[ni]) { gs[ni] = ng; from[ni] = cur; push([ng + h(ni), ni]); }
       }
     }
     if (from[ei] === -1 && ei !== si) return [];
@@ -274,8 +291,14 @@ const Interior = {
     ctx.scale(f, f);
     const img = Assets.get(fl.imageKey);
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    if (img) ctx.drawImage(img, 0, 0, fl.w, fl.h);
+    ctx.imageSmoothingQuality = fl.zoom > 1 ? 'low' : 'high';   // gambar besar + zoom: kualitas 'high' bikin lag
+    if (img) {
+      // hanya gambar bagian yang kelihatan di layar (gambar halaman 2400 x 1792 terlalu berat kalau digambar utuh tiap frame)
+      const x0 = Math.max(0, -ox / f), y0 = Math.max(0, -oy / f);
+      const x1 = Math.min(fl.w, (W - ox) / f), y1 = Math.min(fl.h, (H - oy) / f);
+      const kx = img.naturalWidth / fl.w, ky = img.naturalHeight / fl.h;
+      if (x1 > x0 && y1 > y0) ctx.drawImage(img, x0 * kx, y0 * ky, (x1 - x0) * kx, (y1 - y0) * ky, x0, y0, x1 - x0, y1 - y0);
+    }
 
     GroundItems.draw(ctx, GroundItems.loc(), 22);   // barang yang dijatuhkan di lantai ini
     Player.drawMarker(ctx);
