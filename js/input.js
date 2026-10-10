@@ -32,8 +32,11 @@ const Input = {
         Math.hypot(e.clientX - this.down.x, e.clientY - this.down.y) < 10;
       this.pointers.delete(e.pointerId);
       if (e.type === 'pointerup' && wasTap) {
-        const p = Camera.toWorld(e.clientX, e.clientY);
-        Player.moveTo(p.x, p.y);
+        if (Interior.active) Interior.tap(e.clientX, e.clientY);
+        else {
+          const p = Camera.toWorld(e.clientX, e.clientY);
+          Player.moveTo(p.x, p.y);
+        }
       }
     };
     canvas.addEventListener('pointerup', end);

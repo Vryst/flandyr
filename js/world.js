@@ -5,6 +5,8 @@ const World = {
     const bg = Assets.get('map');
 
     if (bg) {
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(bg, 0, 0, width, height);
     } else {
       ctx.fillStyle = color;

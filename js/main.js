@@ -11,12 +11,19 @@ function resize() {
 }
 
 function update(dt) {
-  Player.update(dt);
-  Camera.update(Player);
-  coordsEl.textContent = `x: ${Math.round(Player.x)}, y: ${Math.round(Player.y)}`;
+  if (Interior.active) {
+    Interior.update(dt);
+    coordsEl.textContent = `Lantai ${Interior.floorId}`;
+  } else {
+    Player.update(dt);
+    Camera.update(Player);
+    coordsEl.textContent = `x: ${Math.round(Player.x)}, y: ${Math.round(Player.y)} · ${Terrain.info(Player.x, Player.y).name}`;
+  }
+  Interact.update();
 }
 
 function draw() {
+  if (Interior.active) { Interior.draw(ctx); return; }
   ctx.fillStyle = '#111';
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -24,6 +31,7 @@ function draw() {
   ctx.scale(Camera.zoom, Camera.zoom);
   ctx.translate(-Camera.x, -Camera.y);
   World.draw(ctx);
+  Objects.draw(ctx);
   Player.drawMarker(ctx);
   Player.draw(ctx);
   ctx.restore();
@@ -43,12 +51,16 @@ function loop(now) {
 async function start() {
   resize();
   window.addEventListener('resize', resize);
+  Terrain.init();
+  Interior.init();
+  Interact.init();
   Input.init(canvas);
 
   // load asset kalau path-nya diisi di config.js
   const list = {};
   if (CONFIG.player.sprite) list.player = CONFIG.player.sprite;
   if (CONFIG.world.backgroundImage) list.map = CONFIG.world.backgroundImage;
+  Object.assign(list, Objects.assetList(), Interior.assetList());
   await Assets.load(list);
 
   requestAnimationFrame(loop);

@@ -1,7 +1,7 @@
 // Player: bergerak ke titik tujuan yang diklik.
 const Player = {
-  x: CONFIG.world.width / 2,
-  y: CONFIG.world.height / 2,
+  x: CONFIG.world.spawn.x,
+  y: CONFIG.world.spawn.y,
   angle: 0,
   target: null,
   markerTime: 0,
@@ -22,18 +22,20 @@ const Player = {
     const dx = this.target.x - this.x;
     const dy = this.target.y - this.y;
     const dist = Math.hypot(dx, dy);
-    const step = CONFIG.player.speed * dt;
+    // kecepatan tergantung medan tempat player berdiri (hutan lebih lambat)
+    const step = CONFIG.player.speed * Terrain.info(this.x, this.y).speed * dt;
 
     this.angle = Math.atan2(dy, dx);
 
-    if (dist <= step) {
-      this.x = this.target.x;
-      this.y = this.target.y;
-      this.target = null;
-    } else {
-      this.x += (dx / dist) * step;
-      this.y += (dy / dist) * step;
-    }
+    const nx = dist <= step ? this.target.x : this.x + (dx / dist) * step;
+    const ny = dist <= step ? this.target.y : this.y + (dy / dist) * step;
+
+    // air = tidak bisa dilewati: berhenti di tepi
+    if (!Terrain.info(nx, ny).walkable) { this.target = null; return; }
+
+    this.x = nx;
+    this.y = ny;
+    if (dist <= step) this.target = null;
   },
 
   drawMarker(ctx) {
@@ -53,8 +55,8 @@ const Player = {
     ctx.fill();
   },
 
-  draw(ctx) {
-    const r = CONFIG.player.radius;
+  draw(ctx, radius) {
+    const r = radius || CONFIG.player.radius;
     const sprite = Assets.get('player');
 
     // bayangan
