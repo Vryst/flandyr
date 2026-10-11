@@ -24,7 +24,7 @@ const Interior = {
       const oct = [[m + c, m], [W - m - c, m], [W - m, m + c], [W - m, H - m - c],
                    [W - m - c, H - m], [m + c, H - m], [m, H - m - c], [m, m + c]];
       this.floors[f.id] = {
-        id: f.id, w: f.w * S, h: f.h * S,
+        id: f.id, w: f.w * S, h: f.h * S, tower: f.tower || 'tower', fixedSpawn: !!f.fixedSpawn,     // tower = id objek pemilik lantai (Tower of Mabel = 'tower')
         poly: (f.walls === 'oct' ? oct : f.walls).map(([x, y]) => ({ x: x * S, y: y * S })),
         blocked: f.blocked.map(rect),
         blockedPolys: (f.blockedPolys || []).map((p) => p.map(([x, y]) => ({ x: x * S, y: y * S }))),
@@ -44,15 +44,19 @@ const Interior = {
 
   get floor() { return this.floors[this.floorId]; },
 
+  // lantai tempat pemain muncul waktu masuk objek (CONFIG.objects[].startFloor; tanpa = CONFIG.interior.startFloor, yaitu Halaman Mabel)
+  startFloorOf(obj) { return obj && obj.startFloor !== undefined ? obj.startFloor : (CONFIG.interior.startFloor || 0); },
+
   // ---- masuk / keluar / pindah lantai ----
   enter(tower) {
     this.tower = tower;
     this.active = true;
-    this.floorId = CONFIG.interior.startFloor || 0;
+    this.floorId = this.startFloorOf(tower);
     let sp = this.floor.spawn;
     // lantai arena battle (Halaman): muncul di pinggir sesuai ARAH player datang dari menara di map gede (dari atas -> di atas, dst), bukan di tengah
+    // (lantai dengan `fixedSpawn: true` selalu muncul di `spawn`-nya)
     const fcfg = CONFIG.interior.floors.find((f) => f.id === this.floorId);
-    if (fcfg && fcfg.battle && typeof BattleArena !== 'undefined') {
+    if (fcfg && fcfg.battle && !fcfg.fixedSpawn && typeof BattleArena !== 'undefined') {
       const ang = Math.atan2(Player.y - tower.y, Player.x - tower.x);
       sp = BattleArena.fixed(this.floorId).edge(ang, this.R + 6, 90);
     }

@@ -77,15 +77,32 @@ const BattleArena = {
       drawBack() {}, drawFront() {},
       // titik di PINGGIR arena pada arah `ang` (rad) dari pusat (titik tengah poligon terblokir pertama, mis. menara): jalan dari pusat ke luar sampai
       // titik terjauh yang masih bisa diinjak lalu mundur `margin`. Dipakai supaya yang masuk dari atas muncul di atas, dari kiri di kiri, dst.
-      edge(ang, r, margin = 90) {
+      // `avoid` = { x, y, min } (opsional, hanya dipakai lantai dengan `fixedSpawn`): titik yang dipilih tidak boleh lebih dekat dari `min` ke (x, y) (mis. tempat muncul pemain);
+      // kalau arah asal terlalu dekat, arah diputar sampai ketemu pinggir yang cukup jauh.
+      edge(ang, r, margin = 90, avoid = null) {
         const bp = fl.blockedPolys[0], c = bp ? { x: bp.reduce((q, p) => q + p.x, 0) / bp.length, y: bp.reduce((q, p) => q + p.y, 0) / bp.length } : { x: this.w / 2, y: this.h / 2 };
-        for (const dA of [0, .12, -.12, .25, -.25, .4, -.4, .6, -.6, .9, -.9]) {
-          const a = ang + dA, cx = Math.cos(a), cy = Math.sin(a);
-          let far = -1;
-          for (let d = 0; d < 4000; d += 15) { const x = c.x + cx * d, y = c.y + cy * d; if (x < 0 || y < 0 || x > this.w || y > this.h) break; if (this.canStand(x, y, r)) far = d; }
-          if (far > margin) { const d = far - margin; return { x: c.x + cx * d, y: c.y + cy * d }; }
+        const one = (A) => {
+          for (const dA of [0, .12, -.12, .25, -.25, .4, -.4, .6, -.6, .9, -.9]) {
+            const a = A + dA, cx = Math.cos(a), cy = Math.sin(a);
+            let far = -1;
+            for (let d = 0; d < 4000; d += 15) { const x = c.x + cx * d, y = c.y + cy * d; if (x < 0 || y < 0 || x > this.w || y > this.h) break; if (this.canStand(x, y, r)) far = d; }
+            if (far > margin) { const d = far - margin; return { x: c.x + cx * d, y: c.y + cy * d }; }
+          }
+          return null;
+        };
+        const far = (p) => (avoid ? Math.hypot(p.x - avoid.x, p.y - avoid.y) : 1e9);
+        let best = one(ang);
+        if (avoid && fl.fixedSpawn && (!best || far(best) < avoid.min)) {
+          let bd = best ? far(best) : -1;
+          for (let k = 1; k <= 12; k++) {
+            const p = one(ang + k * Math.PI / 6 * (k % 2 ? 1 : -1));
+            if (!p) continue;
+            const d = far(p);
+            if (d > bd) { bd = d; best = p; }
+            if (d >= avoid.min) break;
+          }
         }
-        return { x: this.w / 2, y: this.h * .9 };
+        return best || { x: this.w / 2, y: this.h * .9 };
       },
     });
     return a;
@@ -133,7 +150,26 @@ const BattleArena = {
   },
 
   // ---- arena acak dari seed ----
+  // pintu masuk arena acak. Medan dengan `noCollision: true` (CONFIG.battle.arenas[biome]) = gerak bebas: poly area, lingkaran blocked & rintangan diabaikan,
+  // pemain & monster hanya dibatasi tepi arena (gambar). Hapus flag itu untuk mengembalikan collision.
   random(biomeKey, seed) {
+    const a = this.build(biomeKey, seed);
+    a.exit = this.exitFor(a);
+    if (CONFIG.battle.arenas[biomeKey].noCollision) { const W = a.w, H = a.h; a.canStand = (x, y, r) => x >= r && y >= r && x <= W - r && y <= H - r; }
+    return a;
+  },
+  // pintu kabur: titik `exit: [x, y]` di template (px gambar), kalau tidak ada = titik bisa-diinjak yang paling JAUH dari spawn pemain
+  exitFor(a) {
+    const r = CONFIG.battle.exitR || 48, tpl = a.tpl;
+    if (tpl && tpl.exit && tpl.scale) return { x: tpl.exit[0] * tpl.scale, y: tpl.exit[1] * tpl.scale, r };
+    const sp = a.spawnPoint(); let best = null, bd = -1;
+    for (let y = r; y < a.h - r; y += 40) for (let x = r; x < a.w - r; x += 40) {
+      if (!a.canStand(x, y, r)) continue;
+      const d = Math.hypot(x - sp.x, y - sp.y); if (d > bd) { bd = d; best = { x, y, r }; }
+    }
+    return best || { x: a.w / 2, y: r + 80, r };
+  },
+  build(biomeKey, seed) {
     const B = CONFIG.battle, set = B.arenas[biomeKey], cfg = B.arena;
     const rng = mulberry(seed);
     const tpl = set.templates[Math.floor(rng() * set.templates.length)];

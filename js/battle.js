@@ -70,30 +70,37 @@ const Battle = {
     if (this.active) { if (!on && this.kind === 'fixed' && this.relaxOk()) this.leave(); return; }
     if (on && (!Interior.active || !this.cfg().enabled)) return;
     this.siaga = false; this.input.mx = this.input.my = 0;
-    if (on) { this.enter(this.available() || { type: 'fixed', key: this.raidKey(), floorId: Interior.floorId, spawns: [], units: [], angles: [] }); return; }
+    if (on) { this.enter(this.available() || { type: 'fixed', key: this.raidKey(), floorId: Interior.floorId, tower: Interior.tower && Interior.tower.id, spawns: [], units: [], angles: [] }); return; }
     BattleUI.refresh();
   },
   relaxOk() { return !this.mons.some((m) => m.st !== ST.DEAD); },
-  raidKey() { return `tower:${CONFIG.interior.startFloor || 0}`; },
+  // Tiap objek battle tetap (Tower of Mabel, Padang / Reruntuhan Batu Runik, ...) punya room, raid & unit sendiri: kunci room = `tower:{lantai awal objek}`
+  // (Mabel tetap `tower:0`). Unit hanya masuk ke objek tempat dia berkemah (`home`).
+  curObj() { return (this.active && this.obj) || Interior.tower || CONFIG.objects.find((o) => o.interior) || null; },
+  raidKey(obj) { return `tower:${Interior.startFloorOf(obj || this.curObj())}`; },
+  towerOf(u) { this.campOf(u); return u._obj || CONFIG.objects.find((o) => o.interior) || null; },     // objek tempat unit u berkemah / masuk
+  keyOf(u) { return this.raidKey(this.towerOf(u)); },
+  inRoom(u) { return this.active && this.kind === 'fixed' && this.room === this.keyOf(u); },       // sedang berada di raid milik unit u
   toggle() { this.setSiaga(!this.siaga); },
 
   // raid arena tetap (Halaman menara): isinya = unit yang sedang berada DI DALAM menara (lihat `cycle` di CONFIG.battle.units) dan belum dikalahkan
   available() {
     const c = this.cfg();
-    if (!c || !c.enabled || !Interior.active) return null;
-    if (!CONFIG.interior.floors.some((f) => f.battle)) return null;      // menara punya raid: berlaku di SEMUA lantai (pemain di lantai mana pun ikut raid begitu ada musuh)
-    const r = this.raidSpawns();
-    if (!r && !this.raidHeld()) return null;      // tidak ada unit di dalam menara & tidak ada raid yang tertinggal / sedang berjalan
-    return { type: 'fixed', key: this.raidKey(), floorId: Interior.floorId, spawns: r ? r.spawns : [], units: r ? r.ids : [], angles: r ? r.angles : [], owners: r ? r.owners : [] };
+    if (!c || !c.enabled || !Interior.active || !Interior.tower) return null;
+    const obj = Interior.tower;
+    if (!CONFIG.interior.floors.some((f) => f.battle && (f.tower || 'tower') === obj.id)) return null;      // menara punya raid: berlaku di SEMUA lantai (pemain di lantai mana pun ikut raid begitu ada musuh)
+    const r = this.raidSpawns(obj);
+    if (!r && !this.raidHeld(this.raidKey(obj))) return null;      // tidak ada unit di dalam menara & tidak ada raid yang tertinggal / sedang berjalan
+    return { type: 'fixed', key: this.raidKey(obj), floorId: Interior.floorId, tower: obj.id, spawns: r ? r.spawns : [], units: r ? r.ids : [], angles: r ? r.angles : [], owners: r ? r.owners : [] };
   },
   // raid yang masih ada di menara (sedang berjalan, atau ditinggalkan pemain terakhir dengan monster hidup): pemain yang masuk melanjutkannya
-  raidHeld() { return BattleNet.isHeld(this.raidKey()); },
+  raidHeld(key) { return BattleNet.isHeld(key || this.raidKey()); },
   // unit yang monsternya sedang hidup di dalam menara (raid tersimpan / berjalan): tidak muncul di peta dunia & tidak membuat raid kedua
   // ---- unit keluar menara tanpa pemain di dalam ----
   // Server tidak menjalankan AI, jadi raid yang ditinggal kosong tidak "bergerak". Supaya unit tetap KELUAR dari pintu menara tepat waktunya (kelihatan oleh pemain di peta gede,
   // bukan baru dihitung pas ada yang masuk), waktu keluarnya dihitung dari penanda `hold` (terakhir host hidup) + lama tinggal acak (seed unit + hold, sama di semua klien)
   // + waktu jalan ke pintu (CONFIG.battle.exitWalkSec, default 45 dtk). Setelah itu unit muncul DI PINTU dan rutenya mulai dari situ (lihat unitClock).
-  holdT() { return BattleNet.online() ? (this.cleared['hold:' + this.raidKey()] || 0) : ((BattleNet._held[this.raidKey()] || {}).t || 0); },
+  holdT(u) { const k = u ? this.keyOf(u) : this.raidKey(); return BattleNet.online() ? (this.cleared['hold:' + k] || 0) : ((BattleNet._held[k] || {}).t || 0); },
   stayFor(u, holdT) { this.campOf(u); const r = this.cfg().leaveStaySec || [90, 300]; return r[0] + mulberry((u._seed ^ (holdT % 2147483647)) >>> 0)() * (r[1] - r[0]); },
   lazyOutAt(u, holdT) { return Math.round(holdT + (this.stayFor(u, holdT) + (this.cfg().exitWalkSec || 45)) * 1000); },
   // unit tercatat di dalam menara: `in` lebih baru dari `out`, DAN `in` ikut di-refresh bersama `hold` (host menulis `in` semua unit raid tiap 30 dtk). `in` yang jauh lebih tua dari
@@ -101,8 +108,8 @@ const Battle = {
   markedIn(u) {
     const i = this.cleared['in:' + u.id] || 0;
     if (!(i > 0) || (this.cleared['out:' + u.id] || 0) >= i) return false;
-    const h = this.holdT();
-    return h > 0 ? h - i <= 90000 : this.active;
+    const h = this.holdT(u);
+    return h > 0 ? h - i <= 90000 : this.inRoom(u);
   },
   // tiap ~2 dtk: unit yang menurut jadwal sudah keluar dari raid yang ditinggal dicatat permanen (`out` = waktu keluarnya, nilai sama di semua klien), supaya tidak ada yang
   // bergantung pada `hold` lagi (raid baru yang me-refresh `hold` tidak bisa "memasukkan" mereka lagi, dan posisi mereka di peta tidak loncat).
@@ -110,9 +117,9 @@ const Battle = {
     this._stT = (this._stT || 0) - dt; if (this._stT > 0) return;
     this._stT = 2;
     if (this.active || this.busy) return;
-    const h = this.holdT(); if (!(h > 0)) return;
     const now = BattleNet.now();
     for (const u of this.cfg().units || []) {
+      const h = this.holdT(u); if (!(h > 0)) continue;
       if (!this.markedIn(u)) continue;
       const at = this.lazyOutAt(u, h);
       if (now < at) continue;
@@ -121,18 +128,22 @@ const Battle = {
     }
   },
   lazyOut(u) {         // ms: waktu unit (ditinggal kosong) sudah keluar dari pintu; 0 = belum / tidak berlaku
-    if (this.active || !this.markedIn(u)) return 0;
-    const h = this.holdT(); if (!(h > 0)) return 0;
+    if (this.inRoom(u) || !this.markedIn(u)) return 0;
+    const h = this.holdT(u); if (!(h > 0)) return 0;
     const at = this.lazyOutAt(u, h);
     return BattleNet.now() >= at ? at : 0;
   },
-  heldAlive() {        // masih ada unit yang (menurut jadwal) belum keluar dari raid yang ditinggal
-    if (this.active) return true;
-    const h = this.holdT(); if (!(h > 0)) return false;
+  heldAlive(key) {        // masih ada unit (di objek `key`) yang (menurut jadwal) belum keluar dari raid yang ditinggal
+    key = key || this.raidKey();
+    if (this.active && this.kind === 'fixed' && this.room === key) return true;
     const now = BattleNet.now();
-    return (this.cfg().units || []).some((u) => this.markedIn(u) && now < this.lazyOutAt(u, h));
+    return (this.cfg().units || []).some((u) => {
+      if (this.keyOf(u) !== key) return false;
+      const h = this.holdT(u); if (!(h > 0)) return false;
+      return this.markedIn(u) && now < this.lazyOutAt(u, h);
+    });
   },
-  inTower(u) { return this.markedIn(u) && (this.active || (this.raidHeld() && !this.lazyOut(u))); },     // penanda basi (raid sudah tidak ada / unit sudah keluar menurut jadwal) diabaikan
+  inTower(u) { return this.markedIn(u) && (this.inRoom(u) || (this.raidHeld(this.keyOf(u)) && !this.lazyOut(u))); },     // penanda basi (raid sudah tidak ada / unit sudah keluar menurut jadwal) diabaikan
   // ms terakhir unit "mulai dari titik awal": keluar dari pintu menara, atau respawn setelah dikalahkan (muncul di kemah / pintu, bukan di tengah rute jadwal). 0 = belum pernah
   outAt(u) {
     const o = this.markedIn(u) ? this.lazyOut(u) : (this.cleared['out:' + u.id] || 0), e = this.cleared['enc:' + u.id] || 0;
@@ -165,12 +176,13 @@ const Battle = {
     return L.includes(a) && L.includes(b);
   },
   // monster yang sedang menunggu di dalam menara (belum dikalahkan)
-  raidSpawns() {
+  raidSpawns(obj) {
     const c = this.cfg();
     if (!c || !c.enabled) return null;
+    obj = obj || this.curObj();
     const spawns = [], ids = [], angles = [], owners = [], list = [], t = BattleNet.now() / 1000;
     for (const u of c.units || []) {
-      if (!u.cycle || !this.unitDet(u, t).inside || this.isCleared('enc:' + u.id) || this.inTower(u)) continue;
+      if (!u.cycle || this.towerOf(u) !== obj || !this.unitDet(u, t).inside || this.isCleared('enc:' + u.id) || this.inTower(u)) continue;
       const o = this.cleared['out:' + u.id];      // baru saja keluar menara lagi: jangan langsung masuk raid lagi selama sisa jendela "di dalam"
       if (o > 0 && BattleNet.now() - o < ((u.cycle.in || 60) + 30) * 1000) continue;
       spawns.push(...u.pack); ids.push(u.id);
@@ -261,7 +273,7 @@ const Battle = {
     // mode battle tanpa monster (Siaga biasa) + ada unit yang masuk menara: host memunculkan raid di room yang sama
     // raid menara berjalan + ada unit lain yang masuk menara (jadwal `cycle`): host menambahkan monsternya ke room yang sama (ikut raid)
     if (this.active && this.kind === 'fixed' && this.isHost) {
-      const r = this.raidSpawns();
+      const r = this.raidSpawns(this.obj);
       if (r) { const had = this.mons.length; this.addUnits(r.list); Online.toast && Online.toast(had ? 'Musuh lain masuk menara' : 'Raid dimulai'); }
     }
     this._engT = (this._engT || 0) + dt; if (this._engT > 20) { this._engT = 0; this.engBeat(); }
@@ -377,7 +389,7 @@ const Battle = {
       const ids = (this.cfg().units || []).map((u) => u.id), db = BattleNet.online() ? Online.db : null;
       this.setIn(ids, false);
       for (const id of ids) for (const k of ['out:', 'enc:']) { this.cleared[k + id] = 0; if (db) db.ref('battle_state/' + k + id).set(0).catch(() => {}); }
-      this.cleared['hold:' + this.raidKey()] = 0; if (db) db.ref('battle_state/hold:' + this.raidKey()).set(0).catch(() => {});
+      for (const o of CONFIG.objects) if (o.interior) { const k = this.raidKey(o); this.cleared['hold:' + k] = 0; if (db) db.ref('battle_state/hold:' + k).set(0).catch(() => {}); }
       BattleNet._held = {};
       console.log('testReset selesai: semua unit di luar menara, ikut jadwal.');
     };
@@ -485,13 +497,14 @@ const Battle = {
     const c = this.cfg();
     if (u.arena === 'random') return null;
     let obj = null;
-    for (const o of CONFIG.objects) {
+    for (const o of CONFIG.objects) {      // bentrok di dekat objek battle mana pun = map objek itu
       if (!o.interior) continue;
-      if (u.arena === 'fixed' || Math.hypot(Player.x - o.x, Player.y - o.y) <= o.radius + (c.fixedMargin || 50)) { obj = o; break; }
+      if (Math.hypot(Player.x - o.x, Player.y - o.y) <= o.radius + (c.fixedMargin || 50)) { obj = o; break; }
     }
+    if (!obj && u.arena === 'fixed') obj = this.towerOf(u);       // dipaksa: map tempat unit berkemah
     if (!obj) return null;
-    const floors = CONFIG.interior.floors, st = floors.find((f) => f.id === CONFIG.interior.startFloor);
-    const fl = (st && st.battle ? st : floors.find((f) => f.battle)) || null;
+    const floors = CONFIG.interior.floors, mine = (f) => f.battle && (f.tower || 'tower') === obj.id, st = floors.find((f) => f.id === Interior.startFloorOf(obj));
+    const fl = (st && mine(st) ? st : floors.find(mine)) || null;
     if (fl) fl._obj = obj;
     return fl;
   },
@@ -506,7 +519,7 @@ const Battle = {
     if (fl) {                                   // arena tetap: pemain "masuk" menara ke Halaman, satu instance battle per unit
       Interior.enter(fl._obj);
       const up = this.unitNow(u), ang = Math.atan2(up.y - fl._obj.y, up.x - fl._obj.x);
-      this.enter({ type: 'fixed', key: this.raidKey(), floorId: fl.id, spawns: u.pack, units: [u.id], angles: u.pack.map(() => ang), owners: u.pack.map(() => u.id) });
+      this.enter({ type: 'fixed', key: this.raidKey(fl._obj), floorId: fl.id, tower: fl._obj.id, spawns: u.pack, units: [u.id], angles: u.pack.map(() => ang), owners: u.pack.map(() => u.id) });
       return;
     }
     const info = Terrain.info(Player.x, Player.y), biome = u.biome || (info && info.battle) || 'forest';
@@ -569,13 +582,15 @@ const Battle = {
     this.busy = true;
     try {
       const meta = await BattleNet.join(d.key, { kind: d.type, biome: d.biome, resume: d.type === 'fixed', units: (d.units || []).join(',') });
+      this.obj = d.type === 'fixed' ? (CONFIG.objects.find((o) => o.id === d.tower) || Interior.tower || CONFIG.objects.find((o) => o.interior) || null) : null;
+      this.baseFloor = d.type === 'fixed' ? Interior.startFloorOf(this.obj) : -1;      // lantai tempat monster muncul (Halaman / lantai awal objek)
       this.room = d.key; this.kind = d.type; this.biome = d.biome; this.floorId = d.type === 'fixed' ? d.floorId : -1; this.arenas = {}; this.gatherPts = {}; this.seed = meta.seed; this.siaga = true; this._angles = d.angles || null; this._owners = d.owners || []; this.leaving = {}; this.leaveAt = {};
       const ru = meta.units ? String(meta.units).split(',').filter(Boolean) : [];
       this._unitIds = ru.length ? ru : (d.units || []);      // unit yang dikalahkan = unit milik room (bisa beda dari yang dihitung perangkat ini kalau melanjutkan raid)
       this.isHost = meta.isHost; this._spawns = d.spawns;
       this.rng = mulberry(meta.seed ^ 0x9e3779b9);
       this.mons = []; this.others.clear(); this.swings = []; this.floaters = []; this.flows = {};
-      this.down = false; this.atkT = 0; this.kv = { x: 0, y: 0 }; this.clearT = 0; this._ls = null; this._vx = this._vy = 0; this._monAt = 0; this._lastMons = '';
+      this._exitT = 0; this.down = false; this.atkT = 0; this.kv = { x: 0, y: 0 }; this.clearT = 0; this._ls = null; this._vx = this._vy = 0; this._monAt = 0; this._lastMons = '';
       if (d.type === 'fixed') {
         this.arena = this.arenaFor(d.floorId);
         this.self = Player; Player.target = null; Interior.path = [];
@@ -643,7 +658,7 @@ const Battle = {
   },
 
   spawnMonsters() {
-    const sf = this.kind === 'fixed' ? (CONFIG.interior.startFloor || 0) : -1, a = this.arenaFor(sf), rng = this.rng;
+    const sf = this.kind === 'fixed' ? this.baseFloor : -1, a = this.arenaFor(sf), rng = this.rng;
     this.gather = rng() < .5;                 // perilaku jalan-jalan: berkumpul (satu tujuan bersama per lantai) atau mencar (tujuan masing-masing)
     this.gatherPts = {};
     this.mons = this._spawns.map((type, i) => {
@@ -652,7 +667,7 @@ const Battle = {
       if (a.kind === 'random') p = a.spot(rng, def.radius + 6, a.monsterNear || { x: a.w / 2, y: a.h * .3, min: 0, max: 520 });
       else {                                  // arena tetap: muncul di PINGGIR dari arah masuknya (tiap monster punya sudut sendiri), bukan di tengah
         const ang = (this._angles && this._angles[i] != null ? this._angles[i] : rng() * 6.283) + (rng() - .5) * .35;
-        p = a.edge ? a.edge(ang, def.radius + 6, 70) : a.spot(rng, def.radius + 6, { x: this.self.x, y: this.self.y, min: 650, max: 1e5 });
+        p = a.edge ? a.edge(ang, def.radius + 6, 70, { x: this.self.x, y: this.self.y, min: 900 }) : a.spot(rng, def.radius + 6, { x: this.self.x, y: this.self.y, min: 650, max: 1e5 });
       }
       const m = this.mk(type, i, p.x, p.y, sf);
       if (this._owners && this._owners[i]) m.u = this._owners[i];
@@ -875,13 +890,13 @@ const Battle = {
   // ---- unit masuk / keluar menara selama raid ----
   // Unit baru masuk (jadwal `cycle`): monsternya muncul di pinggir Halaman dari arah datangnya, id baru, ditandai `u` (unit asal).
   addUnits(list) {
-    const sf = CONFIG.interior.startFloor || 0, a = this.arenaFor(sf), rng = this.rng, ids = [];
+    const sf = this.baseFloor, a = this.arenaFor(sf), rng = this.rng, ids = [];
     let nid = this.mons.reduce((mx, m) => Math.max(mx, m.id), -1) + 1;
     if (this.gather === undefined) this.gather = rng() < .5;
     for (const e of list) {
       for (const type of e.pack) {
         const def = this.cfg().monsters[type], ang = e.ang + (rng() - .5) * .35;
-        const p = a.edge ? a.edge(ang, def.radius + 6, 70) : a.spot(rng, def.radius + 6, { x: this.self.x, y: this.self.y, min: 650, max: 1e5 });
+        const p = a.edge ? a.edge(ang, def.radius + 6, 70, { x: this.self.x, y: this.self.y, min: 900 }) : a.spot(rng, def.radius + 6, { x: this.self.x, y: this.self.y, min: 650, max: 1e5 });
         const m = this.mk(type, nid++, p.x, p.y, sf); m.u = e.id; this.mons.push(m);
       }
       if (!this._unitIds.includes(e.id)) this._unitIds.push(e.id);
@@ -895,9 +910,14 @@ const Battle = {
   // unit itu jalan ke pintu "Keluar" Halaman (turun tangga dulu kalau di lantai lain). Begitu semuanya sampai, unit keluar dari raid dan muncul lagi di
   // peta gede (jadwal `cycle` seperti biasa); darahnya pulih. Ada pemain yang menyerang / dikejar saat jalan ke pintu = batal, tetap di menara.
   stayRange() { const r = this.cfg().leaveStaySec || [90, 300]; return r[0] + this.rng() * (r[1] - r[0]); },
-  exitFloor() {
-    if (this._exitFl === undefined) { this._exitFl = null; for (const id of Object.keys(Interior.floors)) { const f = Interior.floors[id]; if (f.exit && f.exit.to === undefined) this._exitFl = +id; } }
-    return this._exitFl;
+  exitFloor() {      // lantai pintu "Keluar" ke peta dunia, untuk objek room ini
+    const o = this.obj, k = o ? o.id : '';
+    this._exitFl = this._exitFl || {};
+    if (this._exitFl[k] === undefined) {
+      this._exitFl[k] = null;
+      for (const id of Object.keys(Interior.floors)) { const f = Interior.floors[id]; if (f.exit && f.exit.to === undefined && (!o || f.tower === o.id)) this._exitFl[k] = +id; }
+    }
+    return this._exitFl[k];
   },
   stepLeaving(dt) {
     this._lvT = (this._lvT || 0) - dt; if (this._lvT > 0) return;
@@ -1243,6 +1263,13 @@ const Battle = {
       if (this.koT <= 0) { this.respawn(); return; }
     }
 
+    // pintu kabur (arena acak): berdiri di dalamnya `exitHoldSec` detik = keluar arena
+    if (this.kind === 'random' && this.arena.exit && !this.down) {
+      const e = this.arena.exit;
+      this._exitT = Math.hypot(s.x - e.x, s.y - e.y) < e.r + CONFIG.player.radius * .5 ? (this._exitT || 0) + dt : 0;
+      if (this._exitT >= (c.exitHoldSec || 1)) { this._exitT = 0; this.leave('Berhasil kabur!'); return; }
+    } else this._exitT = 0;
+
     // kirim ke jaringan (dead reckoning: posisi + kecepatan; dikirim hanya kalau penerima akan salah memperkirakan)
     let ivx = (s.x - px) / Math.max(dt, 1e-3), ivy = (s.y - py) / Math.max(dt, 1e-3);
     if (Math.hypot(ivx, ivy) > 1500) ivx = ivy = 0;
@@ -1416,12 +1443,27 @@ const Battle = {
   },
 
   // arena acak: gambar seluruh layar sendiri (arena tetap digambar oleh Interior.draw yang memanggil drawGround / drawActors)
+  drawExit(ctx) {
+    const e = this.arena.exit; if (this.kind !== 'random' || !e) return;
+    const t = performance.now() / 1000, pulse = .5 + .5 * Math.sin(t * 3), R = e.r, hold = this.cfg().exitHoldSec || 1;
+    const g = ctx.createRadialGradient(e.x, e.y, R * .15, e.x, e.y, R * 1.1);
+    g.addColorStop(0, 'rgba(210,255,200,.75)'); g.addColorStop(.6, `rgba(120,230,150,${.30 + .15 * pulse})`); g.addColorStop(1, 'rgba(120,230,150,0)');
+    ctx.save();
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(e.x, e.y, R * 1.1, 0, 6.3); ctx.fill();
+    ctx.setLineDash([9, 7]); ctx.lineDashOffset = -t * 20; ctx.strokeStyle = `rgba(190,255,200,${.7 + .3 * pulse})`; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(e.x, e.y, R, 0, 6.3); ctx.stroke(); ctx.setLineDash([]);
+    if (this._exitT > 0) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(e.x, e.y, R + 8, -Math.PI / 2, -Math.PI / 2 + Math.min(1, this._exitT / hold) * 6.283); ctx.stroke(); }
+    ctx.font = '700 22px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.75)'; ctx.strokeText('KABUR', e.x, e.y); ctx.fillStyle = '#eaffea'; ctx.fillText('KABUR', e.x, e.y);
+    ctx.restore();
+  },
   drawArena(ctx) {
     const W = window.innerWidth, H = window.innerHeight, a = this.arena;
     ctx.fillStyle = '#0b0d09'; ctx.fillRect(0, 0, W, H);
     const { f, ox, oy } = a.layout();
     ctx.save(); ctx.translate(ox, oy); ctx.scale(f, f);
     a.drawBack(ctx);
+    this.drawExit(ctx);
     this.drawGround(ctx);
     this.drawActors(ctx);
     a.drawFront(ctx);

@@ -20,8 +20,8 @@ const BattleNet = {
   // di battle/{room}/mon + penanda waktu battle_state/hold:{room}. Pemain berikutnya melanjutkan dari snapshot itu (Battle.catchUp menghitung gerak monster selama ditinggal), bukan spawn ulang.
   _held: {},        // mode offline: snapshot yang sama disimpan di memori
   isHeld(key) {
-    if (!this.online()) return !!this._held[key] && Battle.heldAlive();
-    return Battle.cleared['hold:' + key] > 0 && Battle.heldAlive();     // raid tertinggal yang semua unitnya sudah keluar (menurut jadwal) dianggap tidak ada
+    if (!this.online()) return !!this._held[key] && Battle.heldAlive(key);
+    return Battle.cleared['hold:' + key] > 0 && Battle.heldAlive(key);     // raid tertinggal yang semua unitnya sudah keluar (menurut jadwal) dianggap tidak ada
   },
   aliveIn(str) { return !!str && String(str).split(';').some((p) => p.split('~')[6] !== '5'); },     // ada monster yang belum mati (state 5 = DEAD)
   async readHeld(base, key) {

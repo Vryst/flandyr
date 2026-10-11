@@ -98,7 +98,7 @@ const Online = {
   buildSave() {
     const s = { mode: Interior.active ? 'tower' : 'world', x: Math.round(Player.x), y: Math.round(Player.y),
                 t: firebase.database.ServerValue.TIMESTAMP };
-    if (Interior.active) s.floor = Interior.floorId;
+    if (Interior.active) { s.floor = Interior.floorId; if (Interior.tower) s.obj = Interior.tower.id; }     // obj = objek yang sedang dimasuki (Mabel / map battle lain)
     s.v = Vitals.pack();
     if (Inventory.bagId) {
       s.bagId = Inventory.bagId;
@@ -117,8 +117,8 @@ const Online = {
       Inventory.equip(s.bagId, g);
     }
     // posisi
-    const tower = CONFIG.objects.find((o) => o.interior);
-    if (s.mode === 'tower' && tower && Interior.floors[s.floor]) {
+    const tower = (s.obj && CONFIG.objects.find((o) => o.id === s.obj && o.interior)) || CONFIG.objects.find((o) => o.interior);
+    if (s.mode === 'tower' && tower && Interior.floors[s.floor] && Interior.floors[s.floor].tower === tower.id) {
       Interior.tower = tower; Interior.active = true; Interior.floorId = s.floor;
       Player.x = s.x; Player.y = s.y; Player.target = null; Interior.path = [];
       if (!Interior.canStand(Player.x, Player.y)) { Interior.active = false; Interior.tower = null; this.placeInWorld(tower, s); }

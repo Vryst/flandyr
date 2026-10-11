@@ -55,6 +55,31 @@ const CONFIG = {
       interior: true,               // punya bagian dalam (lihat CONFIG.interior)
       sprite: 'assets/images/objects/tower.png',
     },
+    // Dua map battle tetap (bukan arena acak), konsepnya sama dengan Tower of Mabel: objek di peta dunia -> "Masuk" -> arena tetap + raid.
+    //   startFloor : id lantai (CONFIG.interior.floors) tempat pemain muncul waktu masuk. Tanpa ini = CONFIG.interior.startFloor (Mabel).
+    //   Satu objek = satu room battle (`tower:{startFloor}`), jadi monster Mabel tidak ikut muncul di sini dan sebaliknya.
+    {
+      id: 'runeglade',
+      name: 'Padang Batu Runik',
+      x: 17300,
+      y: 17300,
+      radius: 70,
+      interactRadius: 70,
+      interior: true,
+      startFloor: 10,
+      sprite: 'assets/images/objects/runeglade.png',
+    },
+    {
+      id: 'runeruins',
+      name: 'Reruntuhan Batu Runik',
+      x: 18700,
+      y: 17300,
+      radius: 70,
+      interactRadius: 70,
+      interior: true,
+      startFloor: 11,
+      sprite: 'assets/images/objects/runeruins.png',
+    },
   ],
 
   // Bagian dalam Tower of Mabel: 3 lantai. Semua koordinat dalam px GAMBAR LANTAI (503 x ~495), dikali `scale` saat dipakai.
@@ -110,6 +135,33 @@ const CONFIG = {
         blocked: [[566,520,66,64]],
         stairs: [{ x: 797, y: 397, w: 69, h: 125, dir: 'down', to: 2, arrive: { x: 362, y: 240 } }],
       },
+
+      // ---- Map battle tetap lainnya (satu lantai, TANPA collision) ----
+      // `tower`: id objek di CONFIG.objects pemilik lantai ini (tanpa = 'tower', Tower of Mabel).
+      // Gambar 1:1 dengan arena (px gambar = px arena; koordinat di bawah = px gambar / scale 2), sama seperti Halaman.
+      // Tanpa collision (sementara): `walls` = seluruh gambar (tepi gambar = batas), `blocked` & `blockedPolys` kosong, jadi pemain & monster bebas ke mana saja.
+      // Mau pasang collision nanti: isi `blocked` ([x, y, w, h]) / `blockedPolys` (poligon) seperti lantai Halaman.
+      // `fixedSpawn: true` = pemain muncul di `spawn` (bukan di pinggir sesuai arah datang seperti Halaman).
+      {
+        id: 10, tower: 'runeglade', image: 'assets/images/tower/runeglade.jpg', w: 896, h: 1200, label: 'Arena', zoom: 1.8,
+        battle: {},
+        walls: [[10,10],[886,10],[886,1190],[10,1190]],
+        blocked: [],
+        blockedPolys: [],
+        stairs: [],
+        exit: { x: 5, y: 820, w: 65, h: 110 },        // ujung kiri jalan kayu tumbang di bawah -> peta dunia
+        spawn: { x: 500, y: 650 }, fixedSpawn: true,   // padang rumput di depan batu runik
+      },
+      {
+        id: 11, tower: 'runeruins', image: 'assets/images/tower/runeruins.jpg', w: 1024, h: 1024, label: 'Arena', zoom: 1.8,
+        battle: {},
+        walls: [[10,10],[1014,10],[1014,1014],[10,1014]],
+        blocked: [],
+        blockedPolys: [],
+        stairs: [],
+        exit: { x: 380, y: 950, w: 130, h: 64 },       // ujung jalan tanah di bawah -> peta dunia
+        spawn: { x: 475, y: 760 }, fixedSpawn: true,   // di jalan tanah, di depan tangga reruntuhan
+      },
     ],
   },
 
@@ -162,6 +214,8 @@ const CONFIG = {
     enabled: true,
     roomCell: 2400,            // arena acak: pemain di sel dunia yang sama (px) ikut satu battle & satu set monster
     arena: { w: 2400, h: 1792, zoom: 2.2, playerRadius: 22, speed: 260 },   // arena acak (ukuran sama dgn Halaman menara)
+    exitR: 48,                 // radius pintu kabur di arena acak (px arena)
+    exitHoldSec: 1,            // lama berdiri di pintu kabur sebelum keluar arena (detik)
     sendMinMs: 50,             // jeda minimum antar kiriman posisi (dead reckoning: dikirim hanya kalau perlu)
     sendMs: 100,               // kirim posisi / monster ke server tiap sekian ms (10x per detik)
     friendlyFire: 0.5,         // pengali damage ke teman satu battle (0 = tidak ada friendly fire, 1 = penuh)
@@ -184,6 +238,9 @@ const CONFIG = {
       { id: 'troll1',    name: 'Troll',            home: 'tower', roam: 1800, speed: 26, radius: 24, pack: ['troll'], respawnSec: 300, cycle: { every: 4, in: 90 }, aggro: 130 },
       { id: 'bayangan1', name: 'Bayangan',         home: 'tower', roam: 2600, speed: 38, radius: 16, pack: ['bayangan', 'bayangan'], respawnSec: 180, cycle: { every: 5, in: 80 } },
       { id: 'serigala2', name: 'Serigala',         home: { x: 17500, y: 16500 }, roam: 2800, speed: 48, radius: 15, pack: ['serigala', 'serigala'], respawnSec: 120 },
+      // unit untuk map battle tetap lainnya: berkemah di objeknya sendiri & keluar-masuk seperti unit Mabel (hapus baris = map itu tanpa raid, tetap bisa Siaga)
+      { id: 'serigala3', name: 'Serigala Runik',   home: 'runeglade', roam: 2200, speed: 44, radius: 15, pack: ['serigala', 'serigala'], respawnSec: 180, cycle: { every: 4, in: 70 } },
+      { id: 'bayangan2', name: 'Bayangan Runik',   home: 'runeruins', roam: 2200, speed: 36, radius: 16, pack: ['bayangan', 'serigala'], respawnSec: 180, cycle: { every: 5, in: 80 } },
     ],
     // MODE TES: semua unit `cycle` (serigala1, troll1, bayangan1) mengitari menara dekat-dekat lalu masuk pintu BARENGAN tiap `period` detik (jam server, jadi semua pemain sama).
     // approach = detik jalan dari titik awal ke pintu, ring = jarak titik awal dari menara (px), stagger = jeda antar unit (detik; 0 = barengan). Set null untuk jadwal normal. Console: Battle.testInfo()
@@ -239,12 +296,14 @@ const CONFIG = {
     arenas: {
       forest: {
         name: 'Hutan', ground: ['#2b3a22', '#33452a', '#26331e'],
+        noCollision: true,        // sementara: tanpa collision di arena hutan (gerak bebas, hanya dibatasi tepi gambar). Hapus / false = collision (poly & blocked) aktif lagi
         // template bergambar: image + skala (px arena per px gambar). poly = area yang bisa diinjak (px gambar), blocked = lingkaran rintangan [x, y, r] (px gambar),
         // spawn = titik muncul pemain, mspawn = pusat muncul monster. Tambah template lagi ke daftar ini = map hutan acak bertambah (dipilih dari seed).
         templates: [
           { id: 'kemah', name: 'Hutan Kemah', image: 'assets/images/battle/forest1.jpg', iw: 736, ih: 736, scale: 3,
             poly: [[205,215],[330,205],[420,235],[500,250],[560,300],[610,380],[620,480],[585,545],[500,575],[400,575],[300,590],[200,575],[150,540],[130,470],[160,400],[140,330],[170,265]],
-            blocked: [[370, 345, 48]], spawn: [330, 520], mspawn: [420, 300] },
+            blocked: [[370, 345, 48]], spawn: [330, 520], mspawn: [420, 300],
+            exit: [190, 262] },       // exit = pintu kabur (px gambar), jauh dari spawn pemain; tanpa `exit` = otomatis titik terjauh dari spawn
           // contoh template buatan (tanpa gambar): { id: 'lebat', name: 'Hutan Lebat', obstacles: [['tree', 46, 34, 52], ['rock', 8, 24, 40]] }
         ],
       },

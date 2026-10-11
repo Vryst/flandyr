@@ -12,7 +12,10 @@
             ".validate": "newData.isString() && (newData.val() === 'world' || newData.val() === 'tower')"
           },
           "floor": {
-            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 3"
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 99"
+          },
+          "obj": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
           },
           "x": {
             ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 30000"

@@ -103,3 +103,15 @@ Kode: `battle-arena.js` (arena), `battle.js` (aturan, unit di map gede, AI monst
 ### Sinkron gerak & serangan di battle
 - **Dead reckoning di battle** (sama seperti map gede): posisi pemain dikirim `x,y,a,hp,dn,fl,vx,vy` dan snapshot monster punya `vx,vy` di belakang. Dikirim hanya kalau penerima akan salah memperkirakan (melenceng > 3-4 px, belok, ganti kecepatan, mulai / berhenti, ganti state) + heartbeat 1 dtk saat bergerak. Penerima memperkirakan posisi dari kecepatan (maks 1,5 dtk) lalu menghaluskan. Jeda minimum kiriman: `CONFIG.battle.sendMinMs` (50).
 - **Serangan sinkron waktu**: event serangan (monster & pemain) membawa waktu server. Perangkat yang menerimanya terlambat memajukan jam serangan sebesar keterlambatan (monster maks 60% windup, serangan pemain penuh maks 0,5 dtk), jadi peringatan merah & momen kena jatuh di detik yang sama di semua layar (`Battle.lagFor`).
+
+- **Arena hutan tanpa collision (sementara)**: `CONFIG.battle.arenas.forest.noCollision = true`. Pemain & monster bebas bergerak, hanya dibatasi tepi gambar arena. Hapus / `false` untuk mengaktifkan collision lagi.
+- **Pintu kabur di arena acak**: lingkaran hijau "KABUR" jauh dari spawn pemain (`exit: [x, y]` di template, px gambar; tanpa `exit` = titik terjauh dari spawn). Berdiri di dalamnya `CONFIG.battle.exitHoldSec` (1 dtk, ada lingkaran progres) = keluar arena (tombol Kabur tetap ada). Ukuran: `CONFIG.battle.exitR`.
+
+### Map battle tetap lain (Padang & Reruntuhan Batu Runik)
+Dua map bergambar yang BUKAN arena acak. Konsepnya sama dengan Tower of Mabel: objek di peta dunia (`CONFIG.objects`: `runeglade` di 17300,17300 dan `runeruins` di 18700,17300) -> "Masuk" -> arena tetap + raid + Siaga.
+- **Tanpa collision (sementara)**: lantainya (`CONFIG.interior.floors` id 10 & 11) `walls` = seluruh gambar, `blocked` / `blockedPolys` kosong, jadi pemain & monster bebas ke mana saja (hanya dibatasi tepi gambar). Mau pasang collision nanti: isi `blocked` (`[x, y, w, h]`) / `blockedPolys` (poligon) seperti Halaman. Koordinat lantai = px gambar / 2 (`CONFIG.interior.scale`). Tekan `B` di dalam map untuk lihat tembok / zona keluar.
+- Gambar: `assets/images/tower/runeglade.jpg` (1792 x 2400) dan `runeruins.jpg` (2048 x 2048), 1:1 dengan arena. Ikon di peta dunia: `assets/images/objects/runeglade.png`, `runeruins.png`.
+- Pemain muncul di `spawn` lantai (`fixedSpawn: true`), keluar lewat zona `exit` (ujung jalan di tepi gambar). Monster muncul di pinggir arena, dijauhkan dari tempat muncul pemain.
+- Tiap objek punya room & raid sendiri: kunci room `tower:{startFloor objek}` (Mabel tetap `tower:0`, ini `tower:10` / `tower:11`). Unit `cycle` hanya masuk ke objek tempat dia berkemah (`home`): `serigala3` -> Padang, `bayangan2` -> Reruntuhan. Hapus unitnya di `CONFIG.battle.units` = map itu tanpa raid (Siaga tetap jalan).
+- Objek baru = tambah entri `CONFIG.objects` (`interior: true`, `startFloor`), lantai dengan `tower: '<id objek>'`, dan (opsional) unit `home: '<id objek>'`.
+- **Publish ulang `database.rules.json`**: progress sekarang menyimpan `obj` (objek yang sedang dimasuki) dan `floor` boleh sampai 99.
