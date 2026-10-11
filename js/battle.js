@@ -33,12 +33,14 @@ const Battle = {
   active: false, busy: false,
   siaga: false,              // mode Siaga (pemain siap tempur). Raid / musuh baru mulai saat masuk map battle (Tower of Mabel)
   cool: 0, bumpCool: 0, enc: null,
+  sc: {},                    // kejaran unit yang disinkron: unitId -> { uid, x, y, vx, vy, a, t, rx, ry }  (ditulis pemilik kejaran, dibaca semua pemain)
+  eng: {},                   // lingkaran battle di map gede: unitId -> { x, y, t }  (ada selama masih ada pemain bertarung melawan unit itu)
   arena: null, kind: null, room: null, biome: null, floorId: 0, seed: 1,
   self: null, kv: { x: 0, y: 0 }, input: { mx: 0, my: 0 },
   atkT: 0, down: false, koT: 0, speedNow: 0,
   isHost: true, mons: [], others: new Map(), swings: [], floaters: [],
   arenas: {}, gatherPts: {},   // arena tetap per lantai menara (satu battle bisa menjangkau Halaman sampai Atap) + titik kumpul monster per lantai
-  aim: null, now: 0, shake: 0, respawnT: 0, flows: {}, rng: Math.random, _sendT: 0, _lastSelf: '', _lastMons: '',
+  aim: null, now: 0, shake: 0, respawnT: 0, flows: {}, rng: Math.random, _sendT: 0, _lastSelf: '', _lastMons: '', _ls: null, _vx: 0, _vy: 0, _monAt: 0,
   _spawns: [],
 
   cfg() { return CONFIG.battle; },
@@ -93,8 +95,31 @@ const Battle = {
   // + waktu jalan ke pintu (CONFIG.battle.exitWalkSec, default 45 dtk). Setelah itu unit muncul DI PINTU dan rutenya mulai dari situ (lihat unitClock).
   holdT() { return BattleNet.online() ? (this.cleared['hold:' + this.raidKey()] || 0) : ((BattleNet._held[this.raidKey()] || {}).t || 0); },
   stayFor(u, holdT) { this.campOf(u); const r = this.cfg().leaveStaySec || [90, 300]; return r[0] + mulberry((u._seed ^ (holdT % 2147483647)) >>> 0)() * (r[1] - r[0]); },
-  lazyOutAt(u, holdT) { return holdT + (this.stayFor(u, holdT) + (this.cfg().exitWalkSec || 45)) * 1000; },
-  markedIn(u) { const i = this.cleared['in:' + u.id] || 0; return i > 0 && (this.cleared['out:' + u.id] || 0) < i; },     // tercatat di dalam menara (sejak masuk terakhir)
+  lazyOutAt(u, holdT) { return Math.round(holdT + (this.stayFor(u, holdT) + (this.cfg().exitWalkSec || 45)) * 1000); },
+  // unit tercatat di dalam menara: `in` lebih baru dari `out`, DAN `in` ikut di-refresh bersama `hold` (host menulis `in` semua unit raid tiap 30 dtk). `in` yang jauh lebih tua dari
+  // `hold` = unit itu sudah keluar dari raid yang dulu (jangan dihidupkan lagi cuma karena ada raid LAIN yang me-refresh `hold`).
+  markedIn(u) {
+    const i = this.cleared['in:' + u.id] || 0;
+    if (!(i > 0) || (this.cleared['out:' + u.id] || 0) >= i) return false;
+    const h = this.holdT();
+    return h > 0 ? h - i <= 90000 : this.active;
+  },
+  // tiap ~2 dtk: unit yang menurut jadwal sudah keluar dari raid yang ditinggal dicatat permanen (`out` = waktu keluarnya, nilai sama di semua klien), supaya tidak ada yang
+  // bergantung pada `hold` lagi (raid baru yang me-refresh `hold` tidak bisa "memasukkan" mereka lagi, dan posisi mereka di peta tidak loncat).
+  settleExits(dt) {
+    this._stT = (this._stT || 0) - dt; if (this._stT > 0) return;
+    this._stT = 2;
+    if (this.active || this.busy) return;
+    const h = this.holdT(); if (!(h > 0)) return;
+    const now = BattleNet.now();
+    for (const u of this.cfg().units || []) {
+      if (!this.markedIn(u)) continue;
+      const at = this.lazyOutAt(u, h);
+      if (now < at) continue;
+      this.cleared['out:' + u.id] = at;
+      if (BattleNet.online()) Online.db.ref('battle_state/out:' + u.id).set(at).catch(() => {});
+    }
+  },
   lazyOut(u) {         // ms: waktu unit (ditinggal kosong) sudah keluar dari pintu; 0 = belum / tidak berlaku
     if (this.active || !this.markedIn(u)) return 0;
     const h = this.holdT(); if (!(h > 0)) return 0;
@@ -108,7 +133,11 @@ const Battle = {
     return (this.cfg().units || []).some((u) => this.markedIn(u) && now < this.lazyOutAt(u, h));
   },
   inTower(u) { return this.markedIn(u) && (this.active || (this.raidHeld() && !this.lazyOut(u))); },     // penanda basi (raid sudah tidak ada / unit sudah keluar menurut jadwal) diabaikan
-  outAt(u) { return this.markedIn(u) ? this.lazyOut(u) : (this.cleared['out:' + u.id] || 0); },         // ms terakhir unit keluar dari pintu menara (0 = belum pernah)
+  // ms terakhir unit "mulai dari titik awal": keluar dari pintu menara, atau respawn setelah dikalahkan (muncul di kemah / pintu, bukan di tengah rute jadwal). 0 = belum pernah
+  outAt(u) {
+    const o = this.markedIn(u) ? this.lazyOut(u) : (this.cleared['out:' + u.id] || 0), e = this.cleared['enc:' + u.id] || 0;
+    return Math.max(o, e > 0 ? e + this.respawnMs('enc:' + u.id) : 0);
+  },
   setIn(ids, on) {
     for (const id of ids) {
       this.cleared['in:' + id] = on ? BattleNet.now() : 0;
@@ -169,12 +198,64 @@ const Battle = {
     this._watching = true;
     const ref = Online.db.ref('battle_state'), fn = (s) => { this.cleared[s.key] = s.val(); };
     ref.on('child_added', fn); ref.on('child_changed', fn);
+    // kejaran unit (posisi dibagikan supaya semua pemain melihat serigala di koordinat yang sama)
+    const cr = Online.db.ref('chase'), cf = (s) => { this.setChase(s.key, s.val()); };
+    cr.on('child_added', cf); cr.on('child_changed', cf); cr.on('child_removed', (s) => this.setChase(s.key, null));
+    // lingkaran battle di map gede
+    const er = Online.db.ref('encounter'), ef = (s) => { this.setEng(s.key, s.val()); };
+    er.on('child_added', ef); er.on('child_changed', ef); er.on('child_removed', (s) => this.setEng(s.key, null));
+  },
+
+  // ---- kejaran & lingkaran battle yang disinkron ----
+  setChase(id, str) {
+    if (!str) { delete this.sc[id]; return; }
+    const [uid, x, y, vx, vy, a, t] = String(str).split(',');
+    const r = { uid, x: +x, y: +y, vx: +vx, vy: +vy, a: +a, t: +t }, old = this.sc[id];
+    r.rx = old ? old.rx : r.x; r.ry = old ? old.ry : r.y;
+    this.sc[id] = r;
+  },
+  setEng(id, str) {
+    if (!str) {
+      const old = this.eng[id], u = (this.cfg().units || []).find((q) => q.id === id);
+      delete this.eng[id];
+      if (old && u && !this.isCleared('enc:' + id)) u._ret = { x: old.x, y: old.y, a: 0, t: 0 };   // tidak ada yang bertarung lagi: unit berjalan balik ke jalur bawaan
+      return;
+    }
+    const [x, y, t, px, py, t0] = String(str).split(',').map(Number);
+    this.eng[id] = { x, y, t, px, py, t0: t0 || t };
+  },
+  // lingkaran battle yang masih berlaku (heartbeat host tiap 20 dtk; > 60 dtk tanpa heartbeat = basi)
+  engOf(u) {
+    const e = this.eng[u.id];
+    if (!e || BattleNet.now() - e.t > 60000 || this.isCleared('enc:' + u.id)) return null;
+    return e;
+  },
+  engR(u) { return u.radius + (this.cfg().ringPad || 40); },
+  engStr(e) { return [Math.round(e.x), Math.round(e.y), e.t, Math.round(e.px), Math.round(e.py), e.t0].join(','); },
+  engStart(id, at) {
+    const u = (this.cfg().units || []).find((q) => q.id === id);
+    if (!u || !at || this.engOf(u)) return;          // sudah ada lingkaran (kita ikut bergabung): pakai posisinya
+    const t = BattleNet.now();     // px,py = posisi korban (pemain yang ditabrak) di map gede; t0 = waktu bentrok (untuk auto-join teman yang dekat)
+    const e = this.eng[id] = { x: at.x, y: at.y, t, px: Player.x, py: Player.y, t0: t };
+    if (BattleNet.online()) Online.db.ref('encounter/' + id).set(this.engStr(e)).catch(() => {});
+  },
+  engBeat() {
+    if (!this.active || this.kind !== 'random' || !this.enc || !this.isHost) return;
+    const e = this.eng[this.enc.id]; if (!e) return;
+    e.t = BattleNet.now();
+    if (BattleNet.online()) Online.db.ref('encounter/' + this.enc.id).set(this.engStr(e)).catch(() => {});
+  },
+  // pemilik kejaran
+  endChase(u) {
+    u._o = null;
+    if (u._own) { u._own = false; BattleNet.releaseChase(u.id); }
   },
 
   tick(dt) {
     this.cool = Math.max(0, this.cool - dt);
     this.bumpCool = Math.max(0, this.bumpCool - dt);
     this.watchState();
+    this.settleExits(dt);
     if (!this.active && !this.busy && !this.cool) this.checkBump();
     if (!this.active && !this.busy && !this.cool && !this.bumpCool) { const d = this.available(); if (d) this.enter(d); }   // masuk Halaman menara -> musuh yang menunggu di dalam langsung menyerang
     // mode battle tanpa monster (Siaga biasa) + ada unit yang masuk menara: host memunculkan raid di room yang sama
@@ -183,6 +264,7 @@ const Battle = {
       const r = this.raidSpawns();
       if (r) { const had = this.mons.length; this.addUnits(r.list); Online.toast && Online.toast(had ? 'Musuh lain masuk menara' : 'Raid dimulai'); }
     }
+    this._engT = (this._engT || 0) + dt; if (this._engT > 20) { this._engT = 0; this.engBeat(); }
     this.stepUnits(dt);
   },
 
@@ -314,34 +396,74 @@ const Battle = {
     const a0 = Math.atan2(B.y - A.y, B.x - A.x);
     return { x: A.x + (B.x - A.x) * f, y: A.y + (B.y - A.y) * f, a: a0, inside: !!end && ct >= mv };
   },
-  unitNow(u) { return u._o || this.unitDet(u, BattleNet.now() / 1000); },
+  // posisi unit yang dilihat SEMUA pemain: lingkaran battle (diam) > kejaran milik sendiri > kejaran pemain lain (disinkron) > berjalan balik > jalur bawaan
+  scLive(u) { const r = this.sc[u.id]; return r && r.uid !== this.uid() && BattleNet.now() - r.t < 3000 ? r : null; },
+  unitNow(u) {
+    const e = this.engOf(u); if (e) return { x: e.x, y: e.y, a: u._ea || 0 };
+    if (u._o) return u._o;
+    const r = this.scLive(u); if (r) return { x: r.rx, y: r.ry, a: r.a };
+    if (u._ret) return u._ret;
+    return this.unitDet(u, BattleNet.now() / 1000);
+  },
+
   unitVisible(u) { return !this.isCleared('enc:' + u.id) && !this.inTower(u) && !this.unitDet(u, BattleNet.now() / 1000).inside; },
 
-  // Kejar: bila player (di map gede, tidak sedang battle) sudah sangat dekat, unit mengejar. Hanya terlihat di perangkat player itu
-  // (posisi pengejaran tidak disinkron); kalau player menjauh / lolos, unit kembali ke posisi bawaannya.
+  // Kejar: bila player (di map gede, tidak sedang battle) sudah sangat dekat, unit mengejar. Posisi kejaran dikirim ke database (chase/{unit}, dead reckoning)
+  // oleh pemain yang mengejar-nya, jadi semua pemain melihat unit di koordinat yang sama. Hanya SATU pemain yang jadi pemilik kejaran (klaim lewat transaksi).
+  // Kalau player menjauh / lolos, unit berjalan balik ke jalur bawaan (juga terlihat semua pemain), lalu kejaran dilepas.
   stepUnits(dt) {
-    const c = this.cfg(), units = c.units || [];
+    const c = this.cfg(), units = c.units || [], now = BattleNet.now();
     for (const u of units) {
-      const det = this.unitDet(u, BattleNet.now() / 1000), vis = !det.inside && !this.isCleared('enc:' + u.id) && !this.inTower(u);
-      if (!vis || this.active || Interior.active) { u._o = null; continue; }
+      const det = this.unitDet(u, now / 1000), vis = !det.inside && !this.isCleared('enc:' + u.id) && !this.inTower(u);
+      // pemain lain yang mengejar: haluskan posisi (perkiraan = kiriman terakhir + kecepatan x lama sejak kiriman)
+      const sc = this.scLive(u);
+      if (sc) {
+        const age = (now - sc.t) / 1000, tx = sc.x + sc.vx * age, ty = sc.y + sc.vy * age;
+        if (Math.hypot(tx - sc.rx, ty - sc.ry) > 400) { sc.rx = tx; sc.ry = ty; }
+        else { const k = 1 - Math.exp(-dt * 10); sc.rx += (tx - sc.rx) * k; sc.ry += (ty - sc.ry) * k; }
+      }
+      // unit berjalan balik setelah lingkaran battle bubar
+      if (u._ret) {
+        const dx = det.x - u._ret.x, dy = det.y - u._ret.y, d = Math.hypot(dx, dy), sp = u.speed * 2 * dt;
+        u._ret.t += dt;
+        if (d < 10 || u._ret.t > 25) u._ret = null;
+        else { u._ret.x += dx / d * Math.min(sp, d); u._ret.y += dy / d * Math.min(sp, d); u._ret.a = Math.atan2(dy, dx); }
+      }
+      if (!vis || this.active || Interior.active || this.engOf(u)) { this.endChase(u); continue; }
       const aggro = u.aggro || c.aggroRange || 170;
       const dp = Math.hypot(Player.x - (u._o ? u._o.x : det.x), Player.y - (u._o ? u._o.y : det.y));
       if (!u._o) {
-        if (dp < aggro && !this.bumpCool && u.chase !== false) u._o = { x: det.x, y: det.y, a: det.a };
-        else continue;
+        if (sc || u._ret) continue;                                    // pemain lain sudah mengejar unit ini / unit sedang balik
+        if (dp < aggro && !this.bumpCool && u.chase !== false) {
+          u._o = { x: det.x, y: det.y, a: det.a }; u._own = true; u._sendT = 0; u._sent = null;
+          BattleNet.claimChase(u.id, this.chaseStr(u, 0, 0)).then((won) => { if (!won && u._o) { u._own = false; u._o = null; } });
+        } else continue;
       }
       const o = u._o, far = Math.hypot(o.x - det.x, o.y - det.y) > (u.chaseLeash || 700);
       const giving = dp > aggro * 2.2 || far || this.bumpCool > 0;
       const tx = giving ? det.x : Player.x, ty = giving ? det.y : Player.y;
       const sp = (giving ? u.speed * 2 : (u.chaseSpeed || c.chaseSpeed || 52)) * dt;
       const dx = tx - o.x, dy = ty - o.y, d = Math.hypot(dx, dy);
-      if (giving && d < 10) { u._o = null; continue; }
+      if (giving && d < 10) { this.endChase(u); continue; }
+      let vx = 0, vy = 0;
       if (d > 1) {
         o.a = Math.atan2(dy, dx);
         const nx = o.x + dx / d * Math.min(sp, d), ny = o.y + dy / d * Math.min(sp, d);
-        if (Terrain.info(nx, ny).walkable) { o.x = nx; o.y = ny; }
+        if (Terrain.info(nx, ny).walkable) { vx = (nx - o.x) / dt; vy = (ny - o.y) / dt; o.x = nx; o.y = ny; }
       }
+      this.pushChase(u, vx, vy, dt);
     }
+  },
+  chaseStr(u, vx, vy) {
+    const o = u._o; return [this.uid(), Math.round(o.x), Math.round(o.y), vx.toFixed(1), vy.toFixed(1), o.a.toFixed(2), BattleNet.now()].join(',');
+  },
+  // kirim posisi kejaran: tiap 400 ms (heartbeat; juga membuktikan pemilik masih hidup)
+  pushChase(u, vx, vy, dt) {
+    if (!u._own) return;
+    u._sendT = (u._sendT || 0) + dt;
+    if (u._sendT < .4) return;
+    u._sendT = 0;
+    BattleNet.sendChase(u.id, this.chaseStr(u, vx, vy));
   },
 
   // tiap frame: Player menabrak unit -> battle di arena acak berisi isi lingkaran itu
@@ -349,8 +471,11 @@ const Battle = {
     if (Interior.active || this.bumpCool > 0) return;
     for (const u of this.cfg().units || []) {
       if (!this.unitVisible(u)) continue;
-      const p = this.unitNow(u);
-      if (Math.hypot(p.x - Player.x, p.y - Player.y) < u.radius + CONFIG.player.radius) { this.startUnit(u); return; }
+      const p = this.unitNow(u), e = this.engOf(u);
+      // ada lingkaran battle: masuk lingkarannya = bergabung ke battle yang sedang berjalan
+      if (Math.hypot(p.x - Player.x, p.y - Player.y) < (e ? this.engR(u) : u.radius) + CONFIG.player.radius) { this.startUnit(u); return; }
+      // teman yang berdiri dekat korban (<= joinNearPx) saat bentrok ikut masuk battle otomatis; yang lebih jauh cuma melihat lingkaran
+      if (e && e.px != null && BattleNet.now() - e.t0 < (this.cfg().joinWindowSec || 3) * 1000 && Math.hypot(e.px - Player.x, e.py - Player.y) <= (this.cfg().joinNearPx || 30)) { this.startUnit(u); return; }
     }
   },
 
@@ -375,6 +500,8 @@ const Battle = {
     const c = this.cfg();
     if (this.active || this.busy || !this.unitVisible(u)) return;
     this.enc = u;
+    const at = this.engOf(u) || (({ x, y }) => ({ x, y }))(this.unitNow(u));     // titik bentrokan = lingkaran battle (kalau sudah ada)
+    u._ea = this.unitNow(u).a;
     const fl = this.fixedFloorFor(u);
     if (fl) {                                   // arena tetap: pemain "masuk" menara ke Halaman, satu instance battle per unit
       Interior.enter(fl._obj);
@@ -384,7 +511,7 @@ const Battle = {
     }
     const info = Terrain.info(Player.x, Player.y), biome = u.biome || (info && info.battle) || 'forest';
     if (!c.arenas[biome]) { this.enc = null; return; }
-    this.enter({ type: 'random', key: 'enc:' + u.id, biome, spawns: u.pack, units: [u.id] });
+    this.enter({ type: 'random', key: 'enc:' + u.id, biome, spawns: u.pack, units: [u.id], at });
   },
 
   // kabur: lingkaran monster -> balik ke map gede di depan lingkaran; menara -> keluar menara
@@ -448,7 +575,7 @@ const Battle = {
       this.isHost = meta.isHost; this._spawns = d.spawns;
       this.rng = mulberry(meta.seed ^ 0x9e3779b9);
       this.mons = []; this.others.clear(); this.swings = []; this.floaters = []; this.flows = {};
-      this.down = false; this.atkT = 0; this.kv = { x: 0, y: 0 }; this.clearT = 0;
+      this.down = false; this.atkT = 0; this.kv = { x: 0, y: 0 }; this.clearT = 0; this._ls = null; this._vx = this._vy = 0; this._monAt = 0; this._lastMons = '';
       if (d.type === 'fixed') {
         this.arena = this.arenaFor(d.floorId);
         this.self = Player; Player.target = null; Interior.path = [];
@@ -458,6 +585,7 @@ const Battle = {
         this.self = { x: sp.x + (Math.random() - .5) * 120, y: sp.y + (Math.random() - .5) * 60, angle: -Math.PI / 2 };
       }
       this.active = true;
+      if (d.type === 'random' && d.at && d.units && d.units[0]) { const u0 = (this.cfg().units || []).find((q) => q.id === d.units[0]); if (u0) this.endChase(u0); this.engStart(d.units[0], d.at); }     // lingkaran battle muncul di map gede (pemain lain bisa bergabung)
       BattleNet.listen();
       if (meta.mons) this.applyMons(meta.mons);
       if (this.isHost && this.mons.length) {      // melanjutkan monster yang sudah ada: yang sedang menyerang dianggap mengejar, perilaku jalan-jalan diacak lagi
@@ -488,12 +616,12 @@ const Battle = {
     this.active = false; this.siaga = false;
     BattleNet.leave(this.persistSnap(), this.kind === 'fixed');     // pemain terakhir keluar / tumbang: monster yang masih hidup tetap di tempatnya (lantai + posisi + darah)
     if (this.kind === 'random' && this.enc) {          // keluar arena: geser player menjauh dari unit supaya tidak langsung menabrak lagi
-      const u = this.enc, p = this.unitNow(u), dx = Player.x - p.x, dy = Player.y - p.y, d = Math.hypot(dx, dy) || 1, need = u.radius + CONFIG.player.radius + 70;
+      const u = this.enc, p = this.unitNow(u), dx = Player.x - p.x, dy = Player.y - p.y, d = Math.hypot(dx, dy) || 1, need = (this.engOf(u) ? this.engR(u) : u.radius) + CONFIG.player.radius + 70;
       if (d < need) { const nx = p.x + dx / d * need, ny = p.y + dy / d * need; if (Terrain.info(nx, ny).walkable) { Player.x = nx; Player.y = ny; } }
       Player.target = null;
     }
     this.enc = null; this.bumpCool = this.cfg().bumpCoolSec || 4;
-    for (const u of this.cfg().units || []) u._o = null;
+    for (const u of this.cfg().units || []) this.endChase(u);
     this.mons = []; this.others.clear(); this.swings = []; this.arena = null; this.self = null;
     this.input.mx = this.input.my = 0; this.aim = null;
     document.body.classList.remove('battle');
@@ -569,14 +697,28 @@ const Battle = {
   },
 
   encodeMons() {
-    return this.mons.map((m) => `${m.id}~${m.type}~${Math.round(m.x)}~${Math.round(m.y)}~${m.a.toFixed(2)}~${Math.ceil(m.hp)}~${m.st}~${m.fl}~${m.u || ''}`).join(';');
+    return this.mons.map((m) => `${m.id}~${m.type}~${Math.round(m.x)}~${Math.round(m.y)}~${m.a.toFixed(2)}~${Math.ceil(m.hp)}~${m.st}~${m.fl}~${m.u || ''}~${Math.round(m.vx || 0)}~${Math.round(m.vy || 0)}`).join(';');
   },
+  // dead reckoning monster (host): kirim snapshot hanya kalau perlu (melenceng dari perkiraan penerima, ganti state / arah / kecepatan, atau heartbeat 1 dtk saat ada yang bergerak)
+  monNeed(now) {
+    let moving = false;
+    for (const m of this.mons) {
+      const L = m._ls; if (!L) return true;
+      if (m.st !== L.st || Math.ceil(m.hp) !== L.hp || m.fl !== L.fl || (m.u || '') !== L.u) return true;
+      const age = (now - L.t) / 1000, ex = L.x + L.vx * age, ey = L.y + L.vy * age, sp0 = Math.hypot(L.vx, L.vy), sp1 = Math.hypot(m.vx || 0, m.vy || 0);
+      if (sp1 > 5) moving = true;
+      if (Math.hypot(m.x - ex, m.y - ey) > 4 || Math.abs(wrapA(m.a - L.a)) > .25 || (sp0 < 5) !== (sp1 < 5)) return true;
+      if (sp0 > 5 && (Math.abs(sp1 - sp0) / sp0 > .25 || Math.abs(wrapA(Math.atan2(m.vy, m.vx) - Math.atan2(L.vy, L.vx))) > .25)) return true;
+    }
+    return moving && now - this._monAt > 1000;
+  },
+  monSent(now) { for (const m of this.mons) m._ls = { x: m.x, y: m.y, vx: m.vx || 0, vy: m.vy || 0, a: m.a, st: m.st, hp: Math.ceil(m.hp), fl: m.fl, u: m.u || '', t: now }; this._monAt = now; },
 
   applyMons(str) {
     if (!str) return;
     const seen = new Set();
     for (const part of str.split(';')) {
-      const [id, type, x, y, a, hp, st, fl, un] = part.split('~');
+      const [id, type, x, y, a, hp, st, fl, un, vx, vy] = part.split('~');
       if (!this.cfg().monsters[type]) continue;
       const nf = fl === undefined || isNaN(+fl) ? this.floorId : +fl;
       let m = this.mons.find((q) => q.id === +id);
@@ -587,7 +729,7 @@ const Battle = {
       const hpN = +hp;
       if (hpN < m.hp - 0.5) { m.flash = .15; this.floater(m.x, m.y - m.def.radius, String(Math.round(m.hp - hpN)), '#fff'); }
       if (+st !== ST.DEAD && m.st === ST.DEAD) { m.hp = m.max; m.rx = +x; m.ry = +y; m.dead = 0; }   // muncul lagi
-      m.tx = +x; m.ty = +y; m.ta = +a; m.hp = hpN; m.st = +st;
+      m.tx = +x; m.ty = +y; m.ta = +a; m.hp = hpN; m.st = +st; m.vx = +vx || 0; m.vy = +vy || 0; m.recv = performance.now();
     }
     this.mons = this.mons.filter((m) => seen.has(m.id));
   },
@@ -909,13 +1051,16 @@ const Battle = {
     BattleNet.sendEvent(ev);
   },
 
-  monsterSwing(def, i, x, y, a, fl) {
+  // ts = waktu server (ms) serangan dimulai. Perangkat yang menerima event terlambat memajukan waktunya sebesar keterlambatan itu, jadi saat kena (dan peringatan merah)
+  // jatuh di detik yang sama di semua layar. Monster: maks 60% windup supaya pemain yang lag tidak langsung kena tanpa sempat melihat peringatan. Serangan pemain: kompensasi penuh (maks 0,5 dtk) karena windup-nya sangat pendek dan tidak ada peringatan.
+  lagFor(ts, cap) { return ts ? Math.max(0, Math.min((BattleNet.now() - ts) / 1000, cap)) : 0; },
+  monsterSwing(def, i, x, y, a, fl, ts) {
     const at = def.attacks[i];
     let shape;
     if (at.kind === 'cone') shape = { t: 'cone', x, y, a, r: at.range, arc: at.arc * Math.PI / 180 };
     else if (at.kind === 'circle') shape = { t: 'circle', x: x + Math.cos(a) * at.off, y: y + Math.sin(a) * at.off, a, r: at.radius };
     else shape = { t: 'line', x, y, a, r: at.range, w: at.w };
-    this.swings.push({ src: 'm', uid: null, fl, shape, t0: this.now, windup: at.windup, dmg: at.dmg, kb: at.kb, done: false, life: at.windup + .3, color: '255,70,50' });
+    this.swings.push({ src: 'm', uid: null, fl, shape, t0: this.now - this.lagFor(ts, at.windup * .6), windup: at.windup, dmg: at.dmg, kb: at.kb, done: false, life: at.windup + .3, color: '255,70,50' });
   },
 
   // ---------- serangan pemain ----------
@@ -951,11 +1096,11 @@ const Battle = {
     return kind === 'slash' ? { t: 'cone', x, y, a, r: d.range, arc: d.arc * Math.PI / 180 } : { t: 'line', x, y, a, r: d.range, w: d.width };
   },
 
-  playerSwing(uid, kind, wid, x, y, a, fl) {
+  playerSwing(uid, kind, wid, x, y, a, fl, ts) {
     const d = (this.cfg().weapons[wid] || this.cfg().weapons.tangan)[kind];
     if (!d) return;
     const shape = this.swingShape(d, kind, x, y, a);
-    this.swings.push({ src: 'p', uid, kind, fl, shape, box: !!d.box, t0: this.now, windup: d.windup, dmg: d.dmg, kb: d.kb, done: false, life: d.windup + .22, color: '255,255,255' });
+    this.swings.push({ src: 'p', uid, kind, fl, shape, box: !!d.box, t0: this.now - this.lagFor(ts, .5), windup: d.windup, dmg: d.dmg, kb: d.kb, done: false, life: d.windup + .22, color: '255,255,255' });
   },
 
   onEvent(str) {
@@ -964,12 +1109,12 @@ const Battle = {
     const fl = p[8] === undefined || isNaN(+p[8]) ? -1 : +p[8];       // lantai tempat serangan terjadi
     if (p[0] === 's') {
       if (p[1] === this.uid()) return;
-      this.playerSwing(p[1], p[2], p[3], +p[4], +p[5], +p[6], fl);
+      this.playerSwing(p[1], p[2], p[3], +p[4], +p[5], +p[6], fl, +p[7]);
     } else if (p[0] === 'm') {
       if (this.isHost) return;
       const m = this.mons.find((q) => q.id === +p[2]);
       const def = m ? m.def : null;
-      if (def && def.attacks[+p[3]]) this.monsterSwing(def, +p[3], +p[4], +p[5], +p[6], fl);
+      if (def && def.attacks[+p[3]]) this.monsterSwing(def, +p[3], +p[4], +p[5], +p[6], fl, +p[7]);
     }
   },
 
@@ -1054,14 +1199,22 @@ const Battle = {
 
     // monster
     if (this.isHost) {
-      for (const m of this.mons) { this.updateMon(m, dt); m.rx = m.x; m.ry = m.y; m.ra = m.a; }
+      for (const m of this.mons) {
+        const ox = m.x, oy = m.y, ofl = m.fl;
+        this.updateMon(m, dt); m.rx = m.x; m.ry = m.y; m.ra = m.a;
+        let ivx = (m.x - ox) / Math.max(dt, 1e-3), ivy = (m.y - oy) / Math.max(dt, 1e-3);
+        if (m.fl !== ofl || Math.hypot(ivx, ivy) > 1500) ivx = ivy = 0;      // pindah lantai / loncat: bukan gerak
+        const kv = Math.min(1, dt * 18); m.vx = (m.vx || 0) + (ivx - (m.vx || 0)) * kv; m.vy = (m.vy || 0) + (ivy - (m.vy || 0)) * kv;
+      }
       if (this.kind === 'fixed') this.stepLeaving(dt);
     } else {
-      const k = Math.min(1, dt * 12);
+      const k = 1 - Math.exp(-dt * 28), pn = performance.now();
       for (const m of this.mons) {
         m.flash = Math.max(0, m.flash - dt);
         if (m.tx === undefined) continue;
-        m.rx += (m.tx - m.rx) * k; m.ry += (m.ty - m.ry) * k; m.ra = turnTo(m.ra, m.ta, 14 * dt);
+        const age = Math.min(1.5, (pn - (m.recv || pn)) / 1000), tx = m.tx + (m.vx || 0) * age, ty = m.ty + (m.vy || 0) * age;      // perkiraan = kiriman terakhir + kecepatan x lama sejak diterima
+        if (Math.hypot(tx - m.rx, ty - m.ry) > 400) { m.rx = tx; m.ry = ty; } else { m.rx += (tx - m.rx) * k; m.ry += (ty - m.ry) * k; }
+        m.ra = turnTo(m.ra, m.ta, 14 * dt);
         if (m.st === ST.DEAD) m.dead += dt;
       }
     }
@@ -1071,8 +1224,12 @@ const Battle = {
       if (this.clearT > 4) { this.setIn(this._unitIds, false); for (const id of this._unitIds) this.markCleared('enc:' + id); this.leave('Menang! Musuh dikalahkan'); return; }
     } else this.clearT = 0;
     // pemain lain
-    const k = Math.min(1, dt * 12);
-    for (const o of this.others.values()) { o.rx += (o.x - o.rx) * k; o.ry += (o.y - o.ry) * k; o.ra = turnTo(o.ra, o.a, 14 * dt); }
+    const ko = 1 - Math.exp(-dt * 28), pn2 = performance.now();
+    for (const o of this.others.values()) {
+      const age = Math.min(1.5, (pn2 - (o.recv || pn2)) / 1000), tx = o.x + (o.vx || 0) * age, ty = o.y + (o.vy || 0) * age;
+      if (Math.hypot(tx - o.rx, ty - o.ry) > 400) { o.rx = tx; o.ry = ty; } else { o.rx += (tx - o.rx) * ko; o.ry += (ty - o.ry) * ko; }
+      o.ra = turnTo(o.ra, o.a, 14 * dt);
+    }
 
     for (const f of this.floaters) f.t += dt;
     this.floaters = this.floaters.filter((f) => f.t < .9);
@@ -1086,16 +1243,27 @@ const Battle = {
       if (this.koT <= 0) { this.respawn(); return; }
     }
 
-    // kirim ke jaringan
-    this._sendT += dt * 1000;
-    if (this._sendT >= c.sendMs) {
-      this._sendT = 0;
-      const me = `${Math.round(s.x)},${Math.round(s.y)},${s.angle.toFixed(2)},${Math.round(Vitals.v.health)},${this.down ? 1 : 0},${this.floorId}`;
-      if (me !== this._lastSelf) { this._lastSelf = me; BattleNet.sendSelf(me); }
-      if (this.isHost && this.others.size) {
-        const ms = this.encodeMons();
-        if (ms !== this._lastMons) { this._lastMons = ms; BattleNet.sendMons(ms); }
+    // kirim ke jaringan (dead reckoning: posisi + kecepatan; dikirim hanya kalau penerima akan salah memperkirakan)
+    let ivx = (s.x - px) / Math.max(dt, 1e-3), ivy = (s.y - py) / Math.max(dt, 1e-3);
+    if (Math.hypot(ivx, ivy) > 1500) ivx = ivy = 0;
+    const kv = Math.min(1, dt * 18); this._vx += (ivx - this._vx) * kv; this._vy += (ivy - this._vy) * kv;
+    const nowMs = BattleNet.now(), minGap = c.sendMinMs || 50;
+    {
+      const L = this._ls, hp = Math.round(Vitals.v.health), dn = this.down ? 1 : 0, vx = this._vx, vy = this._vy, sp1 = Math.hypot(vx, vy);
+      let need = !L || hp !== L.hp || dn !== L.dn || this.floorId !== L.fl;
+      if (!need) {
+        const age = (nowMs - L.t) / 1000, ex = L.x + L.vx * age, ey = L.y + L.vy * age, sp0 = Math.hypot(L.vx, L.vy);
+        need = Math.hypot(s.x - ex, s.y - ey) > 3 || Math.abs(wrapA(s.angle - L.a)) > .15 || (sp0 < 5) !== (sp1 < 5) || (sp1 > 5 && nowMs - L.t > 1000) ||
+               (sp0 > 5 && (Math.abs(sp1 - sp0) / sp0 > .25 || Math.abs(wrapA(Math.atan2(vy, vx) - Math.atan2(L.vy, L.vx))) > .2));
       }
+      if (need && (!L || nowMs - L.t >= minGap)) {
+        this._ls = { x: s.x, y: s.y, vx, vy, a: s.angle, hp, dn, fl: this.floorId, t: nowMs };
+        BattleNet.sendSelf(`${Math.round(s.x)},${Math.round(s.y)},${s.angle.toFixed(2)},${hp},${dn},${this.floorId},${Math.round(vx)},${Math.round(vy)}`);
+      }
+    }
+    if (this.isHost && this.others.size && nowMs - this._monAt >= minGap && (this._lastMons === '' || this.monNeed(nowMs))) {
+      const ms = this.encodeMons();
+      this._lastMons = ms; this.monSent(nowMs); BattleNet.sendMons(ms);
     }
     if (this.kind === 'fixed' && this.isHost) { this._holdT = (this._holdT || 0) + dt; if (this._holdT >= 30) { this._holdT = 0; this.touchHold(); } }   // raid masih hidup
   },
@@ -1112,11 +1280,11 @@ const Battle = {
 
   onPlayer(uid, str) {
     if (!str) { this.others.delete(uid); return; }
-    const [x, y, a, hp, dn, f] = str.split(',').map(Number), fl = f === undefined || isNaN(f) ? -1 : f;
+    const [x, y, a, hp, dn, f, vx, vy] = str.split(',').map(Number), fl = f === undefined || isNaN(f) ? -1 : f;
     let o = this.others.get(uid);
     if (!o) { o = { rx: x, ry: y, ra: a, hue: hueOf(uid), n: 'Pemain-' + uid.slice(-4).toUpperCase() }; this.others.set(uid, o); }
     if (o.fl !== fl) { o.rx = x; o.ry = y; }          // pindah lantai: langsung loncat
-    Object.assign(o, { x, y, a, hp, down: !!dn, fl });
+    Object.assign(o, { x, y, a, hp, down: !!dn, fl, vx: vx || 0, vy: vy || 0, recv: performance.now() });
   },
 
   has(uid) { return this.active && this.others.has(uid); },
@@ -1266,8 +1434,20 @@ const Battle = {
     for (const u of this.cfg().units || []) {
       if (!this.unitVisible(u)) continue;
       const p = this.unitNow(u), r = u.radius;
-      if (p.x + r < Camera.x || p.x - r > Camera.x + vw || p.y + r < Camera.y || p.y - r > Camera.y + vh) continue;
-      const d = this.cfg().monsters[u.pack[0]], n = u.pack.length;
+      const rr = this.engOf(u) ? this.engR(u) + 20 : r;
+      if (p.x + rr < Camera.x || p.x - rr > Camera.x + vw || p.y + rr < Camera.y || p.y - rr > Camera.y + vh) continue;
+      const d = this.cfg().monsters[u.pack[0]], n = u.pack.length, eg = this.engOf(u);
+      if (eg) {         // lingkaran battle: pemain lain bisa masuk untuk bergabung
+        const R = this.engR(u), pulse = .5 + .5 * Math.sin(performance.now() / 260);
+        ctx.save();
+        ctx.fillStyle = `rgba(196,56,43,${.10 + .08 * pulse})`; ctx.beginPath(); ctx.arc(p.x, p.y, R, 0, 6.3); ctx.fill();
+        ctx.setLineDash([10, 7]); ctx.lineDashOffset = -performance.now() / 60;
+        ctx.strokeStyle = `rgba(255,120,90,${.65 + .3 * pulse})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(p.x, p.y, R, 0, 6.3); ctx.stroke();
+        ctx.restore();
+        ctx.font = '700 11px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.8)'; ctx.strokeText('⚔ BATTLE · masuk untuk ikut', p.x, p.y + R + 4);
+        ctx.fillStyle = '#ffd9cf'; ctx.fillText('⚔ BATTLE · masuk untuk ikut', p.x, p.y + R + 4);
+      }
       ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(p.x, p.y + r * .8, r, r * .45, 0, 0, 6.3); ctx.fill();
       const img = Assets.get('mon:' + u.pack[0]);
       ctx.save(); ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 6.3); ctx.clip();

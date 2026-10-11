@@ -92,3 +92,14 @@ Kode: `battle-arena.js` (arena), `battle.js` (aturan, unit di map gede, AI monst
 - **Kejar**: player lebih dekat dari `aggro` (default 170 px) -> unit mengejar dengan `chaseSpeed` (52 px/detik; player ~60 di darat, ~36 di hutan). Terlihat hanya di perangkat player yang dikejar (tidak disinkron); lolos / menjauh -> unit balik ke jalur bawaan. `chase: false` per unit = tidak mengejar.
 - Darah = `Vitals.health`; tumbang -> keluar arena dengan darah `koHealth`.
 - **Wajib**: publish ulang `database.rules.json` (node `battle` dan `battle_state` baru).
+
+### Sinkron kejar + lingkaran battle di map gede
+- **Kejaran disinkron**: pemain yang didekati unit (dalam `aggro`) mengklaim kejaran lewat transaksi `chase/{unitId}` = `"uid,x,y,vx,vy,a,t"`, lalu mengirim posisi unit tiap 400 ms (juga jadi heartbeat). Pemain lain memperkirakan posisi dari kecepatan + haluskan, jadi serigala terlihat di koordinat yang sama di semua layar. Tidak ada yang bisa mengklaim kejaran ganda; pemilik putus -> `onDisconnect` menghapusnya (kiriman > 3 dtk dianggap basi). Kejaran lepas -> unit berjalan balik ke jalur bawaan (juga terlihat semua pemain).
+- **Lingkaran battle**: unit menabrak player (arena acak) -> unit berhenti di titik bentrok dan muncul lingkaran merah berdenyut di map gede (`encounter/{unitId}` = `"x,y,t"`, heartbeat host tiap 20 dtk, > 60 dtk tanpa heartbeat = basi). Pemain lain yang masuk lingkaran (`radius unit + CONFIG.battle.ringPad`, default 40 px) otomatis bergabung ke room yang sama (`enc:{unitId}`). Pemain terakhir keluar / unit kalah -> lingkaran hilang (unit yang tidak kalah berjalan balik ke jalurnya).
+- **Auto-join teman**: pemain yang berdiri <= `CONFIG.battle.joinNearPx` (30 px) dari korban saat bentrok (dalam `joinWindowSec` = 3 dtk) otomatis ikut masuk battle. Yang lebih jauh cuma melihat lingkaran dan bisa bergabung dengan berjalan masuk.
+- Bentrok di dekat Tower of Mabel tetap masuk raid menara seperti biasa (tanpa lingkaran).
+- **Wajib**: publish ulang `database.rules.json` (node `chase` dan `encounter` baru).
+
+### Sinkron gerak & serangan di battle
+- **Dead reckoning di battle** (sama seperti map gede): posisi pemain dikirim `x,y,a,hp,dn,fl,vx,vy` dan snapshot monster punya `vx,vy` di belakang. Dikirim hanya kalau penerima akan salah memperkirakan (melenceng > 3-4 px, belok, ganti kecepatan, mulai / berhenti, ganti state) + heartbeat 1 dtk saat bergerak. Penerima memperkirakan posisi dari kecepatan (maks 1,5 dtk) lalu menghaluskan. Jeda minimum kiriman: `CONFIG.battle.sendMinMs` (50).
+- **Serangan sinkron waktu**: event serangan (monster & pemain) membawa waktu server. Perangkat yang menerimanya terlambat memajukan jam serangan sebesar keterlambatan (monster maks 60% windup, serangan pemain penuh maks 0,5 dtk), jadi peringatan merah & momen kena jatuh di detik yang sama di semua layar (`Battle.lagFor`).

@@ -162,6 +162,7 @@ const CONFIG = {
     enabled: true,
     roomCell: 2400,            // arena acak: pemain di sel dunia yang sama (px) ikut satu battle & satu set monster
     arena: { w: 2400, h: 1792, zoom: 2.2, playerRadius: 22, speed: 260 },   // arena acak (ukuran sama dgn Halaman menara)
+    sendMinMs: 50,             // jeda minimum antar kiriman posisi (dead reckoning: dikirim hanya kalau perlu)
     sendMs: 100,               // kirim posisi / monster ke server tiap sekian ms (10x per detik)
     friendlyFire: 0.5,         // pengali damage ke teman satu battle (0 = tidak ada friendly fire, 1 = penuh)
     koHealth: 5,               // darah setelah tumbang
@@ -190,6 +191,9 @@ const CONFIG = {
     fixedMargin: 50,           // bentrok dalam jarak segini (px dunia) dari tepi menara = di map Mabel; lebih jauh = arena acak sesuai medan (hutan)
     aggroRange: 170,           // jarak (px dunia) unit mulai mengejar player
     chaseSpeed: 52,            // kecepatan kejar (px/detik); player: ~60 di darat, ~36 di hutan, jadi bisa kabur di darat
+    ringPad: 40,               // lebar lingkaran battle di luar radius unit (px); masuk lingkaran = bergabung ke battle
+    joinNearPx: 30,            // teman yang berjarak <= segini (px) dari korban saat bentrok ikut masuk battle otomatis
+    joinWindowSec: 3,          // auto-join hanya berlaku sekian detik setelah bentrok
     bumpCoolSec: 4,            // setelah kabur / menang, tabrakan baru dihitung lagi sekian detik kemudian
 
     // Raid Tower of Mabel berlangsung di SELURUH menara (Halaman, lantai 1, 2, Atap). Player tetap bisa pakai tangga / pintu selama battle.

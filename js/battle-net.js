@@ -106,6 +106,27 @@ const BattleNet = {
     }, 50 + Math.random() * 400);
   },
 
+  // ---- kejaran unit di map gede (chase/{unit} = "uid,x,y,vx,vy,a,t"). Pemilik = yang berhasil klaim; hilang otomatis kalau putus ----
+  async claimChase(id, str) {
+    if (!this.online()) return true;
+    try {
+      const ref = Online.db.ref('chase/' + id), me = Online.uid, now = this.now();
+      const tx = await ref.transaction((cur) => {
+        if (cur) { const f = String(cur).split(','); if (f[0] !== me && now - Number(f[6]) < 3000) return; }     // masih dipegang pemain lain
+        return str;
+      });
+      if (tx.committed && tx.snapshot.val() && String(tx.snapshot.val()).startsWith(me + ',')) { ref.onDisconnect().remove(); return true; }
+      return false;
+    } catch (e) { return false; }
+  },
+  sendChase(id, str) { if (this.online()) Online.db.ref('chase/' + id).set(str).catch(() => {}); },
+  releaseChase(id) {
+    if (!this.online()) return;
+    const ref = Online.db.ref('chase/' + id);
+    ref.onDisconnect().cancel();
+    ref.transaction((cur) => (cur && String(cur).startsWith(Online.uid + ',') ? null : undefined)).catch(() => {});
+  },
+
   sendSelf(str) { if (this.pRef) this.pRef.set(str).catch(() => {}); },
   setUnits(str) { if (this.base) this.base.child('m/units').set(str || null).catch(() => {}); },
   sendMons(str) { if (this.base) this.base.child('mon').set(str).catch(() => {}); },
@@ -125,6 +146,7 @@ const BattleNet = {
     const { base, pRef, hostRef, room } = this;
     this.base = this.pRef = this.hostRef = null; this.room = null;
     if (!base) {                          // offline: simpan di memori
+      if (room && room.startsWith('enc:')) Battle.setEng(room.slice(4), null);
       if (room && track) { if (snap) this._held[room] = { t: this.now(), seed: snap.seed, mons: snap.mons, units: snap.units }; else delete this._held[room]; }
       return;
     }
@@ -134,6 +156,7 @@ const BattleNet = {
     Promise.all([pRef.remove(), wasHost ? hostRef.remove() : null]).then(() => base.child('p').once('value'))
       .then((s) => {
         if (s.exists()) return;           // masih ada pemain lain di room
+        if (room && room.startsWith('enc:')) Online.db.ref('encounter/' + room.slice(4)).remove().catch(() => {});     // tidak ada yang bertarung lagi: lingkaran battle bubar
         if (snap) return Promise.all([base.child('mon').set(snap.mons), snap.units ? base.child('m/units').set(snap.units) : null, holdRef.set(this.now())]);
         return Promise.all([track ? holdRef.set(0) : null, base.remove().catch(() => {})]);
       }).catch(() => {});

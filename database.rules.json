@@ -216,6 +216,20 @@
         ".write": "auth != null",
         ".validate": "newData.isNumber()"
       }
+    },
+    "chase": {
+      ".read": "auth != null",
+      "$k": {
+        ".write": "auth != null",
+        ".validate": "newData.isString() && newData.val().length <= 90"
+      }
+    },
+    "encounter": {
+      ".read": "auth != null",
+      "$k": {
+        ".write": "auth != null",
+        ".validate": "newData.isString() && newData.val().length <= 60"
+      }
     }
   }
 }
