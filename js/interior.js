@@ -49,7 +49,13 @@ const Interior = {
     this.tower = tower;
     this.active = true;
     this.floorId = CONFIG.interior.startFloor || 0;
-    const sp = this.floor.spawn;
+    let sp = this.floor.spawn;
+    // lantai arena battle (Halaman): muncul di pinggir sesuai ARAH player datang dari menara di map gede (dari atas -> di atas, dst), bukan di tengah
+    const fcfg = CONFIG.interior.floors.find((f) => f.id === this.floorId);
+    if (fcfg && fcfg.battle && typeof BattleArena !== 'undefined') {
+      const ang = Math.atan2(Player.y - tower.y, Player.x - tower.x);
+      sp = BattleArena.fixed(this.floorId).edge(ang, this.R + 6, 90);
+    }
     Player.x = sp.x; Player.y = sp.y; Player.target = null; this.path = [];
   },
 
@@ -76,15 +82,16 @@ const Interior = {
     return inside;
   },
 
-  canStand(x, y) {
+  // fl = lantai yang dicek (default: lantai tempat player berada). Battle memakai ini untuk monster yang ada di lantai lain.
+  canStand(x, y, fl = this.floor) {
     const r = this.R;
     for (const [dx, dy] of [[0, 0], [r, 0], [-r, 0], [0, r], [0, -r]]) {
-      if (!this.inPoly(x + dx, y + dy)) return false;
+      if (!this.inPoly(x + dx, y + dy, fl.poly)) return false;
     }
-    for (const b of this.floor.blocked) {
+    for (const b of fl.blocked) {
       if (x > b.x - r && x < b.x + b.w + r && y > b.y - r && y < b.y + b.h + r) return false;
     }
-    for (const poly of this.floor.blockedPolys) {      // poligon yang tidak bisa diinjak (menara, kolam, semak)
+    for (const poly of fl.blockedPolys) {      // poligon yang tidak bisa diinjak (menara, kolam, semak)
       for (const [dx, dy] of [[0, 0], [r, 0], [-r, 0], [0, r], [0, -r]]) {
         if (this.inPoly(x + dx, y + dy, poly)) return false;
       }
@@ -213,7 +220,7 @@ const Interior = {
     if (!this.path.length) { Player.target = null; return; }
     const t = this.path[0];
     const dx = t.x - Player.x, dy = t.y - Player.y, dist = Math.hypot(dx, dy);
-    const step = CONFIG.interior.speed * dt;
+    const step = CONFIG.interior.speed * Vitals.speedMul() * dt;
     if (dist > 0.5) Player.angle = Math.atan2(dy, dx);
     const k = dist <= step ? 1 : step / dist;
     const nx = Player.x + dx * k, ny = Player.y + dy * k;
@@ -235,10 +242,10 @@ const Interior = {
   zones() {
     const fl = this.floor, out = [];
     fl.stairs.forEach((st, i) => out.push({
-      key: 'stair' + i, rect: st,
+      key: 'stair' + i, rect: st, label: st.dir === 'up' ? 'Naik' : st.dir === 'down' ? 'Turun' : 'Masuk',
       run: () => this.goTo(st.to, st.arrive),
     }));
-    if (fl.exit) out.push({ key: 'exit', rect: fl.exit,
+    if (fl.exit) out.push({ key: 'exit', rect: fl.exit, label: 'Keluar',
       run: () => (fl.exit.to !== undefined ? this.goTo(fl.exit.to, fl.exit.arrive) : this.exit()) });
     return out;
   },
@@ -300,10 +307,13 @@ const Interior = {
       if (x1 > x0 && y1 > y0) ctx.drawImage(img, x0 * kx, y0 * ky, (x1 - x0) * kx, (y1 - y0) * ky, x0, y0, x1 - x0, y1 - y0);
     }
 
-    GroundItems.draw(ctx, GroundItems.loc(), 22);   // barang yang dijatuhkan di lantai ini
+    GroundItems.draw(ctx, GroundItems.loc(), 22);
+    if (Battle.active) Battle.drawGround(ctx);   // barang yang dijatuhkan di lantai ini
     Online.drawOthers(ctx, GroundItems.loc(), CONFIG.interior.playerRadius);   // pemain lain di lantai ini
     Player.drawMarker(ctx);
     Player.draw(ctx, CONFIG.interior.playerRadius);
+    if (Battle.active) Battle.drawActors(ctx);
+    else if (Battle.siaga) { Battle.drawGround(ctx); Battle.drawSwings(ctx); }
 
     if (this.debug) this.drawDebug(ctx, fl);   // tekan B: lihat tembok, furnitur, dan zona interaksi
     ctx.restore();

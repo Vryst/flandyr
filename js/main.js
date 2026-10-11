@@ -13,21 +13,32 @@ function update(dt) {
   Online.update(dt);                // jam, posisi pemain lain, kirim posisi sendiri (tetap jalan walau inventory terbuka)
   if (InventoryUI.open) return;   // game di-pause selama layar inventory terbuka
   let coord;
-  if (Interior.active) {
+  const px = Player.x, py = Player.y;
+  BattleUI.update(dt);
+  if (Battle.active) {
+    Battle.update(dt);
+    Interact.update();
+    coord = '';
+    if (Battle.kind === 'random') coord = `x: ${Math.round(Player.x)}, y: ${Math.round(Player.y)} · ${Terrain.info(Player.x, Player.y).name}`;
+  } else if (Interior.active) {
+    Battle.idleUpdate(dt);
     Interior.update(dt);
     Interact.update();
     coord = '';
   } else {
+    Battle.idleUpdate(dt);
     Player.update(dt);
     Camera.update(Player);
     Interact.update();
     coord = `x: ${Math.round(Player.x)}, y: ${Math.round(Player.y)} · ${Terrain.info(Player.x, Player.y).name}`;
   }
+  Vitals.update(dt, Battle.controls() ? Battle.speedNow : Math.hypot(Player.x - px, Player.y - py) / dt);   // lapar / haus / energi / darah
   Hud.set(coord, Interact.place);   // mis. "x: 17990, y: 18010 · Hutan" + "· Tower of Mabel" (animasi)
 }
 
 function draw() {
   if (InventoryUI.open) return;   // layar inventory menutupi game: tidak perlu menggambar map raksasa di belakangnya
+  if (Battle.active && Battle.kind === 'random') { Battle.drawArena(ctx); return; }
   if (Interior.active) { Interior.draw(ctx); return; }
   ctx.fillStyle = '#111';
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
@@ -37,6 +48,7 @@ function draw() {
   ctx.translate(-Camera.x, -Camera.y);
   World.draw(ctx);
   Objects.draw(ctx);
+  Battle.drawUnits(ctx);
   GroundItems.draw(ctx);
   Online.drawOthers(ctx, 'world', CONFIG.player.radius);   // pemain lain
   Player.drawMarker(ctx);
@@ -67,6 +79,7 @@ async function start() {
   // Balik dari inventory ke game: buat ulang canvas bersih supaya tidak ada sisa/korup di buffer GPU
   InventoryUI.onToggle = (open) => { if (!open) { resize(); last = performance.now(); } };
   Input.init(canvas);
+  BattleUI.init();
 
   // HP / tablet: layar penuh begitu pemain menyentuh layar pertama kali (browser butuh sentuhan dulu)
   if (window.matchMedia('(pointer: coarse)').matches) {
@@ -81,7 +94,7 @@ async function start() {
   const list = {};
   if (CONFIG.player.sprite) list.player = CONFIG.player.sprite;
   if (CONFIG.world.backgroundImage && !CONFIG.world.mapTiles) list.map = CONFIG.world.backgroundImage;
-  Object.assign(list, Objects.assetList(), Interior.assetList(), GroundItems.assetList());
+  Object.assign(list, Objects.assetList(), Interior.assetList(), GroundItems.assetList(), Battle.assetList());
   await Assets.load(list);
 
   // sambung ke Firebase (login anonim, muat progress, dunia bersama). Gagal / offline -> main lokal.

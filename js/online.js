@@ -4,7 +4,7 @@
 //
 //   Data di database:
 //     players/{uid}/save        progress pribadi: posisi, lokasi (dunia / lantai menara), tas + isinya
-//     presence/{uid}            posisi realtime (dihapus otomatis kalau koneksi putus)
+//     presence/{loc}/{sel}/{uid}  posisi realtime per area, string "x,y,vx,vy,a" (dihapus otomatis kalau koneksi putus)
 //     world/items/{uid}         barang lepas di tanah (dunia bersama)
 //     world/bags/{uid}          tas di tanah + isinya (isi = items/{uid item})
 //     world/meta/epoch          detik nol jam game (semua pemain memakai jam yang sama)
@@ -31,7 +31,7 @@ const Online = {
   inflight: new Set(),     // uid tas yang sedang ditulis (transaksi berjalan)
   gone: new Map(),         // uid -> waktu: barang yang baru kita ambil (abaikan event lama dari server)
   applying: false,
-  _flushT: 0, _saveT: 0, _ui: 0, _presAcc: 0, _heartAcc: 0, _saveAcc: 0,
+  _flushT: 0, _saveT: 0, _ui: 0, _presAcc: 0, _saveAcc: 0, presOn: false, subs: null, myCell: null, _sent: null,
   _lastPres: '', _lastSave: '', _clockText: '', _netText: '', _toastT: 0,
 
   cfg() { return CONFIG.online || {}; },
@@ -57,7 +57,7 @@ const Online = {
       this.db.ref('.info/serverTimeOffset').on('value', (s) => { this.offset = s.val() || 0; });
       this.db.ref('.info/connected').on('value', (s) => {
         this.connected = !!s.val();
-        if (this.connected && this.ready) this.armPresence();
+        if (this.connected && this.ready && this.presOn) this.armPresence();
         this.setNet(this.connected);
       });
 
@@ -74,9 +74,12 @@ const Online = {
       this.startPresence();
 
       Inventory.onChange(() => { if (!this.applying) { this.schedule(); this.scheduleSave(); } });
-      const leave = () => { this.saveNow(); if (this.presRef) this.presRef.remove(); };
-      window.addEventListener('pagehide', leave);
-      document.addEventListener('visibilitychange', () => { if (document.hidden) this.saveNow(); });
+      window.addEventListener('pagehide', () => { this.saveNow(); if (this.presRef) this.presRef.remove(); });
+      // tab disembunyikan: simpan, hapus posisi & berhenti mendengarkan pemain lain (hemat download); balik lagi -> sambung ulang
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) { this.saveNow(); this.stopPresence(); }
+        else if (this.ready && !this.presOn) this.startPresence();
+      });
 
       this.ready = this.enabled = true;
       Inventory.emit();
@@ -96,6 +99,7 @@ const Online = {
     const s = { mode: Interior.active ? 'tower' : 'world', x: Math.round(Player.x), y: Math.round(Player.y),
                 t: firebase.database.ServerValue.TIMESTAMP };
     if (Interior.active) s.floor = Interior.floorId;
+    s.v = Vitals.pack();
     if (Inventory.bagId) {
       s.bagId = Inventory.bagId;
       const o = toObj(Inventory.grid.items);
@@ -105,6 +109,7 @@ const Online = {
   },
 
   applySave(s) {
+    Vitals.apply(s.v);
     // tas + isinya
     Inventory.unequip();
     if (s.bagId && CONFIG.inventory.bags[s.bagId]) {
@@ -147,7 +152,7 @@ const Online = {
   saveNow() {
     if (!this.ready) return;
     clearTimeout(this._saveT);
-    this._lastSave = `${Interior.active}|${Interior.floorId}|${Math.round(Player.x)}|${Math.round(Player.y)}`;
+    this._lastSave = `${Interior.active}|${Interior.floorId}|${Math.round(Player.x)}|${Math.round(Player.y)}|${Vitals.sig()}`;
     this.db.ref(`players/${this.uid}/save`).set(this.buildSave()).catch((e) => this.fail('simpan progress', e));
   },
 
@@ -166,6 +171,9 @@ const Online = {
     }
 
     const ir = db.ref('world/items'), br = db.ref('world/bags');
+    // listener 'value' sementara menahan data di cache sampai listener child_* terpasang -> data dunia hanya didownload SEKALI
+    const keep = () => {};
+    ir.on('value', keep); br.on('value', keep);
     const [is, bs] = await withTimeout(Promise.all([ir.once('value'), br.once('value')]), T);
     GroundItems.list = []; GroundItems.bags = [];
     this.snap.items.clear(); this.snap.bags.clear();
@@ -178,6 +186,7 @@ const Online = {
     br.on('child_added', (s) => this.onBag(s));
     br.on('child_changed', (s) => this.onBag(s));
     br.on('child_removed', (s) => this.onBagGone(s));
+    ir.off('value', keep); br.off('value', keep);
   },
 
   itemData(it) { return { id: it.id, x: r1(it.x), y: r1(it.y), loc: it.loc }; },
@@ -410,72 +419,168 @@ const Online = {
   },
 
   // ============ pemain lain (presence) ============
+  // Hemat download: posisi disimpan per AREA -> presence/{loc}/{sel}/{uid} = "x,y,vx,vy,a" (satu string kecil).
+  // Klien hanya mendengarkan area sendiri + 8 area tetangga, jadi tidak mendownload pemain yang jauh.
+  // Pengirim memakai dead reckoning: posisi dikirim hanya saat mulai jalan / belok / ganti kecepatan / berhenti / melenceng,
+  // penerima memperkirakan posisi di antaranya dari kecepatan. Jalan lurus = nyaris tidak ada kiriman.
+  // Tab disembunyikan -> berhenti mendengarkan & posisi dihapus (tidak ada download di latar belakang).
+  // Layer terpisah total: Dunia = 1 layer; Menara Mabel (Halaman + tiap lantai) = layer lain, satu ruang per lantai.
+  // Masuk menara -> hilang dari peta dunia; pemain di dunia tidak kelihatan dari dalam menara (dan sebaliknya).
+  // loc: 'world' atau 'tower:<id>:<lantai>'. Satu loc = satu "shard" presence.
+  // Halaman (lantai 0) dan Atap (lantai 3) memakai gambar & koordinat yang sama -> satu ruang pandang, saling kelihatan
+  // (CONFIG.interior.linkedFloors). Lantai lain tetap sendiri-sendiri.
+  groupOf(loc) {
+    const m = /^(tower:[^:]+):(\d+)$/.exec(loc), L = CONFIG.interior.linkedFloors || [];
+    return m && L.includes(Number(m[2])) ? m[1] + ':yard' : loc;
+  },
+  pub() { return { shard: this.groupOf(GroundItems.loc()), x: Player.x, y: Player.y }; },
+
+  cellOf(p = this.pub()) {
+    const S = this.cfg().cellSize || 2400;
+    return p.shard === 'world' ? { loc: 'world', cx: Math.max(0, Math.floor(p.x / S)), cy: Math.max(0, Math.floor(p.y / S)) }
+                               : { loc: p.shard, cx: 0, cy: 0 };
+  },
+  cellKey(c) { return `${c.loc}/${c.cx}_${c.cy}`; },
+
   startPresence() {
-    this.presRef = this.db.ref('presence/' + this.uid);
-    const all = this.db.ref('presence');
-    const put = (s) => {
-      if (s.key === this.uid) return;
-      const v = s.val(); if (!v) return;
-      const o = this.others.get(s.key);
-      if (o) Object.assign(o, v);
-      else this.others.set(s.key, Object.assign({ rx: v.x, ry: v.y, hue: hueOf(s.key) }, v));
-    };
-    all.on('child_added', put);
-    all.on('child_changed', put);
-    all.on('child_removed', (s) => { this.others.delete(s.key); });
+    this.presOn = true;
+    this.subs = new Map();                // "loc/cx_cy" -> ref
+    this.myCell = null; this._sent = null; this._wasMoving = false; this._pt = 0;
+    this.syncSubs();
     this.armPresence();
   },
 
+  stopPresence() {
+    this.presOn = false;
+    if (this.presRef) { this.presRef.onDisconnect().cancel(); this.presRef.remove().catch(() => {}); this.presRef = null; }
+    if (this.subs) for (const [, r] of this.subs) r.off();
+    if (this.subs) this.subs.clear();
+    this.others.clear();
+    this.myCell = null;
+  },
+
+  // pasang / lepas listener area sesuai posisi sekarang (area terlepas hanya kalau sudah > 2 area jauhnya, supaya tidak bolak-balik di perbatasan)
+  syncSubs() {
+    const c = this.cellOf();
+    for (const [k, r] of [...this.subs]) {
+      const [loc, rest] = [k.slice(0, k.lastIndexOf('/')), k.slice(k.lastIndexOf('/') + 1)];
+      const [x, y] = rest.split('_').map(Number);
+      if (loc !== c.loc || Math.abs(x - c.cx) > 2 || Math.abs(y - c.cy) > 2) {
+        r.off(); this.subs.delete(k);
+        for (const [u, o] of [...this.others]) if (o.cell === k) this.others.delete(u);
+      }
+    }
+    for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
+      const cc = { loc: c.loc, cx: c.cx + dx, cy: c.cy + dy };
+      if (c.loc !== 'world' && (dx || dy)) continue;
+      if (cc.cx < 0 || cc.cy < 0) continue;
+      const k = this.cellKey(cc);
+      if (this.subs.has(k)) continue;
+      const ref = this.db.ref('presence/' + k);
+      this.subs.set(k, ref);
+      const put = (s) => this.onPeer(s, k, c.loc);
+      ref.on('child_added', put);
+      ref.on('child_changed', put);
+      ref.on('child_removed', (s) => { const o = this.others.get(s.key); if (o && o.cell === k) this.others.delete(s.key); });
+    }
+  },
+
+  onPeer(s, cell, loc) {
+    if (s.key === this.uid) return;
+    const p = String(s.val() || '').split(',').map(Number);
+    if (p.length < 5 || p.some((n) => !isFinite(n))) return;
+    const now = performance.now(), v = { x: p[0], y: p[1], vx: p[2], vy: p[3], a: p[4], recv: now, cell, loc };
+    const o = this.others.get(s.key);
+    if (o) Object.assign(o, v);
+    else this.others.set(s.key, Object.assign({ rx: v.x, ry: v.y, hue: hueOf(s.key), n: 'Pemain-' + s.key.slice(-4).toUpperCase() }, v));
+  },
+
   armPresence() {
-    this.presRef.onDisconnect().remove();
+    if (!this.presOn) return;
+    this.myCell = null;                    // paksa tulis ulang + daftarkan onDisconnect
     this.sendPresence(true);
   },
 
+  // Kirim posisi hanya kalau perkiraan penerima sudah melenceng. `force` = kirim sekarang juga.
   sendPresence(force) {
-    if (!this.presRef) return;
-    const loc = GroundItems.loc(), x = Math.round(Player.x), y = Math.round(Player.y);
-    const key = `${loc}|${x}|${y}`;
-    if (!force && key === this._lastPres) return;
-    this._lastPres = key;
-    this.presRef.set({ x, y, loc, a: r1(Player.angle), n: this.name, t: firebase.database.ServerValue.TIMESTAMP })
+    if (!this.presOn) return;
+    const now = performance.now(), P = this.pub(), c = this.cellOf(P), key = this.cellKey(c), lk = P.shard;
+    // kecepatan diukur dari jendela >= 50 ms (per frame terlalu berisik: jitter waktu frame bikin kecepatan naik-turun
+    // dan memicu kiriman terus-menerus). Berhenti terdeteksi seketika: tidak ada pergeseran sama sekali sejak frame lalu.
+    const jumped = lk !== this._ploc || (this._px !== undefined && Math.hypot(P.x - this._px, P.y - this._py) > 3000 * 0.2);
+    if (jumped || this._px === undefined) { this._px = P.x; this._py = P.y; this._pt = now; this._vx = this._vy = 0; }
+    else if (now - this._pt >= 50) {
+      const dt = (now - this._pt) / 1000;
+      this._vx = (P.x - this._px) / dt; this._vy = (P.y - this._py) / dt;
+      this._px = P.x; this._py = P.y; this._pt = now;
+    }
+    if (this._lx !== undefined && P.x === this._lx && P.y === this._ly) this._vx = this._vy = 0;   // diam
+    this._lx = P.x; this._ly = P.y; this._ploc = lk;
+    const vx = this._vx, vy = this._vy;
+    const moving = Math.hypot(vx, vy) > 1;
+
+    const sn = this._sent;
+    let need = force || jumped || !sn || key !== this.myCell;
+    if (!need) {
+      const age = (now - sn.t) / 1000;
+      const err = Math.hypot(sn.x + sn.vx * age - P.x, sn.y + sn.vy * age - P.y);   // selisih dgn perkiraan penerima
+      const sp0 = Math.hypot(sn.vx, sn.vy), sp1 = Math.hypot(vx, vy);
+      const dir = sp0 > 1 && sp1 > 1 ? Math.acos(Math.max(-1, Math.min(1, (sn.vx * vx + sn.vy * vy) / (sp0 * sp1)))) : 0;
+      const stopped = sp0 > 1 && !moving, started = sp0 <= 1 && moving;
+      need = err > 4 || stopped || started || dir > 0.2 || (sp0 > 1 && Math.abs(sp1 - sp0) / sp0 > 0.25);
+    }
+    if (!need) return;
+
+    if (key !== this.myCell) {                                            // pindah area: hapus di area lama, daftar di area baru
+      if (this.presRef) { this.presRef.onDisconnect().cancel(); this.presRef.remove().catch(() => {}); }
+      this.presRef = this.db.ref(`presence/${key}/${this.uid}`);
+      this.presRef.onDisconnect().remove();
+      this.myCell = key;
+      this.syncSubs();
+    }
+    this._sent = { x: P.x, y: P.y, vx, vy, t: now };
+    this.presRef.set(`${r1(P.x)},${r1(P.y)},${r1(vx)},${r1(vy)},${r1(Player.angle)}`)
       .catch((e) => this.fail('kirim posisi', e));
   },
 
   // dipanggil tiap frame
   update(dt) {
     this.clockHud();
-    for (const o of this.others.values()) {          // gerak halus menuju posisi terbaru
-      const k = Math.min(1, dt * 10);
-      if (Math.hypot(o.x - o.rx, o.y - o.ry) > 600) { o.rx = o.x; o.ry = o.y; }
-      else { o.rx += (o.x - o.rx) * k; o.ry += (o.y - o.ry) * k; }
+    const now = performance.now(), k = 1 - Math.exp(-dt * 28);
+    for (const o of this.others.values()) {
+      // posisi perkiraan = kiriman terakhir + kecepatan x lama sejak diterima (kiriman baru datang saat belok / berhenti)
+      const age = Math.min(120, (now - (o.recv || now)) / 1000);
+      const tx = o.x + (o.vx || 0) * age, ty = o.y + (o.vy || 0) * age;
+      if (Math.hypot(tx - o.rx, ty - o.ry) > 600) { o.rx = tx; o.ry = ty; }
+      else { o.rx += (tx - o.rx) * k; o.ry += (ty - o.ry) * k; }
     }
     if (!this.ready) return;
     const c = this.cfg();
-    this._presAcc += dt * 1000; this._heartAcc += dt * 1000; this._saveAcc += dt * 1000;
-    if (this._presAcc >= (c.presenceMs || 200)) { this._presAcc = 0; this.sendPresence(false); }
-    if (this._heartAcc >= 20000) { this._heartAcc = 0; this.sendPresence(true); }   // tanda masih hidup
+    this._presAcc += dt * 1000; this._saveAcc += dt * 1000;
+    if (this._presAcc >= (c.presenceMs || 16)) { this._presAcc = 0; this.sendPresence(false); }   // hanya cek lokal, kirim kalau perlu
     if (this._saveAcc >= (c.positionSaveMs || 3000)) {
       this._saveAcc = 0;
-      const k = `${Interior.active}|${Interior.floorId}|${Math.round(Player.x)}|${Math.round(Player.y)}`;
+      const k = `${Interior.active}|${Interior.floorId}|${Math.round(Player.x)}|${Math.round(Player.y)}|${Vitals.sig()}`;
       if (k !== this._lastSave) this.saveNow();
     }
   },
 
-  fresh(o) { return Date.now() + this.offset - (o.t || 0) < (this.cfg().presenceStaleMs || 60000); },
+  fresh() { return true; },     // presence dihapus server saat pemain putus (onDisconnect), tidak perlu cap waktu lagi
 
-  // pemain lain di lokasi yang sama (loc: 'world' atau 'tower:<id>:<lantai>')
+  // pemain lain di layer / lantai yang sama (loc: 'world' atau 'tower:<id>:<lantai>')
   drawOthers(ctx, loc, radius) {
     if (!this.ready) return;
     const world = loc === 'world';
-    const vw = window.innerWidth / Camera.zoom, vh = window.innerHeight / Camera.zoom;
-    for (const o of this.others.values()) {
-      if (o.loc !== loc || !this.fresh(o)) continue;
+    const vw = window.innerWidth / Camera.zoom, vh = window.innerHeight / Camera.zoom, grp = this.groupOf(loc);
+    for (const [uid, o] of this.others) {
+      if (o.loc !== grp) continue;
+      if (Battle.has(uid)) continue;
       if (world && (o.rx < Camera.x - 60 || o.rx > Camera.x + vw + 60 || o.ry < Camera.y - 60 || o.ry > Camera.y + vh + 60)) continue;
       Player.drawOther(ctx, o, radius);
     }
   },
 
-  onlineCount() { let n = 1; for (const o of this.others.values()) if (this.fresh(o)) n++; return n; },
+  onlineCount() { return 1 + this.others.size; },     // diri sendiri + pemain di sekitar (area yang didengarkan)
 
   // ============ jam game (sama untuk semua pemain) ============
   // 1 detik nyata = SCALE.timeScale detik game; mulai pukul 06:00 hari ke-1
@@ -500,7 +605,7 @@ const Online = {
 
   setNet(on) {
     if (!this.netEl) return;
-    const txt = !this.enabled && !this.ready ? 'offline' : on ? `online · ${this.onlineCount()}` : 'terputus';
+    const txt = !this.enabled && !this.ready ? 'offline' : on ? `online · ${this.onlineCount()} di sekitar` : 'terputus';
     if (txt === this._netText) return;
     this._netText = txt;
     this.netEl.textContent = '● ' + txt;

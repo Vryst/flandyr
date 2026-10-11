@@ -46,6 +46,23 @@
           "t": {
             ".validate": "newData.isNumber()"
           },
+          "v": {
+            "h": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+            },
+            "e": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+            },
+            "f": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+            },
+            "w": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
           "$other": {
             ".validate": false
           }
@@ -56,30 +73,13 @@
       }
     },
     "presence": {
-      ".read": "auth != null",
-      "$uid": {
-        ".write": "auth != null && auth.uid === $uid",
-        ".validate": "newData.hasChildren(['x','y','loc','t'])",
-        "x": {
-          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 30000"
-        },
-        "y": {
-          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 30000"
-        },
-        "a": {
-          ".validate": "newData.isNumber() && newData.val() >= -10 && newData.val() <= 10"
-        },
-        "loc": {
-          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
-        },
-        "n": {
-          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 24"
-        },
-        "t": {
-          ".validate": "newData.isNumber()"
-        },
-        "$other": {
-          ".validate": false
+      "$loc": {
+        "$cell": {
+          ".read": "auth != null",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "newData.isString() && newData.val().length <= 60"
+          }
         }
       }
     },
@@ -162,6 +162,59 @@
       },
       "$other": {
         ".validate": false
+      }
+    },
+    "battle": {
+      "$room": {
+        ".read": "auth != null",
+        "m": {
+          "host": {
+            ".write": "auth != null && ((!data.exists() && newData.val() === auth.uid) || (data.exists() && data.val() === auth.uid && !newData.exists()))",
+            ".validate": "newData.isString() && newData.val().length <= 40"
+          },
+          "seed": {
+            ".write": "auth != null",
+            ".validate": "newData.isNumber()"
+          },
+          "kind": {
+            ".write": "auth != null",
+            ".validate": "newData.isString() && newData.val().length <= 12"
+          },
+          "units": {
+            ".write": "auth != null",
+            ".validate": "newData.isString() && newData.val().length <= 120"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "p": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "newData.isString() && newData.val().length <= 60"
+          }
+        },
+        "mon": {
+          ".write": "auth != null && (!newData.exists() || !root.child('battle/' + $room + '/m/host').exists() || root.child('battle/' + $room + '/m/host').val() === auth.uid)",
+          ".validate": "newData.isString() && newData.val().length <= 1500"
+        },
+        "ev": {
+          "$k": {
+            ".write": "auth != null",
+            ".validate": "newData.isString() && newData.val().length <= 160"
+          }
+        },
+        "$other": {
+          ".validate": false
+        },
+        ".validate": "$room.length <= 40"
+      }
+    },
+    "battle_state": {
+      ".read": "auth != null",
+      "$k": {
+        ".write": "auth != null",
+        ".validate": "newData.isNumber()"
       }
     }
   }

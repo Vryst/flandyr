@@ -23,7 +23,7 @@ const Player = {
     const dy = this.target.y - this.y;
     const dist = Math.hypot(dx, dy);
     // kecepatan tergantung medan tempat player berdiri (hutan lebih lambat)
-    const step = CONFIG.player.speed * Terrain.info(this.x, this.y).speed * dt;
+    const step = CONFIG.player.speed * Terrain.info(this.x, this.y).speed * Vitals.speedMul() * dt;
 
     this.angle = Math.atan2(dy, dx);
 

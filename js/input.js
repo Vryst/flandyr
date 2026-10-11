@@ -21,7 +21,7 @@ const Input = {
     canvas.addEventListener('pointermove', (e) => {
       if (!this.pointers.has(e.pointerId)) return;
       this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      if (this.pointers.size === 2) {
+      if (this.pointers.size === 2 && !Battle.active) {
         const d = this.getPinchDist();
         if (this.pinchDist > 0) Camera.zoomBy(d / this.pinchDist);
         this.pinchDist = d;
@@ -32,7 +32,7 @@ const Input = {
       const wasTap = this.pointers.size === 1 && !this.pinched && this.down &&
         Math.hypot(e.clientX - this.down.x, e.clientY - this.down.y) < 10;
       this.pointers.delete(e.pointerId);
-      if (e.type === 'pointerup' && wasTap) {
+      if (e.type === 'pointerup' && wasTap && !Battle.controls()) {
         const now = performance.now();
         const dbl = !!this.lastTap && now - this.lastTap.t < 350 &&
           Math.hypot(e.clientX - this.lastTap.x, e.clientY - this.lastTap.y) < 30;

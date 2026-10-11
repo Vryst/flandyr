@@ -47,9 +47,12 @@ const InventoryUI = {
           <p class="inv-nobag" hidden>Tidak membawa tas.<br>Ambil tas dari panel Pencarian untuk membawa barang.</p>
           <div class="inv-foot inv-used">Slot terpakai <b></b></div>
         </section>
-        <aside class="inv-char">
-          <div class="inv-figure"></div>
-        </aside>
+        <div class="inv-mid">
+          <aside class="inv-char">
+            <div class="inv-figure"></div>
+          </aside>
+          <div class="inv-vitals"></div>
+        </div>
         <section class="inv-search">
           <div class="inv-title"><b>Pencarian</b><small></small></div>
           <div class="inv-find"></div>
@@ -72,7 +75,9 @@ const InventoryUI = {
     this.findNote = q('.inv-find-note');
     this.findCount = q('.inv-search .inv-title small');
     this.figureEl = q('.inv-figure');
+    this.vitalsEl = q('.inv-vitals');
     this.buildFigure();
+    this.buildVitals();
 
     q('.inv-close').addEventListener('click', () => this.close());
     window.addEventListener('keydown', (e) => {
@@ -87,8 +92,8 @@ const InventoryUI = {
     this.render();
   },
 
-  toggle() { this.open ? this.close() : this.show(); },
-  show() { this.open = true; this.root.hidden = false; this.render(); if (this.onToggle) this.onToggle(true); },
+  toggle() { if (Battle.active && !this.open) return; this.open ? this.close() : this.show(); },   // tidak bisa buka tas saat Siaga
+  show() { this.open = true; this.root.hidden = false; this.render(); this.renderVitals(); if (this.onToggle) this.onToggle(true); },
   close() {
     if (!this.open) return;
     this.cancelDrag(); this.open = false; this.root.hidden = true;
@@ -111,6 +116,7 @@ const InventoryUI = {
     this.charEl.style.setProperty('--k', L.k);
     this.charEl.style.width = 360 * L.k + 'px';
     this.charEl.style.height = 300 * L.k + 'px';
+    this.vitalsEl.style.width = 360 * L.k + 'px';
 
     this.views = [];
     this.btn.firstChild.src = bag ? bag.image : this.anyBagImage();
@@ -150,7 +156,8 @@ const InventoryUI = {
     const availGridW = vw - pad * 2 - gap * 2 - searchW - minChar;
     const cell = cols ? Math.max(cfg.minCellSize, Math.min(cfg.cellSize, Math.floor(availGridW / cols), Math.floor(gridH / rows))) : cfg.cellSize;
     const charAvail = vw - pad * 2 - gap * 2 - searchW - cols * cell - 6;
-    const k = Math.max(0.4, Math.min(1, charAvail / 360, availH / 300));
+    const vitalsH = compact ? 84 : 112;   // bar vitals di bawah karakter
+    const k = Math.max(0.4, Math.min(1, charAvail / 360, (availH - vitalsH) / 300));
     return { row, compact, cell, k, searchW, findH: availH - (compact ? 66 : 84) };
   },
 
@@ -318,6 +325,33 @@ const InventoryUI = {
         <circle cx="60" cy="32" r="22"/>
         <path d="M30 70 Q60 58 90 70 L98 150 L84 152 L80 108 L76 252 L62 252 L60 168 L58 252 L44 252 L40 108 L36 152 L22 150 Z"/>
       </svg>`;
+  },
+
+  // bar darah / energi / kelaparan / kehausan di bawah karakter (diperbarui Vitals tiap 0,25 detik saat inventory terbuka)
+  buildVitals() {
+    const rows = [['health', 'Darah'], ['energy', 'Energi'], ['hunger', 'Kenyang'], ['thirst', 'Minum']];
+    this.vitalsEl.innerHTML = rows.map(([k, label]) =>
+      `<div class="inv-vital ${k}" data-k="${k}"><span class="inv-vital-label">${label}</span>` +
+      `<span class="inv-vital-bar" role="progressbar" aria-label="${label}" aria-valuemin="0" aria-valuemax="100"><i></i></span>` +
+      `<b>100</b></div>`).join('');
+    this.vitalEls = {};
+    this.vitalsEl.querySelectorAll('.inv-vital').forEach((n) => { this.vitalEls[n.dataset.k] = n; });
+    Vitals.onChange(() => this.renderVitals());
+    this.renderVitals();
+  },
+
+  renderVitals() {
+    if (!this.open && this._vitalsDrawn) return;      // tidak perlu menyentuh DOM selagi layar inventory tertutup
+    this._vitalsDrawn = true;
+    for (const k of Vitals.KEYS) {
+      const n = this.vitalEls[k], val = Vitals.v[k], pct = Math.round(val);
+      n.querySelector('i').style.width = val + '%';
+      n.querySelector('b').textContent = pct;
+      n.querySelector('.inv-vital-bar').setAttribute('aria-valuenow', pct);
+      n.classList.toggle('low', val < 25);
+      n.classList.toggle('empty', val <= 0);
+    }
+    this.vitalsEl.classList.toggle('dead', Vitals.dead);
   },
 
   // slot perlengkapan di sekitar karakter (tas di samping kepala, tangan di samping badan, armor menutupi badan)

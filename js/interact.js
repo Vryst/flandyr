@@ -20,7 +20,7 @@ const Interact = {
       const o = Objects.nearby(Player.x, Player.y);
       if (o) {
         place = o.name;
-        if (o.interior) action = { key: 'obj:' + o.id, run: () => Interior.enter(o) };
+        if (o.interior) action = { key: 'obj:' + o.id, label: 'Masuk', run: () => Interior.enter(o) };
       }
     }
     this.current = action;
