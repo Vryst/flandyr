@@ -1445,16 +1445,11 @@ const Battle = {
   // arena acak: gambar seluruh layar sendiri (arena tetap digambar oleh Interior.draw yang memanggil drawGround / drawActors)
   drawExit(ctx) {
     const e = this.arena.exit; if (this.kind !== 'random' || !e) return;
-    const t = performance.now() / 1000, pulse = .5 + .5 * Math.sin(t * 3), R = e.r, hold = this.cfg().exitHoldSec || 1;
-    const g = ctx.createRadialGradient(e.x, e.y, R * .15, e.x, e.y, R * 1.1);
-    g.addColorStop(0, 'rgba(210,255,200,.75)'); g.addColorStop(.6, `rgba(120,230,150,${.30 + .15 * pulse})`); g.addColorStop(1, 'rgba(120,230,150,0)');
+    // lingkaran "KABUR" sengaja TIDAK digambar: pemain harus meraba sendiri jalan keluarnya. Pintunya tetap ada (tak terlihat); cincin progres baru muncul saat pemain berdiri di dalamnya.
+    if (!(this._exitT > 0)) return;
+    const R = e.r, hold = this.cfg().exitHoldSec || 1;
     ctx.save();
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(e.x, e.y, R * 1.1, 0, 6.3); ctx.fill();
-    ctx.setLineDash([9, 7]); ctx.lineDashOffset = -t * 20; ctx.strokeStyle = `rgba(190,255,200,${.7 + .3 * pulse})`; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.arc(e.x, e.y, R, 0, 6.3); ctx.stroke(); ctx.setLineDash([]);
-    if (this._exitT > 0) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(e.x, e.y, R + 8, -Math.PI / 2, -Math.PI / 2 + Math.min(1, this._exitT / hold) * 6.283); ctx.stroke(); }
-    ctx.font = '700 22px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.75)'; ctx.strokeText('KABUR', e.x, e.y); ctx.fillStyle = '#eaffea'; ctx.fillText('KABUR', e.x, e.y);
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(e.x, e.y, R + 8, -Math.PI / 2, -Math.PI / 2 + Math.min(1, this._exitT / hold) * 6.283); ctx.stroke();
     ctx.restore();
   },
   drawArena(ctx) {

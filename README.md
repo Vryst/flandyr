@@ -105,7 +105,7 @@ Kode: `battle-arena.js` (arena), `battle.js` (aturan, unit di map gede, AI monst
 - **Serangan sinkron waktu**: event serangan (monster & pemain) membawa waktu server. Perangkat yang menerimanya terlambat memajukan jam serangan sebesar keterlambatan (monster maks 60% windup, serangan pemain penuh maks 0,5 dtk), jadi peringatan merah & momen kena jatuh di detik yang sama di semua layar (`Battle.lagFor`).
 
 - **Arena hutan tanpa collision (sementara)**: `CONFIG.battle.arenas.forest.noCollision = true`. Pemain & monster bebas bergerak, hanya dibatasi tepi gambar arena. Hapus / `false` untuk mengaktifkan collision lagi.
-- **Pintu kabur di arena acak**: lingkaran hijau "KABUR" jauh dari spawn pemain (`exit: [x, y]` di template, px gambar; tanpa `exit` = titik terjauh dari spawn). Berdiri di dalamnya `CONFIG.battle.exitHoldSec` (1 dtk, ada lingkaran progres) = keluar arena (tombol Kabur tetap ada). Ukuran: `CONFIG.battle.exitR`.
+- **Pintu kabur di arena acak**: pintu TAK TERLIHAT (tidak digambar, pemain harus meraba sendiri; hanya cincin progres yang muncul saat berdiri di dalamnya) jauh dari spawn pemain (`exit: [x, y]` di template, px gambar; tanpa `exit` = titik terjauh dari spawn). Berdiri di dalamnya `CONFIG.battle.exitHoldSec` (1 dtk, ada lingkaran progres) = keluar arena (tombol Kabur tetap ada). Ukuran: `CONFIG.battle.exitR`.
 
 ### Map battle tetap lain (Padang & Reruntuhan Batu Runik)
 Dua map bergambar yang BUKAN arena acak. Konsepnya sama dengan Tower of Mabel: objek di peta dunia (`CONFIG.objects`: `runeglade` di 17300,17300 dan `runeruins` di 18700,17300) -> "Masuk" -> arena tetap + raid + Siaga.
