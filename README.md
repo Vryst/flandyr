@@ -115,3 +115,6 @@ Dua map bergambar yang BUKAN arena acak. Konsepnya sama dengan Tower of Mabel: o
 - Tiap objek punya room & raid sendiri: kunci room `tower:{startFloor objek}` (Mabel tetap `tower:0`, ini `tower:10` / `tower:11`). Unit `cycle` hanya masuk ke objek tempat dia berkemah (`home`): `serigala3` -> Padang, `bayangan2` -> Reruntuhan. Hapus unitnya di `CONFIG.battle.units` = map itu tanpa raid (Siaga tetap jalan).
 - Objek baru = tambah entri `CONFIG.objects` (`interior: true`, `startFloor`), lantai dengan `tower: '<id objek>'`, dan (opsional) unit `home: '<id objek>'`.
 - **Publish ulang `database.rules.json`**: progress sekarang menyimpan `obj` (objek yang sedang dimasuki) dan `floor` boleh sampai 99.
+
+### Kabur (semua map battle)
+Kabur dari pertarungan = berdiri di pintu keluar selama `CONFIG.battle.exitHoldSec` (1 dtk); keluar dari zona = hitungan ulang, cincin putih menunjukkan progres. Berlaku di arena acak (pintu tak terlihat), Halaman Mabel dan map battle tetap lainnya (zona "Keluar" ke peta dunia). Selama battle tombol aksi "Keluar" tidak muncul dan tombol "Kabur" instan disembunyikan (`randomFleeButton` / `fixedFleeButton` = true untuk menyalakannya lagi). Pindah lantai di menara tetap bebas.

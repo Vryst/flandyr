@@ -249,7 +249,9 @@ const Interior = {
       key: 'stair' + i, rect: st, label: st.dir === 'up' ? 'Naik' : st.dir === 'down' ? 'Turun' : 'Masuk',
       run: () => this.goTo(st.to, st.arrive),
     }));
-    if (fl.exit) out.push({ key: 'exit', rect: fl.exit, label: 'Keluar',
+    // keluar ke peta dunia saat battle = KABUR: tidak instan, harus diam di zona pintu selama CONFIG.battle.exitHoldSec (lihat Battle.fixedExit)
+    const fleeing = typeof Battle !== 'undefined' && Battle.active && Battle.kind === 'fixed' && fl.exit && fl.exit.to === undefined;
+    if (fl.exit && !fleeing) out.push({ key: 'exit', rect: fl.exit, label: 'Keluar',
       run: () => (fl.exit.to !== undefined ? this.goTo(fl.exit.to, fl.exit.arrive) : this.exit()) });
     return out;
   },

@@ -109,7 +109,8 @@ const BattleUI = {
     const on = Battle.active, e = this.el, show = Battle.controls();
     this.syncToggle();
     // Raid menara: tidak ada tombol Kabur instan. Kabur = betul-betul keluar dari Halaman Mabel (tombol aksi "Keluar"), lihat CONFIG.battle.fixedFleeButton
-    e.flee.hidden = !on || (Battle.kind === 'fixed' && !Battle.cfg().fixedFleeButton);
+    // Kabur selalu lewat pintu keluar + diam di sana `exitHoldSec` detik; tombol instan hanya muncul kalau dinyalakan di config (fixedFleeButton / randomFleeButton)
+    e.flee.hidden = !on || !(Battle.kind === 'fixed' ? Battle.cfg().fixedFleeButton : Battle.cfg().randomFleeButton);
     e.hud.hidden = e.stick.hidden = e.atk.hidden = !show;
     if (!on) e.boss.hidden = true;
   },

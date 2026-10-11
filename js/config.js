@@ -255,6 +255,7 @@ const CONFIG = {
 
     // Raid Tower of Mabel berlangsung di SELURUH menara (Halaman, lantai 1, 2, Atap). Player tetap bisa pakai tangga / pintu selama battle.
     // Kabur = player keluar dari Halaman ke peta dunia (pintu "Keluar" di Halaman). Pindah lantai di dalam menara BUKAN kabur.
+    randomFleeButton: false,   // true = tombol "Kabur" instan di arena acak (hutan) muncul lagi. Default: kabur hanya lewat pintu keluar + diam `exitHoldSec` detik
     fixedFleeButton: false,    // true = tombol "Kabur" instan di raid menara tetap ada (melewati aturan di atas)
     followFloors: true,        // monster yang sedang mengejar / dilukai pemain ikut naik-turun tangga ke lantai pemain itu (false = tetap di lantainya)
     transitCdSec: 2,           // jeda monster sebelum boleh lewat tangga lagi setelah pindah lantai

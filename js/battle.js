@@ -1268,7 +1268,8 @@ const Battle = {
       const e = this.arena.exit;
       this._exitT = Math.hypot(s.x - e.x, s.y - e.y) < e.r + CONFIG.player.radius * .5 ? (this._exitT || 0) + dt : 0;
       if (this._exitT >= (c.exitHoldSec || 1)) { this._exitT = 0; this.leave('Berhasil kabur!'); return; }
-    } else this._exitT = 0;
+    } else if (this.kind === 'fixed' && !this.down) { if (this.fixedExit(dt)) return; }
+    else this._exitT = 0;
 
     // kirim ke jaringan (dead reckoning: posisi + kecepatan; dikirim hanya kalau penerima akan salah memperkirakan)
     let ivx = (s.x - px) / Math.max(dt, 1e-3), ivy = (s.y - py) / Math.max(dt, 1e-3);
@@ -1293,6 +1294,17 @@ const Battle = {
       this._lastMons = ms; this.monSent(nowMs); BattleNet.sendMons(ms);
     }
     if (this.kind === 'fixed' && this.isHost) { this._holdT = (this._holdT || 0) + dt; if (this._holdT >= 30) { this._holdT = 0; this.touchHold(); } }   // raid masih hidup
+  },
+
+  // kabur dari map battle tetap (Mabel, Padang / Reruntuhan Batu Runik): berdiri di zona pintu "Keluar" ke peta dunia selama `exitHoldSec` detik (keluar zona = hitungan ulang)
+  fixedExit(dt) {
+    const ex = Interior.floor && Interior.floor.exit;
+    if (!ex || ex.to !== undefined || !Interior.near(ex)) { this._exitT = 0; return false; }
+    this._exitT = (this._exitT || 0) + dt;
+    if (this._exitT < (this.cfg().exitHoldSec || 1)) return false;
+    this._exitT = 0;
+    const t = Interior.tower; this.leave('Berhasil kabur!'); if (t && Interior.active) Interior.exit();
+    return true;
   },
 
   // tumbang: darah dipulihkan sedikit, keluar dari battle / menara, muncul lagi di CONFIG.battle.respawn (peta dunia)
@@ -1337,6 +1349,10 @@ const Battle = {
       ctx.beginPath();
       if (s.t === 'circle') ctx.arc(s.x, s.y, rr, 0, 6.3); else ctx.arc(s.x, s.y, Math.max(0, s.r * a), 0, 6.3);
       ctx.fill(); ctx.restore();
+    }
+    if (this.kind === 'fixed' && this._exitT > 0 && this.self) {      // cincin progres kabur di sekitar pemain
+      ctx.save(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 6;
+      ctx.beginPath(); ctx.arc(this.self.x, this.self.y, this.visR() + 14, -Math.PI / 2, -Math.PI / 2 + Math.min(1, this._exitT / (this.cfg().exitHoldSec || 1)) * 6.283); ctx.stroke(); ctx.restore();
     }
     if (this.aim && !this.down) {
       const w = this.weapon().def[this.aim.kind];
