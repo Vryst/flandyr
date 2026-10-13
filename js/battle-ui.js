@@ -117,7 +117,7 @@ const BattleUI = {
 
   // Siaga / Santai hanya ada di map battle (di dalam menara). Di peta dunia tidak ada. Saat battle menara tanpa monster hidup tombolnya jadi Santai.
   syncToggle() {
-    const e = this.el, show = Battle.active ? (Battle.kind === 'fixed' && Battle.relaxOk()) : Interior.active;
+    const e = this.el, show = Battle.active ? (Battle.kind === 'fixed' && Battle.relaxOk()) : (Interior.active && Interior.hasBattle());
     if (e.toggle.hidden === show) e.toggle.hidden = !show;
     const t = Battle.siaga ? '☮ Santai' : '⚔ Siaga';
     if (e.toggle.textContent !== t) { e.toggle.textContent = t; e.toggle.classList.toggle('on', Battle.siaga); }

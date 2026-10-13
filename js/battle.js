@@ -68,7 +68,7 @@ const Battle = {
   setSiaga(on) {
     if (this.busy) return;
     if (this.active) { if (!on && this.kind === 'fixed' && this.relaxOk()) this.leave(); return; }
-    if (on && (!Interior.active || !this.cfg().enabled)) return;
+    if (on && (!Interior.active || !Interior.hasBattle() || !this.cfg().enabled)) return;
     this.siaga = false; this.input.mx = this.input.my = 0;
     if (on) { this.enter(this.available() || { type: 'fixed', key: this.raidKey(), floorId: Interior.floorId, tower: Interior.tower && Interior.tower.id, spawns: [], units: [], angles: [] }); return; }
     BattleUI.refresh();
@@ -300,7 +300,7 @@ const Battle = {
     return u.cycle ? { x: c.x, y: c.y + c.r + u.radius * .5, home: true } : { x: c.x, y: c.y, home: false };
   },
   nearSolid(x, y, m) {
-    for (const o of CONFIG.objects) if (o.radius && Math.hypot(x - o.x, y - o.y) < o.radius + m) return true;
+    for (const o of CONFIG.objects) if (!o.hidden && o.radius && Math.hypot(x - o.x, y - o.y) < o.radius + m) return true;
     return false;
   },
   legOk(u, a, b) {
@@ -498,7 +498,7 @@ const Battle = {
     if (u.arena === 'random') return null;
     let obj = null;
     for (const o of CONFIG.objects) {      // bentrok di dekat objek battle mana pun = map objek itu
-      if (!o.interior) continue;
+      if (!o.interior || o.hidden) continue;
       if (Math.hypot(Player.x - o.x, Player.y - o.y) <= o.radius + (c.fixedMargin || 50)) { obj = o; break; }
     }
     if (!obj && u.arena === 'fixed') obj = this.towerOf(u);       // dipaksa: map tempat unit berkemah

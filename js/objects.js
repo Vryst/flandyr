@@ -1,7 +1,7 @@
 // Objek dunia berbentuk lingkaran (menara, dll). Daftar ada di CONFIG.objects.
 // Sudah disiapkan untuk fitur interaksi: Objects.hitTest() (klik kena objek?) dan Objects.nearby() (player cukup dekat?).
 const Objects = {
-  list: CONFIG.objects,
+  list: CONFIG.objects.filter((o) => !o.hidden),     // objek `hidden: true` tidak digambar / tidak bisa diklik / dimasuki
 
   // path sprite untuk loader: { 'obj:tower': 'assets/...' }
   assetList() {

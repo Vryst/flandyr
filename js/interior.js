@@ -44,6 +44,11 @@ const Interior = {
 
   get floor() { return this.floors[this.floorId]; },
 
+  // objek yang sedang dimasuki punya map battle (lantai dengan `battle`)? false = map interaksi biasa (mis. Kota): tanpa Siaga / raid
+  hasBattle(obj = this.tower) {
+    return !!obj && CONFIG.interior.floors.some((f) => f.battle && (f.tower || 'tower') === obj.id);
+  },
+
   // lantai tempat pemain muncul waktu masuk objek (CONFIG.objects[].startFloor; tanpa = CONFIG.interior.startFloor, yaitu Halaman Mabel)
   startFloorOf(obj) { return obj && obj.startFloor !== undefined ? obj.startFloor : (CONFIG.interior.startFloor || 0); },
 

@@ -48,10 +48,10 @@ const CONFIG = {
     {
       id: 'tower',
       name: 'Tower of Mabel',
-      x: 18000,
-      y: 18000,
-      radius: 90,
-      interactRadius: 90,           // = radius: tombol Masuk muncul begitu player ada di dalam lingkaran
+      x: 17724,
+      y: 16530,
+      radius: 40,
+      interactRadius: 40,           // = radius: tombol Masuk muncul begitu player ada di dalam lingkaran
       interior: true,               // punya bagian dalam (lihat CONFIG.interior)
       sprite: 'assets/images/objects/tower.png',
     },
@@ -61,10 +61,10 @@ const CONFIG = {
     {
       id: 'runeglade',
       name: 'Padang Batu Runik',
-      x: 17300,
-      y: 17300,
-      radius: 70,
-      interactRadius: 70,
+      x: 17524,
+      y: 16530,
+      radius: 32,
+      interactRadius: 32,
       interior: true,
       startFloor: 10,
       sprite: 'assets/images/objects/runeglade.png',
@@ -72,13 +72,99 @@ const CONFIG = {
     {
       id: 'runeruins',
       name: 'Reruntuhan Batu Runik',
-      x: 18700,
-      y: 17300,
-      radius: 70,
-      interactRadius: 70,
+      x: 17924,
+      y: 16530,
+      radius: 32,
+      interactRadius: 32,
       interior: true,
       startFloor: 11,
       sprite: 'assets/images/objects/runeruins.png',
+    },
+    // Kota: map INTERAKSI (bukan map battle). Cakupannya luas, jadi lingkarannya besar. Tanpa `battle` di lantainya = tidak ada Siaga / raid / monster di dalam.
+    {
+      id: 'town',
+      hidden: true,                 // sementara disembunyikan (tidak digambar / tidak bisa dimasuki). Hapus baris ini untuk menampilkan lagi
+      name: 'Kota Flandyr',
+      x: 17700,
+      y: 15200,
+      radius: 200,
+      interactRadius: 200,          // masuk ke mana saja di dalam lingkaran = tombol Masuk muncul
+      interior: true,
+      startFloor: 12,
+      sprite: 'assets/images/objects/town.png',
+    },
+    // Kerajaan: kota berbenteng, juga map INTERAKSI (tanpa battle, tanpa collision). Lingkaran lebih besar dari kota karena cakupannya lebih luas.
+    {
+      id: 'kingdom',
+      hidden: true,                 // sementara disembunyikan (tidak digambar / tidak bisa dimasuki). Hapus baris ini untuk menampilkan lagi
+      name: 'Kerajaan Flandyr',
+      x: 19400,
+      y: 14700,
+      radius: 290,
+      interactRadius: 290,
+      interior: true,
+      startFloor: 13,
+      sprite: 'assets/images/objects/kingdom.png',
+    },
+    // Kerajaan Oktara: kota berbenteng bertembok segi delapan, map INTERAKSI (tanpa battle, tanpa collision).
+    {
+      id: 'kingdom2',
+      hidden: true,                 // sementara disembunyikan (tidak digambar / tidak bisa dimasuki). Hapus baris ini untuk menampilkan lagi
+      name: 'Kerajaan Oktara',
+      x: 18000,
+      y: 9600,
+      radius: 280,
+      interactRadius: 280,
+      interior: true,
+      startFloor: 14,
+      sprite: 'assets/images/objects/kingdom2.png',
+    },
+    // Desa Marenta: desa dengan pasar melingkar, map INTERAKSI (tanpa battle, tanpa collision).
+    {
+      id: 'town2',
+      hidden: true,                 // sementara disembunyikan (tidak digambar / tidak bisa dimasuki). Hapus baris ini untuk menampilkan lagi
+      name: 'Desa Marenta',
+      x: 20800,
+      y: 9800,
+      radius: 200,
+      interactRadius: 200,
+      interior: true,
+      startFloor: 15,
+      sprite: 'assets/images/objects/town2.png',
+    },
+    // Kamp: map INTERAKSI (tanpa battle, tanpa collision). Letaknya dirapatkan di dekat spawn.
+    {
+      id: 'camp1',
+      name: 'Kamp Pedagang',
+      x: 17524,
+      y: 16830,
+      radius: 36,
+      interactRadius: 36,
+      interior: true,
+      startFloor: 16,
+      sprite: 'assets/images/objects/camp1.png',
+    },
+    {
+      id: 'camp2',
+      name: 'Kamp Gurun',
+      x: 17724,
+      y: 16830,
+      radius: 36,
+      interactRadius: 36,
+      interior: true,
+      startFloor: 17,
+      sprite: 'assets/images/objects/camp2.png',
+    },
+    {
+      id: 'camp3',
+      name: 'Kamp Hutan',
+      x: 17924,
+      y: 16830,
+      radius: 36,
+      interactRadius: 36,
+      interior: true,
+      startFloor: 18,
+      sprite: 'assets/images/objects/camp3.png',
     },
   ],
 
@@ -162,6 +248,80 @@ const CONFIG = {
         exit: { x: 380, y: 950, w: 130, h: 64 },       // ujung jalan tanah di bawah -> peta dunia
         spawn: { x: 475, y: 760 }, fixedSpawn: true,   // di jalan tanah, di depan tangga reruntuhan
       },
+
+      // ---- Map interaksi: Kota (BUKAN map battle) ----
+      // Tanpa `battle` -> tidak ada tombol Siaga, raid, atau monster. Sementara TANPA collision: `walls` = seluruh gambar, `blocked` & `blockedPolys` kosong, jadi pemain bebas jalan ke mana saja.
+      // Gambar 1842 x 2304 = 1:1 dengan lantai ter-scale (w / h di bawah = px gambar / 2). Mau pasang collision nanti: isi `blocked` ([x, y, w, h]) / `blockedPolys` (poligon), koordinat = px gambar / 2.
+      {
+        id: 12, tower: 'town', image: 'assets/images/tower/town.jpg', w: 921, h: 1152, label: 'Pusat Kota', zoom: 1.8,
+        walls: [[10,10],[911,10],[911,1142],[10,1142]],
+        blocked: [],
+        blockedPolys: [],
+        stairs: [],
+        exit: { x: 875, y: 1085, w: 46, h: 45 },       // ujung jalan di kanan bawah -> peta dunia (keluar di bawah lingkaran kota)
+        spawn: { x: 750, y: 1050 }, fixedSpawn: true,  // di jalan, tak jauh dari pintu keluar
+      },
+      // Kerajaan (kota berbenteng, gambar 1856 x 2288): juga map interaksi, tanpa battle & tanpa collision.
+      {
+        id: 13, tower: 'kingdom', image: 'assets/images/tower/kingdom.jpg', w: 928, h: 1144, label: 'Dalam Tembok', zoom: 1.8,
+        walls: [[10,10],[918,10],[918,1134],[10,1134]],
+        blocked: [],
+        blockedPolys: [],
+        stairs: [],
+        exit: { x: 660, y: 1088, w: 55, h: 34 },       // ujung jalan di bawah gerbang -> peta dunia (keluar di bawah lingkaran kerajaan)
+        spawn: { x: 685, y: 1015 }, fixedSpawn: true,  // di jembatan gerbang depan istana
+      },
+      // Kerajaan Oktara (tembok segi delapan + istana, gambar 2048 x 2048): map interaksi, tanpa battle & TANPA collision.
+      // Koordinat = px gambar / 2. Mau pasang collision nanti: isi `blocked` / `blockedPolys` (tembok, rumah, istana).
+      {
+        id: 14, tower: 'kingdom2', image: 'assets/images/tower/kingdom2.jpg', w: 1024, h: 1024, label: 'Dalam Tembok', zoom: 1.8,
+        walls: [[10,10],[1014,10],[1014,1014],[10,1014]],
+        blocked: [],
+        blockedPolys: [],
+        stairs: [],
+        exit: { x: 470, y: 972, w: 90, h: 42 },        // jalan di luar gerbang selatan -> peta dunia (keluar di bawah lingkaran kerajaan)
+        spawn: { x: 505, y: 868 }, fixedSpawn: true,   // di jalan dalam tembok, tepat di depan gerbang selatan
+      },
+      // Desa Marenta (pasar melingkar di tengah, gambar 1684 x 2528): map interaksi, tanpa battle & TANPA collision. Koordinat = px gambar / 2.
+      {
+        id: 15, tower: 'town2', image: 'assets/images/tower/town2.jpg', w: 842, h: 1264, label: 'Pasar Desa', zoom: 1.8,
+        walls: [[10,10],[832,10],[832,1254],[10,1254]],
+        blocked: [],
+        blockedPolys: [],
+        stairs: [],
+        exit: { x: 380, y: 1205, w: 90, h: 50 },       // ujung jalan di bawah -> peta dunia (keluar di bawah lingkaran desa)
+        spawn: { x: 442, y: 1106 }, fixedSpawn: true,  // di jalan, tak jauh dari pintu keluar
+      },
+
+      // ---- Kamp (map interaksi, tanpa battle & TANPA collision) ----
+      // Gambar di-upscale 2x dari aslinya; w / h = ukuran gambar asli (px gambar / 2). Mau pasang collision nanti: isi `blocked` / `blockedPolys`.
+      {
+        id: 16, tower: 'camp1', image: 'assets/images/tower/camp1.jpg', w: 1024, h: 1024, label: 'Kamp Pedagang', zoom: 1.8,
+        walls: [[10,10],[1014,10],[1014,1014],[10,1014]],
+        blocked: [],
+        blockedPolys: [],
+        stairs: [],
+        exit: { x: 600, y: 955, w: 150, h: 59 },       // rumput di bawah -> peta dunia
+        spawn: { x: 650, y: 880 }, fixedSpawn: true,
+      },
+      {
+        id: 17, tower: 'camp2', image: 'assets/images/tower/camp2.jpg', w: 900, h: 1600, label: 'Kamp Gurun', zoom: 1.8,
+        walls: [[10,10],[890,10],[890,1590],[10,1590]],
+        blocked: [],
+        blockedPolys: [],
+        stairs: [],
+        exit: { x: 370, y: 1530, w: 160, h: 60 },      // jalur pasir di bawah -> peta dunia
+        spawn: { x: 450, y: 1280 }, fixedSpawn: true,
+      },
+      {
+        id: 18, tower: 'camp3', image: 'assets/images/tower/camp3.jpg', w: 736, h: 1308, label: 'Kamp Hutan', zoom: 1.8,
+        walls: [[10,10],[726,10],[726,1298],[10,1298]],
+        blocked: [],
+        blockedPolys: [],
+        stairs: [],
+        exit: { x: 310, y: 1250, w: 130, h: 48 },      // jalan setapak di bawah -> peta dunia
+        spawn: { x: 370, y: 1080 }, fixedSpawn: true,
+      },
     ],
   },
 
@@ -233,15 +393,8 @@ const CONFIG = {
     //   cycle   : { every, in }. Unit berkemah di objek yang punya interior (menara): tiap `every` leg perjalanan, satu leg menuju pintu menara; masuk,
     //             menunggu `in` detik di dalam (pemain yang masuk menara langsung bertemu mereka di Halaman = raid), lalu keluar lagi dan berkelana.
     //   aggro / chaseSpeed : bila player lebih dekat dari `aggro` (px) unit mengejar dengan `chaseSpeed` (px/detik); `chase: false` = tidak mengejar
-    units: [
-      { id: 'serigala1', name: 'Kawanan Serigala', home: 'tower', roam: 3200, speed: 48, radius: 15, pack: ['serigala', 'serigala', 'serigala'], respawnSec: 180, cycle: { every: 4, in: 70 } },
-      { id: 'troll1',    name: 'Troll',            home: 'tower', roam: 1800, speed: 26, radius: 24, pack: ['troll'], respawnSec: 300, cycle: { every: 4, in: 90 }, aggro: 130 },
-      { id: 'bayangan1', name: 'Bayangan',         home: 'tower', roam: 2600, speed: 38, radius: 16, pack: ['bayangan', 'bayangan'], respawnSec: 180, cycle: { every: 5, in: 80 } },
-      { id: 'serigala2', name: 'Serigala',         home: { x: 17500, y: 16500 }, roam: 2800, speed: 48, radius: 15, pack: ['serigala', 'serigala'], respawnSec: 120 },
-      // unit untuk map battle tetap lainnya: berkemah di objeknya sendiri & keluar-masuk seperti unit Mabel (hapus baris = map itu tanpa raid, tetap bisa Siaga)
-      { id: 'serigala3', name: 'Serigala Runik',   home: 'runeglade', roam: 2200, speed: 44, radius: 15, pack: ['serigala', 'serigala'], respawnSec: 180, cycle: { every: 4, in: 70 } },
-      { id: 'bayangan2', name: 'Bayangan Runik',   home: 'runeruins', roam: 2200, speed: 36, radius: 16, pack: ['bayangan', 'serigala'], respawnSec: 180, cycle: { every: 5, in: 80 } },
-    ],
+    // DATA UNIT DIKOSONGKAN sementara (belum ada monster di map gede / raid menara). Format entri: { id, name, home, roam, speed, radius, pack, respawnSec, cycle?, aggro? } -> lihat penjelasan di atas.
+    units: [],
     // MODE TES: semua unit `cycle` (serigala1, troll1, bayangan1) mengitari menara dekat-dekat lalu masuk pintu BARENGAN tiap `period` detik (jam server, jadi semua pemain sama).
     // approach = detik jalan dari titik awal ke pintu, ring = jarak titik awal dari menara (px), stagger = jeda antar unit (detik; 0 = barengan). Set null untuk jadwal normal. Console: Battle.testInfo()
     testSync: null,

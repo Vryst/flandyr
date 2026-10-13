@@ -118,3 +118,14 @@ Dua map bergambar yang BUKAN arena acak. Konsepnya sama dengan Tower of Mabel: o
 
 ### Kabur (semua map battle)
 Kabur dari pertarungan = berdiri di pintu keluar selama `CONFIG.battle.exitHoldSec` (1 dtk); keluar dari zona = hitungan ulang, cincin putih menunjukkan progres. Berlaku di arena acak (pintu tak terlihat), Halaman Mabel dan map battle tetap lainnya (zona "Keluar" ke peta dunia). Selama battle tombol aksi "Keluar" tidak muncul dan tombol "Kabur" instan disembunyikan (`randomFleeButton` / `fixedFleeButton` = true untuk menyalakannya lagi). Pindah lantai di menara tetap bebas.
+
+## Map interaksi: Kota Flandyr
+Objek `town` di `CONFIG.objects` (lingkaran, `radius: 200`) -> klik 2x / tombol **Masuk** -> lantai `id: 12` di `CONFIG.interior.floors` (gambar `assets/images/tower/town.jpg`). Ini BUKAN map battle: lantainya tanpa `battle`, jadi tidak ada tombol Siaga, raid, atau monster di dalam (`Interior.hasBattle()`). Sementara tanpa collision (`blocked` / `blockedPolys` kosong): pemain bebas jalan ke mana saja. Pintu keluar di ujung jalan kanan bawah.
+
+ Mau geser / ubah ukuran lingkaran di peta dunia: `x`, `y`, `radius`, `interactRadius` objek `town`.
+
+## Kerajaan Oktara (map interaksi kedua)
+Objek `kingdom2` di `CONFIG.objects` (x 18000, y 9600, `radius` 280, di daratan timur laut danau) -> klik 2x / tombol **Masuk** -> lantai `id: 14` (gambar `assets/images/tower/kingdom2.jpg`, 2048 x 2048, tembok segi delapan + istana). Sama seperti Kota & Kerajaan Flandyr: tanpa `battle` (tidak ada Siaga / raid / monster) dan **tanpa collision** (`blocked` / `blockedPolys` kosong, pemain bebas ke mana saja, hanya dibatasi tepi gambar). Pemain muncul di jalan dalam gerbang selatan; keluar lewat jalan di luar gerbang. Ikon peta dunia: `assets/images/objects/kingdom2.png`. Tekan `B` di dalam map untuk melihat zona keluar. Pasang collision nanti: isi `blockedPolys` (tembok, rumah, istana), koordinat = px gambar / 2.
+
+## Desa Marenta (map interaksi ketiga)
+Objek `town2` (x 20800, y 9800, `radius` 200) -> lantai `id: 15` (`assets/images/tower/town2.jpg`, 1684 x 2528, pasar melingkar di tengah). Tanpa battle & tanpa collision, sama seperti Kota / Kerajaan lain. Ikon: `assets/images/objects/town2.png`. Spawn di jalan selatan pasar, keluar di ujung jalan bawah.
