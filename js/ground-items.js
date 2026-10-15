@@ -20,7 +20,7 @@ const GroundItems = {
   init() {
     this.list = [];
     this.bags = [];
-    for (const it of CONFIG.worldItems || []) this.drop(it.id, it.x, it.y);
+    for (const it of CONFIG.worldItems || []) this.drop(it.id, it.x, it.y, it.loc || 'world');
     for (const b of CONFIG.worldBags || []) {
       const bag = CONFIG.inventory.bags[b.bag];
       if (!bag) continue;

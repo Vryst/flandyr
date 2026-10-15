@@ -359,6 +359,9 @@ const CONFIG = {
   // Barang tergeletak di dunia (di luar tas): { id: 'pisau', x: 17800, y: 17400 }
   worldItems: [
     { id: 'pisau', x: 17780, y: 16700 },
+    // Atap (lantai 3) Tower of Mabel: `loc` = 'tower:<id objek>:<lantai>', koordinat = px lantai ter-scale (px gambar x CONFIG.interior.scale)
+    { id: 'pisau', x: 1280, y: 660, loc: 'tower:tower:3' },
+    { id: 'pisau', x: 1400, y: 690, loc: 'tower:tower:3' },
   ],
 
   // Tas tergeletak di dunia, lengkap dengan isinya: { bag: 'backpack', x, y, items: ['pisau'] }
