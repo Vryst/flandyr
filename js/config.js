@@ -393,8 +393,24 @@ const CONFIG = {
     //   cycle   : { every, in }. Unit berkemah di objek yang punya interior (menara): tiap `every` leg perjalanan, satu leg menuju pintu menara; masuk,
     //             menunggu `in` detik di dalam (pemain yang masuk menara langsung bertemu mereka di Halaman = raid), lalu keluar lagi dan berkelana.
     //   aggro / chaseSpeed : bila player lebih dekat dari `aggro` (px) unit mengejar dengan `chaseSpeed` (px/detik); `chase: false` = tidak mengejar
-    // DATA UNIT DIKOSONGKAN sementara (belum ada monster di map gede / raid menara). Format entri: { id, name, home, roam, speed, radius, pack, respawnSec, cycle?, aggro? } -> lihat penjelasan di atas.
-    units: [],
+    // Format entri: { id, name, home, roam, speed, radius, pack, respawnSec, cycle?, aggro? } -> lihat penjelasan di atas.
+    units: [
+      // Tower of Mabel: tiga unit berkemah di menara, keluar-masuk lewat pintu (raid di Halaman)
+      { id: 'serigala1', name: 'Kawanan Serigala', home: 'tower', roam: 1500, speed: 40, radius: 16,
+        pack: ['serigala', 'serigala'], respawnSec: 180, cycle: { every: 4, in: 120 } },
+      { id: 'bayangan1', name: 'Bayangan', home: 'tower', roam: 1800, speed: 34, radius: 16,
+        pack: ['bayangan'], respawnSec: 240, cycle: { every: 5, in: 120 } },
+      { id: 'troll1', name: 'Troll', home: 'tower', roam: 2000, speed: 24, radius: 26,
+        pack: ['troll'], respawnSec: 600, cycle: { every: 6, in: 150 } },
+      // Padang Batu Runik & Reruntuhan Batu Runik: satu unit tiap map battle tetap
+      { id: 'serigala3', name: 'Kawanan Serigala', home: 'runeglade', roam: 1200, speed: 40, radius: 16,
+        pack: ['serigala', 'serigala', 'serigala'], respawnSec: 180, cycle: { every: 4, in: 120 } },
+      { id: 'bayangan2', name: 'Bayangan', home: 'runeruins', roam: 1200, speed: 34, radius: 16,
+        pack: ['bayangan'], respawnSec: 240, cycle: { every: 4, in: 120 } },
+      // Serigala liar di peta gede (tanpa menara) -> arena acak sesuai medan
+      { id: 'serigala2', name: 'Serigala Liar', home: { x: 17724, y: 16000 }, roam: 1500, speed: 40, radius: 16,
+        pack: ['serigala'], respawnSec: 120 },
+    ],
     // MODE TES: semua unit `cycle` (serigala1, troll1, bayangan1) mengitari menara dekat-dekat lalu masuk pintu BARENGAN tiap `period` detik (jam server, jadi semua pemain sama).
     // approach = detik jalan dari titik awal ke pintu, ring = jarak titik awal dari menara (px), stagger = jeda antar unit (detik; 0 = barengan). Set null untuk jadwal normal. Console: Battle.testInfo()
     testSync: null,
